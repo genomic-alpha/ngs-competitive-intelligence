@@ -2017,6 +2017,80 @@ const ProductsView = ({ products, indicationFilter }) => {
         </div>
       </div>
 
+      {/* Product Analytics */}
+      {filteredProducts.length > 0 && (
+        <div className="grid grid-cols-3 gap-4">
+          {/* Regulatory Breakdown Pie */}
+          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <h3 className="text-sm font-bold text-white mb-2">Regulatory Status</h3>
+            <ResponsiveContainer width="100%" height={180}>
+              <PieChart>
+                <Pie data={(() => {
+                  const counts = {};
+                  filteredProducts.forEach(p => { counts[p.regulatory] = (counts[p.regulatory] || 0) + 1; });
+                  const colors = { 'FDA PMA': '#10b981', 'FDA 510(k)': '#34d399', 'CE-IVD': '#3b82f6', 'CE-IVDR': '#6366f1', 'RUO': '#6b7280', 'CLIA/CAP': '#f59e0b', 'ISO 13485': '#8b5cf6', 'Open Source': '#06b6d4' };
+                  return Object.entries(counts).map(([key, val]) => ({ name: key, value: val, color: colors[key] || '#6b7280' })).sort((a, b) => b.value - a.value);
+                })()} cx="50%" cy="50%" innerRadius={35} outerRadius={65} dataKey="value" label={({ name, value }) => `${name}: ${value}`} labelLine={false}>
+                  {(() => {
+                    const counts = {};
+                    filteredProducts.forEach(p => { counts[p.regulatory] = (counts[p.regulatory] || 0) + 1; });
+                    const colors = { 'FDA PMA': '#10b981', 'FDA 510(k)': '#34d399', 'CE-IVD': '#3b82f6', 'CE-IVDR': '#6366f1', 'RUO': '#6b7280', 'CLIA/CAP': '#f59e0b', 'ISO 13485': '#8b5cf6', 'Open Source': '#06b6d4' };
+                    return Object.entries(counts).map(([key], idx) => <Cell key={idx} fill={colors[key] || '#6b7280'} />);
+                  })()}
+                </Pie>
+                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          {/* Growth Status Breakdown */}
+          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <h3 className="text-sm font-bold text-white mb-2">Growth Status</h3>
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={(() => {
+                const growthMap = { growing: { label: 'Growing', color: '#10b981', count: 0, share: 0 }, emerging: { label: 'Emerging', color: '#3b82f6', count: 0, share: 0 }, stable: { label: 'Stable', color: '#6b7280', count: 0, share: 0 }, declining: { label: 'Declining', color: '#ef4444', count: 0, share: 0 } };
+                filteredProducts.forEach(p => { if (p.growth && growthMap[p.growth]) { growthMap[p.growth].count++; growthMap[p.growth].share += (p.share || 0); } });
+                return Object.values(growthMap).filter(g => g.count > 0);
+              })()}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis dataKey="label" stroke="#9ca3af" fontSize={11} />
+                <YAxis stroke="#9ca3af" fontSize={11} />
+                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+                  formatter={(val, name, entry) => [name === 'count' ? `${val} products` : `${val.toFixed(1)}% share`, name === 'count' ? 'Products' : 'Combined Share']} />
+                <Bar dataKey="count" name="count" radius={[4, 4, 0, 0]}>
+                  {(() => {
+                    const growthMap = { growing: '#10b981', emerging: '#3b82f6', stable: '#6b7280', declining: '#ef4444' };
+                    const data = [];
+                    filteredProducts.forEach(p => { if (p.growth && !data.includes(p.growth)) data.push(p.growth); });
+                    return Object.keys(growthMap).filter(k => data.includes(k) || true).map((k, i) => <Cell key={i} fill={growthMap[k]} />);
+                  })()}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          {/* Price Distribution by Category */}
+          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <h3 className="text-sm font-bold text-white mb-2">Avg Price by Category</h3>
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={(() => {
+                const catMap = {};
+                filteredProducts.forEach(p => {
+                  if (!catMap[p.category]) catMap[p.category] = { category: p.category, total: 0, count: 0 };
+                  if (p.pricing > 0) { catMap[p.category].total += p.pricing; catMap[p.category].count++; }
+                });
+                return Object.values(catMap).map(c => ({ ...c, avg: c.count > 0 ? Math.round(c.total / c.count) : 0 })).filter(c => c.avg > 0);
+              })()}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis dataKey="category" stroke="#9ca3af" fontSize={10} />
+                <YAxis stroke="#9ca3af" fontSize={11} />
+                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+                  formatter={(val, name, entry) => [`$${val} avg (${entry.payload.count} products)`, 'Avg Price']} />
+                <Bar dataKey="avg" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
       {/* Content */}
       {viewStyle === 'grid' ? (
         <div className="space-y-6">
@@ -2159,6 +2233,54 @@ const VendorsView = ({ products, indicationFilter }) => {
         })}
         {selectedCategories.length > 0 && <button onClick={() => setSelectedCategories([])} className="text-xs text-blue-400 hover:text-blue-300 ml-1">Clear</button>}
       </div>
+
+      {/* Vendor Analytics */}
+      {vendorStats.length > 0 && (
+        <div className="grid grid-cols-2 gap-4">
+          {/* Category Coverage Radar */}
+          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <h3 className="text-sm font-bold text-white mb-2">Category Coverage (Top 8 Vendors)</h3>
+            <ResponsiveContainer width="100%" height={260}>
+              <RadarChart data={CATEGORIES.map(cat => {
+                const entry = { category: cat };
+                vendorStats.slice(0, 8).forEach(v => {
+                  entry[v.label] = v.productList.filter(p => p.category === cat).reduce((s, p) => s + (p.share || 0), 0);
+                });
+                return entry;
+              })}>
+                <PolarGrid stroke="#374151" />
+                <PolarAngleAxis dataKey="category" stroke="#9ca3af" fontSize={10} />
+                {vendorStats.slice(0, 8).map((v, i) => (
+                  <Radar key={v.key} name={v.label} dataKey={v.label} stroke={v.color} fill={v.color} fillOpacity={0.1} strokeWidth={2} />
+                ))}
+                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} />
+                <Legend wrapperStyle={{ fontSize: '10px' }} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+          {/* Tier Distribution Across Vendors */}
+          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <h3 className="text-sm font-bold text-white mb-2">Tier Distribution by Vendor (Top 12)</h3>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={vendorStats.slice(0, 12).map(v => ({
+                vendor: v.label.length > 12 ? v.label.substring(0, 12) + '…' : v.label,
+                'Tier A': v.tierCounts.A || 0,
+                'Tier B': v.tierCounts.B || 0,
+                'Tier C': v.tierCounts.C || 0,
+              }))} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis type="number" stroke="#9ca3af" fontSize={11} />
+                <YAxis dataKey="vendor" type="category" stroke="#9ca3af" width={100} fontSize={10} interval={0} />
+                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} />
+                <Legend wrapperStyle={{ fontSize: '10px' }} />
+                <Bar dataKey="Tier A" stackId="a" fill="#10b981" />
+                <Bar dataKey="Tier B" stackId="a" fill="#3b82f6" />
+                <Bar dataKey="Tier C" stackId="a" fill="#6b7280" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       {/* Vendor Cards */}
       <div className="space-y-4">
@@ -2420,6 +2542,59 @@ const CompareView = ({ products, indicationFilter }) => {
                   {vendorChartData.map((entry, idx) => <Cell key={idx} fill={entry.color} r={Math.max(6, Math.sqrt(entry.share) * 3)} />)}
                 </Scatter>
               </ScatterChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Extended Analytics */}
+      {filteredProducts.length > 0 && (
+        <div className="grid grid-cols-2 gap-6">
+          {/* Regulatory Breakdown */}
+          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <h3 className="text-sm font-bold text-white mb-3">Regulatory Status by Vendor</h3>
+            <ResponsiveContainer width="100%" height={Math.max(200, vendorChartData.length * 28)}>
+              <BarChart data={(() => {
+                const map = {};
+                filteredProducts.forEach(p => {
+                  const v = VENDORS.find(v => v.key === p.vendor);
+                  const vLabel = v?.label || p.vendor;
+                  if (!map[vLabel]) map[vLabel] = { vendor: vLabel.length > 14 ? vLabel.substring(0, 14) + '…' : vLabel, 'IVD/Cleared': 0, 'RUO': 0, 'Service': 0 };
+                  if (['CE-IVD','CE-IVDR','FDA PMA','FDA 510(k)','FDA EUA'].includes(p.regulatory)) map[vLabel]['IVD/Cleared']++;
+                  else if (['CLIA/CAP'].includes(p.regulatory)) map[vLabel]['Service']++;
+                  else map[vLabel]['RUO']++;
+                });
+                return Object.values(map).sort((a, b) => (b['IVD/Cleared'] + b['RUO'] + b['Service']) - (a['IVD/Cleared'] + a['RUO'] + a['Service'])).slice(0, 12);
+              })()} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis type="number" stroke="#9ca3af" fontSize={11} />
+                <YAxis dataKey="vendor" type="category" stroke="#9ca3af" width={110} fontSize={10} interval={0} />
+                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} />
+                <Legend wrapperStyle={{ fontSize: '10px' }} />
+                <Bar dataKey="IVD/Cleared" stackId="a" fill="#10b981" />
+                <Bar dataKey="RUO" stackId="a" fill="#6b7280" />
+                <Bar dataKey="Service" stackId="a" fill="#f59e0b" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          {/* Regional Share Radar */}
+          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <h3 className="text-sm font-bold text-white mb-3">Regional Footprint (Top 6 Vendors)</h3>
+            <ResponsiveContainer width="100%" height={Math.max(200, vendorChartData.length * 28)}>
+              <RadarChart data={[
+                { region: 'North America', ...Object.fromEntries(vendorChartData.slice(0, 6).map(v => [v.vendor, filteredProducts.filter(p => VENDORS.find(vv => vv.key === p.vendor)?.label === v.vendor).reduce((s, p) => s + (p.regionalShare?.na || 0), 0)])) },
+                { region: 'W. Europe', ...Object.fromEntries(vendorChartData.slice(0, 6).map(v => [v.vendor, filteredProducts.filter(p => VENDORS.find(vv => vv.key === p.vendor)?.label === v.vendor).reduce((s, p) => s + (p.regionalShare?.we || 0), 0)])) },
+                { region: 'High-Growth', ...Object.fromEntries(vendorChartData.slice(0, 6).map(v => [v.vendor, filteredProducts.filter(p => VENDORS.find(vv => vv.key === p.vendor)?.label === v.vendor).reduce((s, p) => s + (p.regionalShare?.hg || 0), 0)])) },
+                { region: 'Other Dev.', ...Object.fromEntries(vendorChartData.slice(0, 6).map(v => [v.vendor, filteredProducts.filter(p => VENDORS.find(vv => vv.key === p.vendor)?.label === v.vendor).reduce((s, p) => s + (p.regionalShare?.od || 0), 0)])) },
+              ]}>
+                <PolarGrid stroke="#374151" />
+                <PolarAngleAxis dataKey="region" stroke="#9ca3af" fontSize={11} />
+                {vendorChartData.slice(0, 6).map((v, i) => (
+                  <Radar key={i} name={v.vendor} dataKey={v.vendor} stroke={v.color} fill={v.color} fillOpacity={0.1} strokeWidth={2} />
+                ))}
+                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} />
+                <Legend wrapperStyle={{ fontSize: '10px' }} />
+              </RadarChart>
             </ResponsiveContainer>
           </div>
         </div>
