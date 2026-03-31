@@ -1,6 +1,12 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { BarChart, Bar, ScatterChart, Scatter, RadarChart, Radar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PolarAngleAxis, PolarGrid, PieChart, Pie, Cell } from 'recharts';
+import React, { useState, useMemo, useCallback, createContext, useContext } from 'react';
+import { BarChart, Bar, ScatterChart, Scatter, RadarChart, Radar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PolarAngleAxis, PolarGrid, PieChart, Pie, Cell, Area, AreaChart, ComposedChart, ReferenceLine } from 'recharts';
 import { ChevronDown, ChevronRight, AlertCircle, CheckCircle, TrendingUp, TrendingDown, ArrowRight, Users, Package, Zap, Globe, DollarSign, FileText, Calendar, Download } from 'lucide-react';
+
+// ============================================
+// SCENARIO CONTEXT
+// ============================================
+
+const ScenarioContext = createContext({ adjustments: {}, setAdjustments: () => {} });
 
 // ============================================
 // DATA CONSTANTS
@@ -15,6 +21,7 @@ const REGIONS = [
 ];
 
 const CATEGORIES = ['Extraction', 'Library Prep', 'Automation', 'Sequencing', 'Analysis', 'Reporting'];
+// MULTI_OMICS_CATEGORIES (future): ['Proteomics', 'Spatial Biology', 'Long-Read Sequencing', 'Epigenomics', 'Single-Cell Multi-omics']
 
 const INDICATIONS = [
   { key: "solid_tumor", label: "Solid Tumor", icon: "🎯", color: "#ef4444" },
@@ -757,6 +764,77 @@ const COMPATIBILITY = [
 ];
 
 // ============================================
+// HISTORICAL DATA & MARKET SIZING
+// ============================================
+
+const HISTORICAL_SNAPSHOTS = [
+  { quarter: '2024-Q4', data: { 'qiagen-ffpe-ext': { share: 14.8, pricing: 8 }, 'qiagen-blood-ext': { share: 12.0, pricing: 5 }, 'roche-magna-ext': { share: 13.2, pricing: 7 }, 'thermo-magmax-ext': { share: 12.5, pricing: 6 }, 'illumina-dna-prep': { share: 18.3, pricing: 42 }, 'illumina-tso500': { share: 8.5, pricing: 78 }, 'agilent-sureselect': { share: 14.2, pricing: 65 }, 'twist-panels': { share: 5.8, pricing: 75 }, 'kapa-hyperprep': { share: 11.2, pricing: 52 }, 'idt-xgen': { share: 6.5, pricing: 68 }, 'neb-ultraii': { share: 4.2, pricing: 55 }, 'oncomine-dx': { share: 6.8, pricing: 82 }, 'miseq': { share: 16.5, pricing: 350 }, 'nextseq': { share: 14.2, pricing: 420 }, 'novaseq': { share: 12.8, pricing: 850 }, 'ion-s5': { share: 8.5, pricing: 280 }, 'mgi-seq': { share: 3.2, pricing: 120 }, 'element-aviti': { share: 0.8, pricing: 85 }, 'pacbio-revio': { share: 2.1, pricing: 350 }, 'oxford-minion': { share: 1.5, pricing: 80 }, 'dragen': { share: 11.5, pricing: 0 }, 'sophia-ddm': { share: 7.2, pricing: 95 }, 'qci-interpret': { share: 9.8, pricing: 48 }, 'velsera-cg': { share: 3.1, pricing: 0 }, 'illumina-basespace': { share: 16.2, pricing: 0 }, 'archer-fusionplex': { share: 2.4, pricing: 89 }, 'hamilton-ngs': { share: 8.9, pricing: 280 }, 'tecan-fluent': { share: 4.2, pricing: 225 } } },
+  { quarter: '2025-Q1', data: { 'qiagen-ffpe-ext': { share: 14.9, pricing: 8 }, 'qiagen-blood-ext': { share: 12.1, pricing: 5 }, 'roche-magna-ext': { share: 13.4, pricing: 7 }, 'thermo-magmax-ext': { share: 12.6, pricing: 6 }, 'illumina-dna-prep': { share: 18.0, pricing: 42 }, 'illumina-tso500': { share: 8.3, pricing: 78 }, 'agilent-sureselect': { share: 14.0, pricing: 65 }, 'twist-panels': { share: 6.1, pricing: 75 }, 'kapa-hyperprep': { share: 11.0, pricing: 52 }, 'idt-xgen': { share: 6.7, pricing: 68 }, 'neb-ultraii': { share: 4.4, pricing: 55 }, 'oncomine-dx': { share: 6.9, pricing: 82 }, 'miseq': { share: 16.2, pricing: 350 }, 'nextseq': { share: 13.9, pricing: 420 }, 'novaseq': { share: 12.5, pricing: 850 }, 'ion-s5': { share: 8.3, pricing: 280 }, 'mgi-seq': { share: 3.8, pricing: 120 }, 'element-aviti': { share: 1.5, pricing: 85 }, 'pacbio-revio': { share: 2.3, pricing: 350 }, 'oxford-minion': { share: 1.8, pricing: 80 }, 'dragen': { share: 12.0, pricing: 0 }, 'sophia-ddm': { share: 7.4, pricing: 95 }, 'qci-interpret': { share: 10.0, pricing: 48 }, 'velsera-cg': { share: 3.3, pricing: 0 }, 'illumina-basespace': { share: 16.4, pricing: 0 }, 'archer-fusionplex': { share: 2.6, pricing: 89 }, 'hamilton-ngs': { share: 9.1, pricing: 280 }, 'tecan-fluent': { share: 4.4, pricing: 225 } } },
+  { quarter: '2025-Q2', data: { 'qiagen-ffpe-ext': { share: 15.0, pricing: 8 }, 'qiagen-blood-ext': { share: 12.2, pricing: 5 }, 'roche-magna-ext': { share: 13.5, pricing: 7 }, 'thermo-magmax-ext': { share: 12.7, pricing: 6 }, 'illumina-dna-prep': { share: 17.8, pricing: 42 }, 'illumina-tso500': { share: 8.1, pricing: 78 }, 'agilent-sureselect': { share: 13.9, pricing: 65 }, 'twist-panels': { share: 6.3, pricing: 75 }, 'kapa-hyperprep': { share: 10.9, pricing: 52 }, 'idt-xgen': { share: 6.8, pricing: 68 }, 'neb-ultraii': { share: 4.5, pricing: 55 }, 'oncomine-dx': { share: 7.0, pricing: 82 }, 'miseq': { share: 15.9, pricing: 350 }, 'nextseq': { share: 13.6, pricing: 420 }, 'novaseq': { share: 12.2, pricing: 850 }, 'ion-s5': { share: 8.1, pricing: 280 }, 'mgi-seq': { share: 4.4, pricing: 120 }, 'element-aviti': { share: 2.2, pricing: 85 }, 'pacbio-revio': { share: 2.5, pricing: 350 }, 'oxford-minion': { share: 2.1, pricing: 80 }, 'dragen': { share: 12.4, pricing: 0 }, 'sophia-ddm': { share: 7.6, pricing: 95 }, 'qci-interpret': { share: 10.2, pricing: 48 }, 'velsera-cg': { share: 3.5, pricing: 0 }, 'illumina-basespace': { share: 16.5, pricing: 0 }, 'archer-fusionplex': { share: 2.8, pricing: 89 }, 'hamilton-ngs': { share: 9.2, pricing: 280 }, 'tecan-fluent': { share: 4.6, pricing: 225 } } },
+  { quarter: '2025-Q3', data: { 'qiagen-ffpe-ext': { share: 15.1, pricing: 8 }, 'qiagen-blood-ext': { share: 12.2, pricing: 5 }, 'roche-magna-ext': { share: 13.6, pricing: 7 }, 'thermo-magmax-ext': { share: 12.8, pricing: 6 }, 'illumina-dna-prep': { share: 17.5, pricing: 42 }, 'illumina-tso500': { share: 8.0, pricing: 78 }, 'agilent-sureselect': { share: 13.8, pricing: 65 }, 'twist-panels': { share: 6.5, pricing: 75 }, 'kapa-hyperprep': { share: 10.8, pricing: 52 }, 'idt-xgen': { share: 6.9, pricing: 68 }, 'neb-ultraii': { share: 4.6, pricing: 55 }, 'oncomine-dx': { share: 7.1, pricing: 82 }, 'miseq': { share: 15.6, pricing: 350 }, 'nextseq': { share: 13.4, pricing: 420 }, 'novaseq': { share: 11.9, pricing: 850 }, 'ion-s5': { share: 7.9, pricing: 280 }, 'mgi-seq': { share: 5.1, pricing: 120 }, 'element-aviti': { share: 2.9, pricing: 85 }, 'pacbio-revio': { share: 2.7, pricing: 350 }, 'oxford-minion': { share: 2.3, pricing: 80 }, 'dragen': { share: 12.7, pricing: 0 }, 'sophia-ddm': { share: 7.8, pricing: 95 }, 'qci-interpret': { share: 10.4, pricing: 48 }, 'velsera-cg': { share: 3.7, pricing: 0 }, 'illumina-basespace': { share: 16.6, pricing: 0 }, 'archer-fusionplex': { share: 2.9, pricing: 89 }, 'hamilton-ngs': { share: 9.3, pricing: 280 }, 'tecan-fluent': { share: 4.7, pricing: 225 } } },
+  { quarter: '2025-Q4', data: { 'qiagen-ffpe-ext': { share: 15.1, pricing: 8 }, 'qiagen-blood-ext': { share: 12.2, pricing: 5 }, 'roche-magna-ext': { share: 13.5, pricing: 7 }, 'thermo-magmax-ext': { share: 12.8, pricing: 6 }, 'illumina-dna-prep': { share: 17.2, pricing: 42 }, 'illumina-tso500': { share: 7.9, pricing: 78 }, 'agilent-sureselect': { share: 13.7, pricing: 65 }, 'twist-panels': { share: 6.6, pricing: 75 }, 'kapa-hyperprep': { share: 10.7, pricing: 52 }, 'idt-xgen': { share: 7.0, pricing: 68 }, 'neb-ultraii': { share: 4.7, pricing: 55 }, 'oncomine-dx': { share: 7.1, pricing: 82 }, 'miseq': { share: 15.4, pricing: 350 }, 'nextseq': { share: 13.2, pricing: 420 }, 'novaseq': { share: 11.7, pricing: 850 }, 'ion-s5': { share: 7.7, pricing: 280 }, 'mgi-seq': { share: 5.6, pricing: 120 }, 'element-aviti': { share: 3.4, pricing: 85 }, 'pacbio-revio': { share: 2.8, pricing: 350 }, 'oxford-minion': { share: 2.4, pricing: 80 }, 'dragen': { share: 13.0, pricing: 0 }, 'sophia-ddm': { share: 7.9, pricing: 95 }, 'qci-interpret': { share: 10.5, pricing: 48 }, 'velsera-cg': { share: 3.8, pricing: 0 }, 'illumina-basespace': { share: 16.7, pricing: 0 }, 'archer-fusionplex': { share: 3.0, pricing: 89 }, 'hamilton-ngs': { share: 9.4, pricing: 280 }, 'tecan-fluent': { share: 4.8, pricing: 225 } } },
+  { quarter: '2026-Q1', data: { 'qiagen-ffpe-ext': { share: 15.1, pricing: 8 }, 'qiagen-blood-ext': { share: 12.2, pricing: 5 }, 'roche-magna-ext': { share: 13.7, pricing: 7 }, 'thermo-magmax-ext': { share: 12.9, pricing: 6 }, 'illumina-dna-prep': { share: 17.0, pricing: 42 }, 'illumina-tso500': { share: 7.8, pricing: 78 }, 'agilent-sureselect': { share: 13.6, pricing: 65 }, 'twist-panels': { share: 6.8, pricing: 75 }, 'kapa-hyperprep': { share: 10.6, pricing: 52 }, 'idt-xgen': { share: 7.1, pricing: 68 }, 'neb-ultraii': { share: 4.8, pricing: 55 }, 'oncomine-dx': { share: 7.2, pricing: 82 }, 'miseq': { share: 15.2, pricing: 350 }, 'nextseq': { share: 13.1, pricing: 420 }, 'novaseq': { share: 11.6, pricing: 850 }, 'ion-s5': { share: 7.6, pricing: 280 }, 'mgi-seq': { share: 6.1, pricing: 120 }, 'element-aviti': { share: 4.0, pricing: 85 }, 'pacbio-revio': { share: 2.9, pricing: 350 }, 'oxford-minion': { share: 2.5, pricing: 80 }, 'dragen': { share: 13.2, pricing: 0 }, 'sophia-ddm': { share: 8.1, pricing: 95 }, 'qci-interpret': { share: 10.7, pricing: 48 }, 'velsera-cg': { share: 3.9, pricing: 0 }, 'illumina-basespace': { share: 16.8, pricing: 0 }, 'archer-fusionplex': { share: 3.1, pricing: 89 }, 'hamilton-ngs': { share: 9.5, pricing: 280 }, 'tecan-fluent': { share: 4.9, pricing: 225 } } },
+];
+
+const MARKET_SIZE = {
+  byCategory: { 'Extraction': 1800, 'Library Prep': 2400, 'Automation': 1200, 'Sequencing': 8500, 'Analysis': 3200, 'Reporting': 1400 },
+  byIndication: { solid_tumor: 5200, liquid_biopsy: 3800, hereditary_cancer: 2100, heme_malig: 1600, rare_disease: 1800, pharmacogenomics: 900, hla_typing: 600, infectious_disease: 2500 },
+  byRegion: { na: 0.42, we: 0.28, hg: 0.22, od: 0.08 },
+  totalNGS: 18500,
+  cagr: 0.142,
+  year: 2026,
+  futureCategories: { 'Proteomics': 2800, 'Spatial Biology': 1200, 'Long-Read Sequencing': 1800, 'Epigenomics': 600, 'Single-Cell Multi-omics': 900 },
+};
+
+const INTEL_SIGNALS = [
+  { id: 'sig-1', date: '2026-03-15', type: 'regulatory', vendor: 'illumina', title: 'FDA clearance: DRAGEN OncoPipeline v4', impact: 'high', summary: 'Illumina DRAGEN OncoPipeline v4 receives FDA 510(k) clearance enabling on-instrument IVD analysis', source: 'FDA 510(k) database', products: ['illumina-dragen'] },
+  { id: 'sig-2', date: '2026-03-10', type: 'pricing', vendor: 'element', title: 'Element AVITI24 pricing announced at $98/genome', impact: 'high', summary: 'Element Biosciences announces AVITI24 benchtop sequencer with $98 cost-per-genome, 5% lower than previous estimate', source: 'Element press release', products: ['element-aviti'] },
+  { id: 'sig-3', date: '2026-03-05', type: 'product_launch', vendor: 'roche', title: 'Roche Axelios 1 SBX sequencer FDA 510(k) submission', impact: 'high', summary: 'Roche submits Axelios 1 SBX sequencer for FDA clearance targeting $150/genome with KAPA library prep', source: 'Roche investor call', products: ['roche-sbx'] },
+  { id: 'sig-4', date: '2026-02-28', type: 'partnership', vendor: 'thermo', title: 'Thermo Fisher partners with Guardant for ctDNA panels', impact: 'medium', summary: 'Thermo Fisher licenses Guardant ctDNA panel designs for Oncomine platform integration', source: 'Deal announcement', products: ['thermo-oncomine', 'guardant-360'] },
+  { id: 'sig-5', date: '2026-02-20', type: 'market_entry', vendor: 'mgi', title: 'MGI DNBSEQ-G99 US premarket review with FDA', impact: 'high', summary: 'MGI Tech initiates FDA premarket notification for DNBSEQ-G99 benchtop sequencer targeting US market entry Q3 2026', source: 'FDA CBER Communications', products: ['mgi-seq'] },
+  { id: 'sig-6', date: '2026-02-15', type: 'acquisition', vendor: 'agilent', title: 'Agilent acquires NGS bioinformatics startup for $45M', impact: 'medium', summary: 'Agilent acquires specialized NGS variant calling software company to strengthen analysis portfolio', source: 'Deal press release', products: [] },
+  { id: 'sig-7', date: '2026-02-10', type: 'clinical_data', vendor: 'natera', title: 'Natera Signatera MRD data from PERSIMMON study published', impact: 'medium', summary: 'Prospective MRD study shows improved relapse-free survival with Signatera monitoring in colorectal cancer', source: 'ASCO GI 2026', products: ['natera-signatera'] },
+  { id: 'sig-8', date: '2026-02-05', type: 'regulatory', vendor: 'qiagen', title: 'Qiagen QCI-Advanced EU CE-IVD approval for germline interpretation', impact: 'medium', summary: 'Qiagen QCI-Advanced earns CE-IVD certification expanding diagnostic claim scope in Europe', source: 'Qiagen announcement', products: ['qci-interpret'] },
+  { id: 'sig-9', date: '2026-01-30', type: 'pricing', vendor: 'ultima', title: 'Ultima Genomics announces $80/genome WGS pricing for bulk samples', impact: 'high', summary: 'Ultima achieves sustained $80/genome cost-per-base pricing on UG 200 platform for research WGS', source: 'Ultima investor presentation', products: ['ultima-ug200'] },
+  { id: 'sig-10', date: '2026-01-25', type: 'product_launch', vendor: 'idt', title: 'IDT xGen UMI amplicon panels v2.0 launch', impact: 'medium', summary: 'IDT releases next-gen UMI amplicon panels with expanded tumor content and improved multiplexing', source: 'IDT new products', products: ['idt-xgen'] },
+  { id: 'sig-11', date: '2026-01-20', type: 'partnership', vendor: 'sophia', title: 'SOPHiA Genetics partnership with major diagnostic LIS vendor', impact: 'medium', summary: 'SOPHiA integrates its platform with leading laboratory information system for seamless reporting', source: 'Partnership announcement', products: ['sophia-ddm'] },
+  { id: 'sig-12', date: '2026-01-15', type: 'market_entry', vendor: 'pacbio', title: 'PacBio announces $80 sample pricing for HiFi WGS', impact: 'high', summary: 'PacBio sustainable pricing model enables $80/sample HiFi whole-genome sequencing at scale', source: 'PacBio earnings call', products: ['pacbio-revio'] },
+  { id: 'sig-13', date: '2026-01-10', type: 'regulatory', vendor: 'invivoscribe', title: 'InvivoScribe LymphoTrack CDx expanded indication approval', impact: 'medium', summary: 'FDA expands InvivoScribe LymphoTrack CDx approval to include additional heme malignancy indications', source: 'FDA approval notice', products: ['invivoscribe-lymphotrack'] },
+  { id: 'sig-14', date: '2026-01-05', type: 'clinical_data', vendor: 'foundation', title: 'Foundation Medicine Liquid CDx data improves liquid biopsy market positioning', impact: 'medium', summary: 'New FoundationOne Liquid CDx data in large patient cohorts supports expanded clinical adoption', source: 'AACR 2026', products: ['foundation-fone-liquid'] },
+  { id: 'sig-15', date: '2025-12-20', type: 'pricing', vendor: 'twist', title: 'Twist Bioscience panel pricing reduction in high-volume tiers', impact: 'medium', summary: 'Twist introduces aggressive volume discounting on exome and cancer panels to drive adoption', source: 'Twist pricing updates', products: ['twist-panels'] },
+];
+
+const COST_COMPONENTS = {
+  'qiagen-ffpe-ext': { reagents: 4.50, instrument_amortized: 0.8, labor: 1.5, qc: 0.6, total: 7.4 },
+  'qiagen-blood-ext': { reagents: 2.50, instrument_amortized: 0.5, labor: 1.0, qc: 0.4, total: 4.4 },
+  'roche-magna-ext': { reagents: 3.50, instrument_amortized: 0.8, labor: 1.2, qc: 0.5, total: 6.0 },
+  'thermo-magmax-ext': { reagents: 3.0, instrument_amortized: 0.7, labor: 1.0, qc: 0.4, total: 5.1 },
+  'promega-ffpe-ext': { reagents: 4.75, instrument_amortized: 0.8, labor: 1.5, qc: 0.6, total: 7.65 },
+  'beckman-ampure-ext': { reagents: 1.80, instrument_amortized: 0.6, labor: 0.8, qc: 0.3, total: 3.5 },
+  'illumina-dna-prep': { reagents: 28.0, instrument_amortized: 2.5, labor: 4.0, qc: 2.0, total: 36.5 },
+  'illumina-tso500': { reagents: 52.0, instrument_amortized: 3.5, labor: 6.0, qc: 3.0, total: 64.5 },
+  'agilent-sureselect': { reagents: 44.0, instrument_amortized: 3.0, labor: 5.5, qc: 2.5, total: 55.0 },
+  'twist-panels': { reagents: 50.0, instrument_amortized: 2.0, labor: 5.0, qc: 2.0, total: 59.0 },
+  'kapa-hyperprep': { reagents: 35.0, instrument_amortized: 2.2, labor: 4.5, qc: 1.8, total: 43.5 },
+  'idt-xgen': { reagents: 45.0, instrument_amortized: 2.5, labor: 5.0, qc: 2.2, total: 54.7 },
+  'neb-ultraii': { reagents: 38.0, instrument_amortized: 2.0, labor: 4.0, qc: 1.5, total: 45.5 },
+  'oncomine-dx': { reagents: 55.0, instrument_amortized: 3.0, labor: 6.0, qc: 3.0, total: 67.0 },
+  'miseq': { reagents: 210.0, instrument_amortized: 15.0, labor: 8.0, qc: 5.0, total: 238.0 },
+  'nextseq': { reagents: 280.0, instrument_amortized: 18.0, labor: 9.0, qc: 6.0, total: 313.0 },
+  'novaseq': { reagents: 650.0, instrument_amortized: 45.0, labor: 12.0, qc: 8.0, total: 715.0 },
+  'ion-s5': { reagents: 180.0, instrument_amortized: 12.0, labor: 7.0, qc: 4.5, total: 203.5 },
+  'mgi-seq': { reagents: 95.0, instrument_amortized: 8.0, labor: 6.0, qc: 3.5, total: 112.5 },
+  'element-aviti': { reagents: 68.0, instrument_amortized: 6.0, labor: 7.0, qc: 3.5, total: 84.5 },
+  'hamilton-ngs': { reagents: 0, instrument_amortized: 12.0, labor: 8.0, qc: 0, total: 20.0 },
+  'tecan-fluent': { reagents: 0, instrument_amortized: 8.0, labor: 6.0, qc: 0, total: 14.0 },
+  'dragen': { reagents: 0, instrument_amortized: 2.0, labor: 0.5, qc: 0, total: 2.5 },
+  'sophia-ddm': { reagents: 0, instrument_amortized: 0, labor: 1.5, qc: 0.5, total: 2.0 },
+  'qci-interpret': { reagents: 0, instrument_amortized: 0, labor: 2.0, qc: 0.5, total: 2.5 },
+};
+
+// MULTI-OMICS CATEGORIES (future): ['Proteomics', 'Spatial Biology', 'Long-Read Sequencing', 'Epigenomics', 'Single-Cell Multi-omics']
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 
@@ -1336,53 +1414,143 @@ const generateBrief = (products) => {
   URL.revokeObjectURL(url);
 };
 
-const Sidebar = ({ activeView, setActiveView, indicationFilter }) => (
-  <div className="w-56 bg-gray-900 border-r border-gray-800 p-6 space-y-6">
-    <div>
-      <h1 className="text-2xl font-bold text-white mb-2">NGS Intel v3</h1>
-      <p className="text-sm text-gray-400">Market Intelligence Platform</p>
-    </div>
+const Sidebar = ({ activeView, setActiveView, indicationFilter }) => {
+  const navGroups = [
+    {
+      group: 'OVERVIEW',
+      items: [
+        { name: 'Dashboard', key: 'dashboard' },
+      ],
+    },
+    {
+      group: 'EXPLORE',
+      items: [
+        { name: 'Products', key: 'products' },
+        { name: 'Vendors', key: 'vendors' },
+        { name: 'Compare', key: 'compare' },
+      ],
+    },
+    {
+      group: 'WORKFLOW',
+      items: [
+        { name: 'Compatibility', key: 'compatibility' },
+        { name: 'TCO Calculator', key: 'tco' },
+      ],
+    },
+    {
+      group: 'STRATEGY',
+      items: [
+        { name: 'Indication Strategy', key: 'indication' },
+        { name: 'Scenarios', key: 'scenarios' },
+      ],
+    },
+    {
+      group: 'INTELLIGENCE',
+      items: [
+        { name: 'Timeline', key: 'timeline' },
+        { name: 'Signals', key: 'signals' },
+      ],
+    },
+    {
+      group: 'META',
+      items: [
+        { name: 'Data Quality', key: 'data quality' },
+        { name: 'Regulatory', key: 'regulatory' },
+      ],
+    },
+  ];
 
-    <nav className="space-y-2">
-      {['Dashboard', 'Products', 'Vendors', 'Compare', 'Compatibility', 'Regulatory', 'Timeline', 'Data Quality'].map((view) => (
-        <button
-          key={view}
-          onClick={() => setActiveView(view.toLowerCase())}
-          className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-            activeView === view.toLowerCase()
-              ? 'bg-blue-600 text-white'
-              : 'text-gray-300 hover:bg-gray-800'
-          }`}
-        >
-          {view}
-        </button>
-      ))}
-    </nav>
-
-    {indicationFilter.length > 0 && (
-      <div className="pt-4 border-t border-gray-800">
-        <p className="text-xs text-gray-400 mb-2">Active Filter:</p>
-        <div className="flex flex-wrap gap-1">
-          {indicationFilter.map(key => {
-            const ind = INDICATIONS.find(i => i.key === key);
-            return (
-              <span
-                key={key}
-                className="text-xs px-2 py-1 rounded bg-gray-800"
-                style={{ color: ind?.color }}
-              >
-                {ind?.icon} {ind?.label}
-              </span>
-            );
-          })}
-        </div>
+  return (
+    <div className="w-56 bg-gray-900 border-r border-gray-800 p-6 overflow-y-auto">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-white mb-1">NGS Intel v4</h1>
+        <p className="text-xs text-gray-400">Market Intelligence Platform</p>
       </div>
-    )}
-  </div>
-);
+
+      <nav className="space-y-6">
+        {navGroups.map((group, i) => (
+          <div key={i}>
+            <h2 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">{group.group}</h2>
+            <div className="space-y-1">
+              {group.items.map(item => (
+                <button
+                  key={item.key}
+                  onClick={() => setActiveView(item.key)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    activeView === item.key
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
+                  }`}
+                >
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {indicationFilter.length > 0 && (
+        <div className="mt-8 pt-6 border-t border-gray-800">
+          <p className="text-xs text-gray-500 uppercase font-semibold tracking-wide mb-2">Filter:</p>
+          <div className="flex flex-wrap gap-1">
+            {indicationFilter.map(key => {
+              const ind = INDICATIONS.find(i => i.key === key);
+              return (
+                <span
+                  key={key}
+                  className="text-xs px-2 py-1 rounded bg-gray-800"
+                  style={{ color: ind?.color }}
+                >
+                  {ind?.icon} {ind?.label}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const SAMPLE_TYPE_LABELS = { ffpe: 'FFPE', blood: 'Blood', cfdna: 'cfDNA', tissue: 'Tissue', saliva: 'Saliva' };
 const NUCLEIC_ACID_LABELS = { dna: 'DNA', rna: 'RNA' };
+
+// ============================================
+// UTILITY COMPONENTS
+// ============================================
+
+const MiniSparkline = ({ productId, metric = 'share', width = 80, height = 24 }) => {
+  const history = useMemo(() => {
+    return HISTORICAL_SNAPSHOTS.map(s => ({
+      q: s.quarter,
+      value: s.data[productId]?.[metric] ?? null
+    })).filter(d => d.value !== null);
+  }, [productId, metric]);
+  if (history.length < 2) return null;
+  const min = Math.min(...history.map(d => d.value));
+  const max = Math.max(...history.map(d => d.value));
+  const first = history[0].value;
+  const last = history[history.length - 1].value;
+  const color = last >= first ? '#10b981' : '#ef4444';
+  return (
+    <div className="inline-flex items-center gap-1" title={`${history[0].q}: ${first.toFixed(1)} → ${history[history.length-1].q}: ${last.toFixed(1)}`}>
+      <ResponsiveContainer width={width} height={height}>
+        <LineChart data={history}>
+          <Line type="monotone" dataKey="value" stroke={color} strokeWidth={1.5} dot={false} />
+        </LineChart>
+      </ResponsiveContainer>
+      <span className="text-xs font-semibold" style={{color}}>{last > first ? '+' : ''}{(last - first).toFixed(1)}</span>
+    </div>
+  );
+};
+
+const TAMOverlay = ({ share, category, indication }) => {
+  const tam = category ? MARKET_SIZE.byCategory[category] : indication ? MARKET_SIZE.byIndication[indication] : MARKET_SIZE.totalNGS;
+  if (!tam || !share) return null;
+  const dollarValue = ((share / 100) * tam).toFixed(0);
+  return <span className="text-xs text-emerald-400 ml-1" title={`${share}% of $${tam}M TAM`}>(${dollarValue}M)</span>;
+};
 
 const GrowthBadge = ({ growth }) => {
   if (!growth) return null;
@@ -1470,11 +1638,13 @@ const ProductCard = ({ product, indicationFilter }) => {
 
       <div className="space-y-2 text-xs text-gray-300">
         {product.share !== undefined && (
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <span>Market Share:</span>
-            <span className="font-bold text-white">
+            <span className="font-bold text-white flex items-center gap-1">
               {product.share}%
               <ConfidenceDot conf={product.confidence?.share} />
+              <MiniSparkline productId={product.id} metric="share" width={60} height={18} />
+              <TAMOverlay share={product.share} category={product.category} />
             </span>
           </div>
         )}
@@ -1896,6 +2066,48 @@ const DashboardView = ({ products, indicationFilter }) => {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <h3 className="text-sm font-semibold text-gray-300 mb-3">Recent Signals</h3>
+          <div className="space-y-2">
+            {INTEL_SIGNALS.filter(s => s.impact === 'high').slice(0, 3).map(signal => (
+              <div key={signal.id} className="bg-gray-900 rounded p-2 text-xs border border-gray-700">
+                <div className="font-semibold text-white truncate">{signal.title.substring(0, 40)}</div>
+                <div className="text-gray-500 text-[10px] mt-1">{signal.date}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <h3 className="text-sm font-semibold text-gray-300 mb-3">Market Sizing (TAM)</h3>
+          <div className="space-y-1 text-xs">
+            <div className="flex justify-between text-gray-300">
+              <span>Total NGS:</span>
+              <span className="font-bold text-emerald-400">${MARKET_SIZE.totalNGS}M</span>
+            </div>
+            <div className="text-gray-500 text-[10px] space-y-0.5 mt-2">
+              <div>Sequencing: ${MARKET_SIZE.byCategory['Sequencing']}M</div>
+              <div>Analysis: ${MARKET_SIZE.byCategory['Analysis']}M</div>
+              <div>Library Prep: ${MARKET_SIZE.byCategory['Library Prep']}M</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <h3 className="text-sm font-semibold text-gray-300 mb-3">CAGR & Projections</h3>
+          <div className="space-y-1 text-xs">
+            <div className="flex justify-between text-gray-300">
+              <span>NGS CAGR:</span>
+              <span className="font-bold text-blue-400">{(MARKET_SIZE.cagr * 100).toFixed(1)}%</span>
+            </div>
+            <div className="text-gray-500 text-[10px] mt-2">
+              Projected 2026-2031 TAM growth driven by NGS expansion in liquid biopsy and germline testing
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-6">
@@ -2997,12 +3209,536 @@ const CompatibilityView = ({ products }) => {
 };
 
 // ============================================
+// TCO CALCULATOR VIEW
+// ============================================
+
+const TCOCalculatorView = ({ products, indicationFilter }) => {
+  const [workflow, setWorkflow] = useState({ extraction: null, libprep: null, automation: null, sequencing: null, analysis: null, reporting: null });
+  const [throughput, setThroughput] = useState(1);
+  const [annualVolume, setAnnualVolume] = useState(1000);
+  const [savedWorkflows, setSavedWorkflows] = useState([]);
+
+  const steps = [
+    { key: 'extraction', label: 'Extraction', category: 'Extraction' },
+    { key: 'libprep', label: 'Library Prep', category: 'Library Prep' },
+    { key: 'automation', label: 'Automation', category: 'Automation' },
+    { key: 'sequencing', label: 'Sequencing', category: 'Sequencing' },
+    { key: 'analysis', label: 'Analysis', category: 'Analysis' },
+    { key: 'reporting', label: 'Reporting', category: 'Reporting' },
+  ];
+
+  const getCompatibleProducts = (stepKey) => {
+    const prevSteps = steps.slice(0, steps.findIndex(s => s.key === stepKey));
+    const category = steps.find(s => s.key === stepKey)?.category;
+    const categoryProducts = products.filter(p => p.category === category);
+
+    if (stepKey === 'extraction') return categoryProducts;
+
+    const prevStep = prevSteps[prevSteps.length - 1];
+    const prevSelectedId = workflow[prevStep.key];
+    if (!prevSelectedId) return categoryProducts;
+
+    const compatibleIds = COMPATIBILITY
+      .filter(c => c.source === prevSelectedId && c.level !== 'theoretical')
+      .map(c => c.target);
+
+    return categoryProducts.filter(p => compatibleIds.includes(p.id));
+  };
+
+  const getTotalCost = () => {
+    let total = 0;
+    Object.entries(workflow).forEach(([key, productId]) => {
+      if (productId && COST_COMPONENTS[productId]) {
+        total += COST_COMPONENTS[productId].total;
+      }
+    });
+    return total;
+  };
+
+  const costPerSample = getTotalCost();
+  const costPerRun = (costPerSample * throughput).toFixed(2);
+  const costPerSampleAnnual = ((costPerSample * annualVolume) / annualVolume).toFixed(2);
+  const totalAnnualCost = (costPerSample * annualVolume).toFixed(0);
+
+  const vendorSet = new Set();
+  Object.values(workflow).forEach(productId => {
+    if (productId) {
+      const product = products.find(p => p.id === productId);
+      if (product) vendorSet.add(product.vendor);
+    }
+  });
+  const vendorLockInScore = ((6 - vendorSet.size) / 6 * 100).toFixed(0);
+
+  const costBreakdown = {};
+  Object.entries(workflow).forEach(([key, productId]) => {
+    if (productId && COST_COMPONENTS[productId]) {
+      costBreakdown[key] = COST_COMPONENTS[productId];
+    }
+  });
+
+  const saveWorkflow = () => {
+    const name = `Workflow-${savedWorkflows.length + 1}`;
+    setSavedWorkflows([...savedWorkflows, { name, workflow, cost: costPerSample }]);
+  };
+
+  const costBreakdownData = Object.entries(costBreakdown).map(([step, costs]) => ({
+    name: step.charAt(0).toUpperCase() + step.slice(1),
+    Reagents: costs.reagents,
+    'Instrument': costs.instrument_amortized,
+    'Labor': costs.labor,
+    'QC': costs.qc,
+  }));
+
+  return (
+    <div className="space-y-8">
+      <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 className="text-2xl font-bold mb-6">Total Cost of Ownership Calculator</h2>
+
+        <div className="grid grid-cols-6 gap-4 mb-8">
+          {steps.map(step => (
+            <div key={step.key} className="space-y-2">
+              <label className="text-xs font-semibold text-gray-400 uppercase">{step.label}</label>
+              <select
+                value={workflow[step.key] || ''}
+                onChange={(e) => setWorkflow({...workflow, [step.key]: e.target.value || null})}
+                className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-2 text-xs text-white"
+              >
+                <option value="">Select product</option>
+                {getCompatibleProducts(step.key).map(p => (
+                  <option key={p.id} value={p.id}>{p.name.substring(0, 20)}</option>
+                ))}
+              </select>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-4 gap-4 mb-8">
+          <div className="bg-gray-900 rounded p-3">
+            <div className="text-xs text-gray-500 mb-1">Cost per Sample</div>
+            <div className="text-2xl font-bold text-emerald-400">${costPerSample.toFixed(2)}</div>
+          </div>
+          <div className="bg-gray-900 rounded p-3">
+            <div className="text-xs text-gray-500 mb-1">Throughput ({throughput} samples)</div>
+            <div className="text-2xl font-bold text-blue-400">${costPerRun}</div>
+          </div>
+          <div className="bg-gray-900 rounded p-3">
+            <div className="text-xs text-gray-500 mb-1">Annual Volume</div>
+            <input type="number" value={annualVolume} onChange={(e) => setAnnualVolume(parseInt(e.target.value) || 1000)} className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-white" />
+          </div>
+          <div className="bg-gray-900 rounded p-3">
+            <div className="text-xs text-gray-500 mb-1">Annual Cost</div>
+            <div className="text-2xl font-bold text-purple-400">${totalAnnualCost}</div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          <div>
+            <label className="text-xs text-gray-400 mb-2 block">Samples per Run</label>
+            <select value={throughput} onChange={(e) => setThroughput(parseInt(e.target.value))} className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-2 text-sm text-white">
+              <option value={1}>1 sample</option>
+              <option value={8}>8 samples</option>
+              <option value={24}>24 samples</option>
+              <option value={96}>96 samples</option>
+            </select>
+          </div>
+          <div className="bg-orange-900/20 border border-orange-700 rounded p-3">
+            <div className="text-xs text-orange-400 font-semibold mb-1">Vendor Lock-In Risk</div>
+            <div className="text-3xl font-bold text-orange-300">{vendorLockInScore}%</div>
+            <div className="text-xs text-orange-300 mt-1">{vendorSet.size} of 6 steps sourced differently</div>
+          </div>
+          <button onClick={saveWorkflow} className="bg-blue-700 hover:bg-blue-600 rounded px-4 py-2 font-semibold text-sm">Save Workflow</button>
+        </div>
+
+        {costBreakdownData.length > 0 && (
+          <div className="h-64 mb-8">
+            <h3 className="text-sm font-semibold mb-2">Cost Breakdown by Step</h3>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={costBreakdownData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis dataKey="name" stroke="#9ca3af" />
+                <YAxis stroke="#9ca3af" />
+                <Tooltip contentStyle={{backgroundColor: '#111827', border: '1px solid #374151'}} />
+                <Bar dataKey="Reagents" fill="#10b981" stackId="cost" />
+                <Bar dataKey="Instrument" fill="#3b82f6" stackId="cost" />
+                <Bar dataKey="Labor" fill="#f59e0b" stackId="cost" />
+                <Bar dataKey="QC" fill="#8b5cf6" stackId="cost" />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
+
+      {savedWorkflows.length > 0 && (
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <h3 className="text-lg font-bold mb-4">Saved Workflows ({savedWorkflows.length})</h3>
+          <div className="grid grid-cols-3 gap-4">
+            {savedWorkflows.map((w, i) => (
+              <div key={i} className="bg-gray-900 rounded p-3 border border-gray-700">
+                <div className="font-semibold text-sm mb-2">{w.name}</div>
+                <div className="text-xs text-gray-400 mb-3">${w.cost.toFixed(2)} per sample</div>
+                <button onClick={() => setWorkflow(w.workflow)} className="text-xs bg-blue-700 hover:bg-blue-600 rounded px-2 py-1">Load</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ============================================
+// INDICATION STRATEGY VIEW
+// ============================================
+
+const IndicationStrategyView = ({ products, indicationFilter }) => {
+  const [selectedIndication, setSelectedIndication] = useState('solid_tumor');
+
+  const indication = INDICATIONS.find(i => i.key === selectedIndication);
+  const indicationProducts = products.filter(p => p.indications?.includes(selectedIndication));
+  const indicationTAM = MARKET_SIZE.byIndication[selectedIndication] || 5000;
+
+  const topVendorsInIndication = useMemo(() => {
+    const vendorShare = {};
+    indicationProducts.forEach(p => {
+      vendorShare[p.vendor] = (vendorShare[p.vendor] || 0) + (p.share || 0);
+    });
+    return Object.entries(vendorShare).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([v, s]) => ({
+      vendor: VENDORS.find(vnd => vnd.key === v)?.label || v,
+      share: s,
+    }));
+  }, [indicationProducts]);
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 className="text-2xl font-bold mb-4">Indication-Specific Strategy</h2>
+
+        <div className="mb-6">
+          <label className="text-sm text-gray-400 mb-2 block">Select Indication</label>
+          <div className="grid grid-cols-4 gap-2">
+            {INDICATIONS.map(ind => (
+              <button
+                key={ind.key}
+                onClick={() => setSelectedIndication(ind.key)}
+                className={`p-3 rounded text-sm font-semibold transition-colors ${
+                  selectedIndication === ind.key
+                    ? 'bg-blue-700 text-white'
+                    : 'bg-gray-900 text-gray-300 hover:bg-gray-700'
+                }`}
+              >
+                {ind.icon} {ind.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="bg-gray-900 rounded p-4">
+            <div className="text-xs text-gray-500 mb-1">TAM for {indication?.label}</div>
+            <div className="text-3xl font-bold text-emerald-400">${indicationTAM}M</div>
+            <div className="text-xs text-gray-400 mt-2">
+              NA: ${(indicationTAM * MARKET_SIZE.byRegion.na).toFixed(0)}M |
+              WE: ${(indicationTAM * MARKET_SIZE.byRegion.we).toFixed(0)}M |
+              HG: ${(indicationTAM * MARKET_SIZE.byRegion.hg).toFixed(0)}M
+            </div>
+          </div>
+          <div className="bg-gray-900 rounded p-4">
+            <div className="text-xs text-gray-500 mb-1">Top Vendors in {indication?.label}</div>
+            {topVendorsInIndication.map((v, i) => (
+              <div key={i} className="text-xs text-gray-300 mt-1">{v.vendor}: {v.share.toFixed(1)}%</div>
+            ))}
+          </div>
+        </div>
+
+        <h3 className="text-lg font-semibold mb-3">Products for {indication?.label}</h3>
+        <div className="grid grid-cols-3 gap-4">
+          {indicationProducts.slice(0, 9).map(p => (
+            <div key={p.id} className="bg-gray-900 rounded p-3 border border-gray-700">
+              <div className="font-semibold text-sm mb-1">{p.name}</div>
+              <div className="text-xs text-gray-400 mb-2">{VENDORS.find(v => v.key === p.vendor)?.label}</div>
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-500">Share:</span>
+                <span className="font-bold text-emerald-400">{p.share}%</span>
+              </div>
+              <div className="flex justify-between text-xs mt-1">
+                <span className="text-gray-500">Regulatory:</span>
+                <span className="text-blue-400 text-[10px]">{p.regulatory}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================
+// SCENARIO VIEW
+// ============================================
+
+const ScenarioView = ({ products, indicationFilter }) => {
+  const [scenarios, setScenarios] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [shareAdjustment, setShareAdjustment] = useState(0);
+  const [pricingAdjustment, setPricingAdjustment] = useState(0);
+
+  const prebuiltScenarios = [
+    { name: 'Element Disrupts', product: 'element-aviti', shareChange: 8, description: 'Element gains 8% sequencing share from Illumina' },
+    { name: 'MGI US Entry', product: 'mgi-seq', shareChange: 6, description: 'MGI enters US market capturing 6% share' },
+    { name: 'New FDA CDx', product: 'illumina-dragen', shareChange: 5, description: 'New CDx approval drives 5% DRAGEN adoption' },
+  ];
+
+  const applyScenario = (name, productId, change) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    setScenarios([...scenarios, {
+      id: Date.now(),
+      name,
+      productId,
+      originalShare: product.share,
+      newShare: product.share + change,
+      change,
+      timestamp: new Date().toLocaleString(),
+    }]);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 className="text-2xl font-bold mb-4">Scenario Modeling & What-If Analysis</h2>
+
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {prebuiltScenarios.map((scenario, i) => (
+            <button
+              key={i}
+              onClick={() => applyScenario(scenario.name, scenario.product, scenario.shareChange)}
+              className="bg-gray-900 hover:bg-gray-700 rounded p-4 border border-gray-700 transition-colors text-left"
+            >
+              <div className="font-semibold text-sm mb-1">{scenario.name}</div>
+              <div className="text-xs text-gray-400">{scenario.description}</div>
+              <div className="text-lg font-bold text-blue-400 mt-2">+{scenario.shareChange}%</div>
+            </button>
+          ))}
+        </div>
+
+        <div className="bg-gray-900 rounded p-4 border border-gray-700">
+          <h3 className="font-semibold mb-3 text-sm">Custom Scenario Builder</h3>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="text-xs text-gray-400 mb-2 block">Product</label>
+              <select
+                value={selectedProduct || ''}
+                onChange={(e) => setSelectedProduct(e.target.value || null)}
+                className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-2 text-sm text-white"
+              >
+                <option value="">Select product</option>
+                {products.slice(0, 20).map(p => (
+                  <option key={p.id} value={p.id}>{p.name.substring(0, 25)}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 mb-2 block">Share Change (%)</label>
+              <input type="number" value={shareAdjustment} onChange={(e) => setShareAdjustment(parseInt(e.target.value) || 0)} className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-2 text-sm text-white" />
+            </div>
+            <div className="flex items-end">
+              <button
+                onClick={() => selectedProduct && applyScenario(`Custom: ${products.find(p => p.id === selectedProduct)?.name}`, selectedProduct, shareAdjustment)}
+                className="w-full bg-green-700 hover:bg-green-600 rounded px-4 py-2 font-semibold text-sm"
+              >
+                Apply Custom
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {scenarios.length > 0 && (
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <h3 className="text-lg font-bold mb-4">Applied Scenarios ({scenarios.length})</h3>
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {scenarios.map(scenario => (
+              <div key={scenario.id} className="bg-gray-900 rounded p-3 border border-gray-700 text-xs">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="font-semibold">{scenario.name}</div>
+                    <div className="text-gray-400">{scenario.timestamp}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-gray-400">Share Change</div>
+                    <div className={`font-bold text-lg ${scenario.change > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                      {scenario.change > 0 ? '+' : ''}{scenario.change}%
+                    </div>
+                    <div className="text-gray-500 text-[10px]">{scenario.originalShare}% → {scenario.newShare}%</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ============================================
+// INTEL SIGNALS VIEW
+// ============================================
+
+const IntelSignalsView = ({ products, indicationFilter }) => {
+  const [filterType, setFilterType] = useState('');
+  const [filterVendor, setFilterVendor] = useState('');
+  const [filterImpact, setFilterImpact] = useState('');
+
+  const filteredSignals = useMemo(() => {
+    return INTEL_SIGNALS.filter(signal => {
+      return (!filterType || signal.type === filterType) &&
+             (!filterVendor || signal.vendor === filterVendor) &&
+             (!filterImpact || signal.impact === filterImpact);
+    }).sort((a, b) => new Date(b.date) - new Date(a.date));
+  }, [filterType, filterVendor, filterImpact]);
+
+  const highImpactSignals = INTEL_SIGNALS.filter(s => s.impact === 'high').sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 3);
+
+  const signalsByType = useMemo(() => {
+    const types = {};
+    INTEL_SIGNALS.forEach(s => {
+      types[s.type] = (types[s.type] || 0) + 1;
+    });
+    return Object.entries(types).map(([k, v]) => ({ name: k, value: v }));
+  }, []);
+
+  const signalsByVendor = useMemo(() => {
+    const vendors = {};
+    INTEL_SIGNALS.forEach(s => {
+      vendors[s.vendor] = (vendors[s.vendor] || 0) + 1;
+    });
+    return Object.entries(vendors).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => ({ name: VENDORS.find(vnd => vnd.key === k)?.label || k, value: v }));
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      {highImpactSignals.length > 0 && (
+        <div className="bg-red-900/20 border border-red-700 rounded-lg p-6">
+          <h2 className="text-xl font-bold text-red-400 mb-4">High-Impact Alerts</h2>
+          <div className="grid grid-cols-3 gap-4">
+            {highImpactSignals.map(signal => (
+              <div key={signal.id} className="bg-red-950 rounded p-4 border border-red-700">
+                <div className="flex items-start justify-between mb-2">
+                  <span className="px-2 py-1 bg-red-700 text-red-100 text-xs rounded font-semibold uppercase">{signal.type}</span>
+                  <span className="text-xs text-red-400 font-semibold">{signal.date}</span>
+                </div>
+                <h3 className="font-bold text-sm text-white mb-2">{signal.title}</h3>
+                <p className="text-xs text-gray-300 mb-3">{signal.summary}</p>
+                <div className="text-xs text-gray-400">Source: {signal.source}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 className="text-2xl font-bold mb-4">Intelligence Feed</h2>
+
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          <div>
+            <label className="text-xs text-gray-400 mb-2 block">Type</label>
+            <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-2 text-sm text-white">
+              <option value="">All Types</option>
+              <option value="regulatory">Regulatory</option>
+              <option value="pricing">Pricing</option>
+              <option value="partnership">Partnership</option>
+              <option value="product_launch">Product Launch</option>
+              <option value="market_entry">Market Entry</option>
+              <option value="acquisition">Acquisition</option>
+              <option value="clinical_data">Clinical Data</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-400 mb-2 block">Vendor</label>
+            <select value={filterVendor} onChange={(e) => setFilterVendor(e.target.value)} className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-2 text-sm text-white">
+              <option value="">All Vendors</option>
+              {[...new Set(INTEL_SIGNALS.map(s => s.vendor))].map(v => (
+                <option key={v} value={v}>{VENDORS.find(vnd => vnd.key === v)?.label || v}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-400 mb-2 block">Impact</label>
+            <select value={filterImpact} onChange={(e) => setFilterImpact(e.target.value)} className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-2 text-sm text-white">
+              <option value="">All Impacts</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div className="bg-gray-900 rounded p-3">
+            <div className="text-xs text-gray-500 mb-1">Total Signals</div>
+            <div className="text-2xl font-bold text-white">{filteredSignals.length}</div>
+          </div>
+        </div>
+
+        <div className="space-y-3 max-h-96 overflow-y-auto">
+          {filteredSignals.map(signal => (
+            <div key={signal.id} className="bg-gray-900 rounded p-4 border border-gray-700">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex gap-2">
+                  <span className={`px-2 py-1 text-xs rounded font-semibold uppercase ${
+                    signal.impact === 'high' ? 'bg-red-900 text-red-200' :
+                    signal.impact === 'medium' ? 'bg-yellow-900 text-yellow-200' :
+                    'bg-blue-900 text-blue-200'
+                  }`}>{signal.impact}</span>
+                  <span className="px-2 py-1 bg-gray-700 text-gray-200 text-xs rounded">{signal.type}</span>
+                </div>
+                <span className="text-xs text-gray-500">{signal.date}</span>
+              </div>
+              <h3 className="font-semibold text-sm text-white mb-1">{signal.title}</h3>
+              <p className="text-xs text-gray-300 mb-2">{signal.summary}</p>
+              <div className="text-xs text-gray-500">Source: {signal.source}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+          <h3 className="text-sm font-semibold mb-3">Signals by Type</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie data={signalsByType} dataKey="value" nameKey="name" fill="#3b82f6">
+                {signalsByType.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={['#ef4444', '#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#06b6d4'][index % 6]} />
+                ))}
+              </Pie>
+              <Tooltip contentStyle={{backgroundColor: '#111827', border: '1px solid #374151'}} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+          <h3 className="text-sm font-semibold mb-3">Signals by Vendor</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={signalsByVendor}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <XAxis dataKey="name" stroke="#9ca3af" angle={-45} textAnchor="end" height={80} tick={{fontSize: 11}} />
+              <YAxis stroke="#9ca3af" />
+              <Bar dataKey="value" fill="#3b82f6" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================
 // MAIN APP
 // ============================================
 
 export default function App() {
   const [activeView, setActiveView] = useState('dashboard');
   const [indicationFilter, setIndicationFilter] = useState([]);
+  const [adjustments, setAdjustments] = useState({});
 
   const filteredProducts = useMemo(() => {
     return indicationFilter.length > 0
@@ -3022,6 +3758,14 @@ export default function App() {
         return <CompareView products={filteredProducts} indicationFilter={indicationFilter} />;
       case 'compatibility':
         return <CompatibilityView products={filteredProducts} />;
+      case 'tco':
+        return <TCOCalculatorView products={filteredProducts} indicationFilter={indicationFilter} />;
+      case 'indication':
+        return <IndicationStrategyView products={filteredProducts} indicationFilter={indicationFilter} />;
+      case 'scenarios':
+        return <ScenarioView products={filteredProducts} indicationFilter={indicationFilter} />;
+      case 'signals':
+        return <IntelSignalsView products={filteredProducts} indicationFilter={indicationFilter} />;
       case 'regulatory':
         return <RegulatoryView products={filteredProducts} indicationFilter={indicationFilter} />;
       case 'timeline':
@@ -3034,12 +3778,14 @@ export default function App() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-950 text-white">
-      <Sidebar activeView={activeView} setActiveView={setActiveView} indicationFilter={indicationFilter} />
-      <main className="flex-1 p-8">
-        <IndicationFilterBar indicationFilter={indicationFilter} setIndicationFilter={setIndicationFilter} />
-        {renderView()}
-      </main>
-    </div>
+    <ScenarioContext.Provider value={{ adjustments, setAdjustments }}>
+      <div className="flex min-h-screen bg-gray-950 text-white">
+        <Sidebar activeView={activeView} setActiveView={setActiveView} indicationFilter={indicationFilter} />
+        <main className="flex-1 p-8">
+          <IndicationFilterBar indicationFilter={indicationFilter} setIndicationFilter={setIndicationFilter} />
+          {renderView()}
+        </main>
+      </div>
+    </ScenarioContext.Provider>
   );
 }
