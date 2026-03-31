@@ -1361,6 +1361,15 @@ const MarketShareByCategory = ({ products }) => {
 };
 
 const TopVendorsBubble = ({ products }) => {
+  const [regionKey, setRegionKey] = useState('global');
+  const regionOpts = [
+    { key: 'global', label: 'Global', color: '#3b82f6' },
+    { key: 'na', label: 'NA', color: '#ef4444' },
+    { key: 'we', label: 'WE', color: '#10b981' },
+    { key: 'hg', label: 'HG', color: '#f59e0b' },
+    { key: 'od', label: 'OD', color: '#8b5cf6' },
+  ];
+
   const data = useMemo(() => {
     const vendorMap = {};
     products.forEach(p => {
@@ -1368,7 +1377,11 @@ const TopVendorsBubble = ({ products }) => {
         const v = VENDORS.find(v => v.key === p.vendor);
         vendorMap[p.vendor] = { vendor: v?.label || p.vendor, totalShare: 0, products: 0, color: v?.color || '#6b7280', categories: new Set() };
       }
-      vendorMap[p.vendor].totalShare += (p.share || 0);
+      if (regionKey === 'global') {
+        vendorMap[p.vendor].totalShare += (p.share || 0);
+      } else {
+        vendorMap[p.vendor].totalShare += (p.regionalShare?.[regionKey] || 0);
+      }
       vendorMap[p.vendor].products++;
       vendorMap[p.vendor].categories.add(p.category);
     });
@@ -1376,23 +1389,34 @@ const TopVendorsBubble = ({ products }) => {
       .map(v => ({ ...v, categories: v.categories.size, label: `${v.vendor} (${v.products})` }))
       .sort((a, b) => b.totalShare - a.totalShare)
       .slice(0, 12);
-  }, [products]);
+  }, [products, regionKey]);
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <BarChart data={data} layout="vertical">
-        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-        <XAxis type="number" stroke="#9ca3af" label={{ value: 'Total Share %', position: 'insideBottom', offset: -5, fill: '#9ca3af', fontSize: 11 }} />
-        <YAxis dataKey="vendor" type="category" stroke="#9ca3af" width={140} fontSize={11} />
-        <Tooltip
-          contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-          formatter={(val, name, entry) => [`${val}% across ${entry.payload.products} products in ${entry.payload.categories} categories`, 'Combined Share']}
-        />
-        <Bar dataKey="totalShare" radius={[0, 6, 6, 0]}>
-          {data.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+    <div>
+      <div className="flex gap-1 mb-3">
+        {regionOpts.map(r => (
+          <button key={r.key} onClick={() => setRegionKey(r.key)}
+            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${regionKey === r.key ? 'text-white' : 'bg-gray-700 text-gray-400 hover:text-white'}`}
+            style={regionKey === r.key ? { backgroundColor: r.color } : {}}>
+            {r.label}
+          </button>
+        ))}
+      </div>
+      <ResponsiveContainer width="100%" height={380}>
+        <BarChart data={data} layout="vertical" margin={{ top: 5, right: 20, bottom: 20, left: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+          <XAxis type="number" stroke="#9ca3af" label={{ value: 'Total Share %', position: 'insideBottom', offset: -5, fill: '#9ca3af', fontSize: 11 }} />
+          <YAxis dataKey="vendor" type="category" stroke="#9ca3af" width={130} fontSize={11} interval={0} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+            formatter={(val, name, entry) => [`${Math.round(val)}% across ${entry.payload.products} products in ${entry.payload.categories} categories`, 'Combined Share']}
+          />
+          <Bar dataKey="totalShare" radius={[0, 6, 6, 0]}>
+            {data.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 
@@ -1438,95 +1462,196 @@ const SequencerLandscape = ({ products }) => {
 };
 
 const RegionalDistribution = ({ products }) => {
+  const [regionKey, setRegionKey] = useState('na');
+  const regions = [
+    { key: 'na', label: 'North America', color: '#ef4444' },
+    { key: 'we', label: 'W. Europe', color: '#10b981' },
+    { key: 'hg', label: 'High-Growth', color: '#f59e0b' },
+    { key: 'od', label: 'Other Dev.', color: '#8b5cf6' },
+  ];
+
   const data = useMemo(() => {
-    const regions = [
-      { key: 'na', label: 'North America', color: '#ef4444' },
-      { key: 'we', label: 'Western Europe', color: '#10b981' },
-      { key: 'hg', label: 'High-Growth', color: '#f59e0b' },
-      { key: 'od', label: 'Other Dev.', color: '#8b5cf6' },
-    ];
-    return CATEGORIES.map(cat => {
-      const catProducts = products.filter(p => p.category === cat && p.regionalShare);
-      const entry = { category: cat };
-      regions.forEach(r => {
-        entry[r.label] = catProducts.length > 0
-          ? Math.round(catProducts.reduce((s, p) => s + (p.regionalShare[r.key] || 0), 0) / catProducts.length)
-          : 0;
-      });
-      return entry;
+    const vendorMap = {};
+    products.forEach(p => {
+      if (!p.regionalShare) return;
+      const rShare = p.regionalShare[regionKey] || 0;
+      if (!vendorMap[p.vendor]) {
+        const v = VENDORS.find(v => v.key === p.vendor);
+        vendorMap[p.vendor] = { vendor: v?.label || p.vendor, share: 0, products: 0, color: v?.color || '#6b7280', categories: new Set() };
+      }
+      vendorMap[p.vendor].share += rShare;
+      vendorMap[p.vendor].products++;
+      vendorMap[p.vendor].categories.add(p.category);
     });
-  }, [products]);
+    return Object.values(vendorMap)
+      .map(v => ({ ...v, categories: v.categories.size }))
+      .sort((a, b) => b.share - a.share)
+      .slice(0, 10);
+  }, [products, regionKey]);
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <BarChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-        <XAxis dataKey="category" stroke="#9ca3af" fontSize={12} />
-        <YAxis stroke="#9ca3af" label={{ value: 'Avg Regional Share %', angle: -90, position: 'insideLeft', fill: '#9ca3af', fontSize: 11 }} />
-        <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} />
-        <Legend />
-        <Bar dataKey="North America" fill="#ef4444" />
-        <Bar dataKey="Western Europe" fill="#10b981" />
-        <Bar dataKey="High-Growth" fill="#f59e0b" />
-        <Bar dataKey="Other Dev." fill="#8b5cf6" />
-      </BarChart>
-    </ResponsiveContainer>
+    <div>
+      <div className="flex gap-1 mb-3">
+        {regions.map(r => (
+          <button key={r.key} onClick={() => setRegionKey(r.key)}
+            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${regionKey === r.key ? 'text-white' : 'bg-gray-700 text-gray-400 hover:text-white'}`}
+            style={regionKey === r.key ? { backgroundColor: r.color } : {}}>
+            {r.label}
+          </button>
+        ))}
+      </div>
+      <ResponsiveContainer width="100%" height={280}>
+        <BarChart data={data} layout="vertical">
+          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+          <XAxis type="number" stroke="#9ca3af" label={{ value: 'Combined Regional Share %', position: 'insideBottom', offset: -5, fill: '#9ca3af', fontSize: 11 }} />
+          <YAxis dataKey="vendor" type="category" stroke="#9ca3af" width={120} fontSize={11} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+            formatter={(val, name, entry) => [`${Math.round(val)}% across ${entry.payload.products} products in ${entry.payload.categories} categories`, 'Regional Share']}
+          />
+          <Bar dataKey="share" radius={[0, 6, 6, 0]}>
+            {data.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 
 const GrowthDistribution = ({ products }) => {
   const data = useMemo(() => {
-    const counts = { growing: 0, stable: 0, declining: 0, emerging: 0 };
-    products.forEach(p => { if (p.growth) counts[p.growth]++; });
-    return [
-      { name: 'Growing', value: counts.growing, color: '#10b981' },
-      { name: 'Stable', value: counts.stable, color: '#6b7280' },
-      { name: 'Declining', value: counts.declining, color: '#ef4444' },
-      { name: 'Emerging', value: counts.emerging, color: '#3b82f6' },
-    ].filter(d => d.value > 0);
+    const vendorMap = {};
+    products.forEach(p => {
+      if (!p.growth || !p.share) return;
+      if (!vendorMap[p.vendor]) {
+        const v = VENDORS.find(v => v.key === p.vendor);
+        vendorMap[p.vendor] = { vendor: v?.label || p.vendor, growing: 0, emerging: 0, declining: 0, stable: 0, color: v?.color || '#6b7280' };
+      }
+      vendorMap[p.vendor][p.growth] += p.share;
+    });
+    return Object.values(vendorMap)
+      .map(v => ({ ...v, momentum: v.growing + v.emerging - v.declining }))
+      .sort((a, b) => b.momentum - a.momentum)
+      .slice(0, 12);
   }, [products]);
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <PieChart>
-        <Pie data={data} cx="50%" cy="50%" innerRadius={60} outerRadius={100} dataKey="value" label={({ name, value }) => `${name}: ${value}`}>
-          {data.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
-        </Pie>
-        <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} />
-        <Legend />
-      </PieChart>
+    <ResponsiveContainer width="100%" height={380}>
+      <BarChart data={data} layout="vertical" margin={{ top: 5, right: 20, bottom: 20, left: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+        <XAxis type="number" stroke="#9ca3af" label={{ value: 'Share Momentum (Growing+Emerging−Declining)', position: 'insideBottom', offset: -5, fill: '#9ca3af', fontSize: 10 }} />
+        <YAxis dataKey="vendor" type="category" stroke="#9ca3af" width={130} fontSize={11} interval={0} />
+        <Tooltip
+          contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+          content={({ active, payload }) => {
+            if (!active || !payload?.length) return null;
+            const d = payload[0].payload;
+            return (
+              <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 text-sm">
+                <p className="font-bold text-white">{d.vendor}</p>
+                <p className="text-green-400">Growing: {d.growing.toFixed(1)}% · Emerging: {d.emerging.toFixed(1)}%</p>
+                <p className="text-gray-400">Stable: {d.stable.toFixed(1)}%</p>
+                <p className="text-red-400">Declining: {d.declining.toFixed(1)}%</p>
+                <p className="text-blue-400 font-medium mt-1">Net Momentum: {d.momentum > 0 ? '+' : ''}{d.momentum.toFixed(1)}%</p>
+              </div>
+            );
+          }}
+        />
+        <Bar dataKey="momentum" radius={[0, 6, 6, 0]}>
+          {data.map((entry, idx) => <Cell key={idx} fill={entry.momentum >= 0 ? '#10b981' : '#ef4444'} />)}
+        </Bar>
+      </BarChart>
     </ResponsiveContainer>
   );
 };
 
 const SampleTypeBreakdown = ({ products }) => {
-  const data = useMemo(() => {
-    const stCounts = {};
+  const [viewMode, setViewMode] = useState('pricing');
+
+  const pricingData = useMemo(() => {
+    return CATEGORIES.map(cat => {
+      const catProducts = products.filter(p => p.category === cat && p.pricing > 0);
+      if (catProducts.length === 0) return { category: cat, avg: 0, min: 0, max: 0, count: 0 };
+      const prices = catProducts.map(p => p.pricing);
+      return {
+        category: cat,
+        avg: Math.round(prices.reduce((a, b) => a + b, 0) / prices.length),
+        min: Math.min(...prices),
+        max: Math.max(...prices),
+        count: catProducts.length,
+      };
+    });
+  }, [products]);
+
+  const sampleData = useMemo(() => {
+    const stMap = {};
     products.forEach(p => {
       (p.sampleTypes || []).forEach(st => {
-        stCounts[st] = (stCounts[st] || 0) + 1;
+        if (!stMap[st]) stMap[st] = { totalShare: 0, count: 0 };
+        stMap[st].totalShare += (p.share || 0);
+        stMap[st].count++;
       });
     });
     const colors = { ffpe: '#f59e0b', blood: '#ef4444', cfdna: '#3b82f6', tissue: '#10b981', saliva: '#a855f7' };
-    return Object.entries(stCounts).map(([key, value]) => ({
+    const SAMPLE_TYPE_LABELS = { ffpe: 'FFPE', blood: 'Blood', cfdna: 'cfDNA', tissue: 'Tissue', saliva: 'Saliva' };
+    return Object.entries(stMap).map(([key, val]) => ({
       name: SAMPLE_TYPE_LABELS[key] || key,
-      value,
+      share: Math.round(val.totalShare * 10) / 10,
+      count: val.count,
       color: colors[key] || '#6b7280',
-    })).sort((a, b) => b.value - a.value);
+    })).sort((a, b) => b.share - a.share);
   }, [products]);
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <BarChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-        <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} />
-        <YAxis stroke="#9ca3af" label={{ value: 'Product Count', angle: -90, position: 'insideLeft', fill: '#9ca3af', fontSize: 11 }} />
-        <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} />
-        <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-          {data.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+    <div>
+      <div className="flex gap-1 mb-3">
+        <button onClick={() => setViewMode('pricing')}
+          className={`px-2 py-1 rounded text-xs font-medium transition-colors ${viewMode === 'pricing' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400 hover:text-white'}`}>
+          Pricing by Category
+        </button>
+        <button onClick={() => setViewMode('sample')}
+          className={`px-2 py-1 rounded text-xs font-medium transition-colors ${viewMode === 'sample' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400 hover:text-white'}`}>
+          Sample Type Share
+        </button>
+      </div>
+      <ResponsiveContainer width="100%" height={280}>
+        {viewMode === 'pricing' ? (
+          <BarChart data={pricingData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="category" stroke="#9ca3af" fontSize={12} />
+            <YAxis stroke="#9ca3af" label={{ value: 'Price per Sample ($)', angle: -90, position: 'insideLeft', fill: '#9ca3af', fontSize: 11 }} />
+            <Tooltip
+              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const d = payload[0].payload;
+                return (
+                  <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 text-sm">
+                    <p className="font-bold text-white">{d.category}</p>
+                    <p className="text-blue-400">Avg: ${d.avg} · Range: ${d.min}–${d.max}</p>
+                    <p className="text-gray-400">{d.count} products</p>
+                  </div>
+                );
+              }}
+            />
+            <Bar dataKey="avg" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Avg Price" />
+          </BarChart>
+        ) : (
+          <BarChart data={sampleData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} />
+            <YAxis stroke="#9ca3af" label={{ value: 'Combined Share %', angle: -90, position: 'insideLeft', fill: '#9ca3af', fontSize: 11 }} />
+            <Tooltip
+              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+              formatter={(val, name, entry) => [`${val}% (${entry.payload.count} products)`, 'Combined Share']}
+            />
+            <Bar dataKey="share" radius={[4, 4, 0, 0]}>
+              {sampleData.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
+            </Bar>
+          </BarChart>
+        )}
+      </ResponsiveContainer>
+    </div>
   );
 };
 
@@ -1594,20 +1719,20 @@ const DashboardView = ({ products, indicationFilter }) => {
 
       <div className="grid grid-cols-2 gap-6">
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-lg font-bold text-white mb-4">Regional Distribution by Category</h2>
-          <p className="text-gray-500 text-xs mb-3">Average regional share across products in each workflow step.</p>
+          <h2 className="text-lg font-bold text-white mb-4">Top Vendors by Region</h2>
+          <p className="text-gray-500 text-xs mb-3">Who dominates each region? Switch regions to compare vendor rankings.</p>
           <RegionalDistribution products={filteredProducts} />
         </div>
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-lg font-bold text-white mb-4">Growth Trajectory</h2>
-          <p className="text-gray-500 text-xs mb-3">Product count by growth status.</p>
+          <h2 className="text-lg font-bold text-white mb-4">Growth Momentum by Vendor</h2>
+          <p className="text-gray-500 text-xs mb-3">Net momentum = growing + emerging − declining product share.</p>
           <GrowthDistribution products={filteredProducts} />
         </div>
       </div>
 
       <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-        <h2 className="text-lg font-bold text-white mb-4">Sample Type Coverage</h2>
-        <p className="text-gray-500 text-xs mb-3">Number of products supporting each sample type.</p>
+        <h2 className="text-lg font-bold text-white mb-4">Pricing & Sample Intelligence</h2>
+        <p className="text-gray-500 text-xs mb-3">Average pricing per workflow category. Toggle to see sample type market share.</p>
         <SampleTypeBreakdown products={filteredProducts} />
       </div>
 
