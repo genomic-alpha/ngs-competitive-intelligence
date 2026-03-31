@@ -853,9 +853,17 @@ const IndicationFilterBar = ({ indicationFilter, setIndicationFilter }) => {
 };
 
 const IndicationHeatmap = ({ products }) => {
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const categoryOpts = ['All', ...CATEGORIES];
+
+  const filteredProducts = useMemo(() => {
+    if (selectedCategory === 'All') return products;
+    return products.filter(p => p.category === selectedCategory);
+  }, [products, selectedCategory]);
+
   const vendorShares = useMemo(() => {
     const vendorMap = {};
-    products.forEach(p => {
+    filteredProducts.forEach(p => {
       if (!vendorMap[p.vendor]) vendorMap[p.vendor] = 0;
       vendorMap[p.vendor] += p.share || 0;
     });
@@ -863,65 +871,84 @@ const IndicationHeatmap = ({ products }) => {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 15)
       .map(([key]) => key);
-  }, [products]);
+  }, [filteredProducts]);
 
-  const getCellData = (vendorKey, indicationKey) => {
-    const vendorProds = products.filter(p => p.vendor === vendorKey && p.indications?.includes(indicationKey));
+  const getCellData = useCallback((vendorKey, indicationKey) => {
+    const vendorProds = filteredProducts.filter(p => p.vendor === vendorKey && p.indications?.includes(indicationKey));
     const count = vendorProds.length;
-    const indication = INDICATIONS.find(i => i.key === indicationKey);
     let maxShare = 0;
+    let totalShare = 0;
     vendorProds.forEach(p => {
-      if (p.indicationShare?.[indicationKey]?.global) {
-        maxShare = Math.max(maxShare, p.indicationShare[indicationKey].global);
-      }
+      const s = p.indicationShare?.[indicationKey]?.global || 0;
+      if (s > maxShare) maxShare = s;
+      totalShare += s;
     });
-    return { count, maxShare, indication };
-  };
+    return { count, maxShare, totalShare };
+  }, [filteredProducts]);
+
+  const catColors = { 'All': '#9ca3af', 'Extraction': '#f59e0b', 'Library Prep': '#3b82f6', 'Automation': '#8b5cf6', 'Sequencing': '#ef4444', 'Analysis': '#10b981', 'Reporting': '#ec4899' };
 
   return (
     <div className="bg-gray-900 rounded-lg p-6 border border-gray-800 overflow-x-auto">
-      <h3 className="text-lg font-bold text-white mb-4">Vendor-Indication Matrix</h3>
-      <div className="inline-block">
-        <div className="flex">
-          <div className="w-40"></div>
-          <div className="flex gap-0">
-            {INDICATIONS.map(ind => (
-              <div key={ind.key} className="w-20 text-center">
-                <div className="text-xs text-gray-400">{ind.icon}</div>
-                <div className="text-xs text-gray-500 truncate">{ind.label}</div>
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <h3 className="text-lg font-bold text-white">Vendor-Indication Matrix</h3>
+        <div className="flex gap-1 flex-wrap">
+          {categoryOpts.map(cat => (
+            <button key={cat} onClick={() => setSelectedCategory(cat)}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedCategory === cat ? 'text-white ring-1 ring-white/30' : 'text-gray-400 hover:text-gray-200'}`}
+              style={selectedCategory === cat ? { backgroundColor: catColors[cat] + 'aa' } : {}}
+            >{cat}</button>
+          ))}
+        </div>
+      </div>
+      {vendorShares.length === 0 ? (
+        <div className="text-gray-500 text-sm text-center py-8">No vendors with products in {selectedCategory} targeting clinical indications</div>
+      ) : (
+        <div className="inline-block">
+          <div className="flex">
+            <div className="w-40"></div>
+            <div className="flex gap-0">
+              {INDICATIONS.map(ind => (
+                <div key={ind.key} className="w-20 text-center">
+                  <div className="text-xs text-gray-400">{ind.icon}</div>
+                  <div className="text-xs text-gray-500 truncate" title={ind.label}>{ind.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {vendorShares.map(vendorKey => {
+            const vendor = VENDORS.find(v => v.key === vendorKey);
+            return (
+              <div key={vendorKey} className="flex">
+                <div className="w-40 pr-3 py-2 text-sm font-medium text-gray-300 text-right truncate" title={vendor?.label}>{vendor?.label}</div>
+                <div className="flex gap-0">
+                  {INDICATIONS.map(ind => {
+                    const { count, maxShare, totalShare } = getCellData(vendorKey, ind.key);
+                    const intensity = count === 0 ? 0 : count === 1 ? 0.3 : count === 2 ? 0.5 : 0.7;
+                    const displayVal = maxShare > 0 ? `${maxShare}%` : count > 0 ? count : '';
+                    return (
+                      <div
+                        key={ind.key}
+                        className="w-20 h-12 flex items-center justify-center border border-gray-800"
+                        style={count > 0 ? { backgroundColor: `${ind.color}${Math.round(intensity * 255).toString(16).padStart(2, '0')}` } : {}}
+                        title={`${vendor?.label} × ${ind.label}${selectedCategory !== 'All' ? ` (${selectedCategory})` : ''}: ${count} product${count !== 1 ? 's' : ''}${maxShare > 0 ? `, top share ${maxShare}%` : ''}`}
+                      >
+                        {displayVal && <span className="text-xs font-bold" style={{ color: maxShare > 0 ? '#ffffff' : ind.color }}>{displayVal}</span>}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            ))}
+            );
+          })}
+          <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
+            <span>Showing: <span className="text-gray-300 font-medium">{selectedCategory}</span></span>
+            <span>{vendorShares.length} vendors</span>
+            <span>{filteredProducts.length} products</span>
+            <span className="flex items-center gap-1">Intensity = product count per cell</span>
           </div>
         </div>
-        {vendorShares.map(vendorKey => {
-          const vendor = VENDORS.find(v => v.key === vendorKey);
-          return (
-            <div key={vendorKey} className="flex">
-              <div className="w-40 pr-3 py-2 text-sm font-medium text-gray-300 text-right">{vendor?.label}</div>
-              <div className="flex gap-0">
-                {INDICATIONS.map(ind => {
-                  const { count, maxShare } = getCellData(vendorKey, ind.key);
-                  let opacity = 'bg-gray-800/50';
-                  if (count >= 2) opacity = `opacity-60`;
-                  else if (count === 1) opacity = `opacity-30`;
-
-                  return (
-                    <div
-                      key={ind.key}
-                      className={`w-20 h-12 flex items-center justify-center border border-gray-800 ${count > 0 ? opacity : ''}`}
-                      style={count > 0 ? { backgroundColor: `${ind.color}${count >= 2 ? '99' : '4d'}` } : {}}
-                      title={`${count} product${count !== 1 ? 's' : ''} ${maxShare > 0 ? `(${maxShare}% share)` : ''}`}
-                    >
-                      {maxShare > 0 && <span className="text-xs font-bold text-white">{maxShare}%</span>}
-                      {count > 0 && maxShare === 0 && <span className="text-xs font-bold" style={{color: ind.color}}>{count}</span>}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      )}
     </div>
   );
 };
