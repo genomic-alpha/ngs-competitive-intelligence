@@ -1599,43 +1599,63 @@ const TopVendorsBubble = ({ products }) => {
 };
 
 const SequencerLandscape = ({ products }) => {
+  const [selectedCategory, setSelectedCategory] = useState('Sequencing');
+  const catColors = { 'Extraction': '#f59e0b', 'Library Prep': '#3b82f6', 'Automation': '#8b5cf6', 'Sequencing': '#ef4444', 'Analysis': '#10b981', 'Reporting': '#ec4899' };
+
   const data = useMemo(() => {
     return products
-      .filter(p => p.category === 'Sequencing')
+      .filter(p => p.category === selectedCategory)
       .map(p => {
         const v = VENDORS.find(v => v.key === p.vendor);
-        return { name: p.name, share: p.share || 0, pricing: p.pricing || 0, vendor: v?.label || p.vendor, color: v?.color || '#6b7280', tier: p.tier, regulatory: p.regulatory };
+        return { name: p.name, share: p.share || 0, pricing: p.pricing || 0, vendor: v?.label || p.vendor, color: v?.color || '#6b7280', tier: p.tier, regulatory: p.regulatory, category: p.category };
       });
-  }, [products]);
+  }, [products, selectedCategory]);
+
+  const maxShare = useMemo(() => Math.max(...data.map(d => d.share), 1), [data]);
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <ScatterChart>
-        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-        <XAxis dataKey="pricing" stroke="#9ca3af" name="Price" unit="" label={{ value: 'Cost per Sample ($)', position: 'insideBottom', offset: -5, fill: '#9ca3af', fontSize: 11 }} />
-        <YAxis dataKey="share" stroke="#9ca3af" name="Share" unit="%" label={{ value: 'Market Share %', angle: -90, position: 'insideLeft', fill: '#9ca3af', fontSize: 11 }} />
-        <Tooltip
-          contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-          formatter={(val, name) => [name === 'Price' ? `$${val}` : `${val}%`, name]}
-          labelFormatter={() => ''}
-          content={({ active, payload }) => {
-            if (!active || !payload?.length) return null;
-            const d = payload[0].payload;
-            return (
-              <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 text-sm">
-                <p className="font-bold text-white">{d.name}</p>
-                <p className="text-gray-400">{d.vendor} · Tier {d.tier}</p>
-                <p className="text-blue-400">Share: {d.share}% · Cost: ${d.pricing}/sample</p>
-                <p className="text-green-400">{d.regulatory}</p>
-              </div>
-            );
-          }}
-        />
-        <Scatter data={data} shape="circle">
-          {data.map((entry, idx) => <Cell key={idx} fill={entry.color} r={Math.max(5, entry.share)} />)}
-        </Scatter>
-      </ScatterChart>
-    </ResponsiveContainer>
+    <div>
+      <div className="flex gap-1 mb-3 flex-wrap">
+        {CATEGORIES.map(cat => (
+          <button key={cat} onClick={() => setSelectedCategory(cat)}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedCategory === cat ? 'text-white ring-1 ring-white/30' : 'text-gray-400 hover:text-gray-200'}`}
+            style={selectedCategory === cat ? { backgroundColor: catColors[cat] + 'aa' } : {}}
+          >{cat}</button>
+        ))}
+      </div>
+      {data.length === 0 ? (
+        <div className="text-gray-500 text-sm text-center py-12">No products with pricing data in {selectedCategory}</div>
+      ) : (
+        <ResponsiveContainer width="100%" height={320}>
+          <ScatterChart margin={{ top: 10, right: 20, bottom: 25, left: 10 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="pricing" stroke="#9ca3af" name="Price" unit="" label={{ value: 'Cost per Sample ($)', position: 'insideBottom', offset: -10, fill: '#9ca3af', fontSize: 11 }} />
+            <YAxis dataKey="share" stroke="#9ca3af" name="Share" unit="%" label={{ value: 'Market Share %', angle: -90, position: 'insideLeft', fill: '#9ca3af', fontSize: 11 }} />
+            <Tooltip
+              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+              formatter={(val, name) => [name === 'Price' ? `$${val}` : `${val}%`, name]}
+              labelFormatter={() => ''}
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const d = payload[0].payload;
+                return (
+                  <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 text-sm">
+                    <p className="font-bold text-white">{d.name}</p>
+                    <p className="text-gray-400">{d.vendor} · {d.category} · Tier {d.tier}</p>
+                    <p className="text-blue-400">Share: {d.share}% · Cost: ${d.pricing}/sample</p>
+                    <p className="text-green-400">{d.regulatory}</p>
+                  </div>
+                );
+              }}
+            />
+            <Scatter data={data} shape="circle">
+              {data.map((entry, idx) => <Cell key={idx} fill={entry.color} r={Math.max(5, Math.min(25, (entry.share / maxShare) * 25))} />)}
+            </Scatter>
+          </ScatterChart>
+        </ResponsiveContainer>
+      )}
+      <div className="mt-1 text-xs text-gray-500 text-center">{data.length} products in {selectedCategory} · Bubble size = relative market share</div>
+    </div>
   );
 };
 
@@ -1890,8 +1910,8 @@ const DashboardView = ({ products, indicationFilter }) => {
       </div>
 
       <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-        <h2 className="text-lg font-bold text-white mb-4">Sequencer Landscape: Share vs. Cost</h2>
-        <p className="text-gray-500 text-xs mb-3">Bubble size = market share. Hover for details.</p>
+        <h2 className="text-lg font-bold text-white mb-4">Product Landscape: Share vs. Cost</h2>
+        <p className="text-gray-500 text-xs mb-3">Compare products by market share and cost across any workflow step. Hover for details.</p>
         <SequencerLandscape products={filteredProducts} />
       </div>
 
