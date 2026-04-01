@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, createContext, useContext } from 'react';
 import { BarChart, Bar, ScatterChart, Scatter, RadarChart, Radar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PolarAngleAxis, PolarGrid, PieChart, Pie, Cell, Area, AreaChart, ComposedChart, ReferenceLine } from 'recharts';
-import { ChevronDown, ChevronRight, AlertCircle, CheckCircle, TrendingUp, TrendingDown, ArrowRight, Users, Package, Zap, Globe, DollarSign, FileText, Calendar, Download, Plus, Trash2, Edit3, Save, Upload, Copy, RefreshCw, Search, Filter, ChevronUp, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, AlertCircle, CheckCircle, TrendingUp, TrendingDown, ArrowRight, Users, Package, Zap, Globe, DollarSign, FileText, Calendar, Download, Plus, Trash2, Edit3, Save, Upload, Copy, RefreshCw, Search, Filter, ChevronUp, X, Handshake, Shield, Heart, Clock, AlertTriangle, BarChart3, Activity } from 'lucide-react';
 
 // ============================================
 // SCENARIO CONTEXT
@@ -839,6 +839,248 @@ const DEFAULT_COST_COMPONENTS = {
   'qci-interpret': { reagents: 0, instrument_amortized: 0, labor: 2.0, qc: 0.5, total: 2.5 },
 };
 
+const DEFAULT_PARTNERS = [
+  {
+    id: 'partner-illumina',
+    vendorKey: 'illumina',
+    status: 'active',
+    tier: 'strategic',
+    contractStart: '2024-06-01',
+    contractEnd: '2026-05-31',
+    contractValue: 450000,
+    pricingTier: 'enterprise',
+    discountPct: 22,
+    paymentTerms: 'Net 45',
+    autoRenew: true,
+    primaryContact: 'Sarah Chen',
+    primaryContactRole: 'Enterprise Account Manager',
+    primaryContactEmail: 'schen@illumina.com',
+    integrationStatus: 'validated',
+    validatedProducts: ['illumina-novaseq', 'illumina-nextseq', 'illumina-dragen'],
+    integrationNotes: 'Full DRAGEN pipeline validated for solid tumor and liquid biopsy workflows',
+    technicalContact: 'Mike Rivera',
+    technicalContactRole: 'Field Applications Scientist',
+    healthScore: 85,
+    lastMeeting: '2026-03-15',
+    nextReview: '2026-06-15',
+    meetingNotes: [
+      { date: '2026-03-15', type: 'QBR', notes: 'Discussed XLEAP chemistry timeline. Beta access Q2.' },
+      { date: '2026-01-20', type: 'Technical', notes: 'DRAGEN v4.3 validation kickoff for heme panel.' },
+    ],
+    pipelineActivities: [
+      { id: 'pipe-1', description: 'XLEAP chemistry beta evaluation', status: 'in_progress', startDate: '2026-02-01', targetDate: '2026-06-30', value: 120000 },
+      { id: 'pipe-2', description: 'NovaSeq X Plus upgrade (2 units)', status: 'approved', startDate: '2026-04-01', targetDate: '2026-07-01', value: 680000 },
+    ],
+    riskFactors: ['Price increase expected at renewal', 'Element Biosciences competitive pressure'],
+    categories: ['Sequencing', 'Analysis'],
+  },
+  {
+    id: 'partner-qiagen',
+    vendorKey: 'qiagen',
+    status: 'active',
+    tier: 'preferred',
+    contractStart: '2025-01-01',
+    contractEnd: '2026-12-31',
+    contractValue: 180000,
+    pricingTier: 'premium',
+    discountPct: 15,
+    paymentTerms: 'Net 30',
+    autoRenew: true,
+    primaryContact: 'David Park',
+    primaryContactRole: 'Account Manager',
+    primaryContactEmail: 'dpark@qiagen.com',
+    integrationStatus: 'validated',
+    validatedProducts: ['qiagen-ffpe-ext', 'qiagen-blood-ext', 'qiagen-qci'],
+    integrationNotes: 'QIAamp + QCI Interpret standard in extraction and reporting workflow',
+    technicalContact: 'Lisa Wong',
+    technicalContactRole: 'Field Applications Specialist',
+    healthScore: 78,
+    lastMeeting: '2026-02-28',
+    nextReview: '2026-05-30',
+    meetingNotes: [
+      { date: '2026-02-28', type: 'QBR', notes: 'QCI AI enhancements demo. Pricing stable.' },
+    ],
+    pipelineActivities: [
+      { id: 'pipe-3', description: 'QIAseq UMI panel evaluation', status: 'evaluating', startDate: '2026-03-01', targetDate: '2026-08-01', value: 45000 },
+    ],
+    riskFactors: ['No sequencing offering limits single-vendor workflow'],
+    categories: ['Extraction', 'Reporting'],
+  },
+  {
+    id: 'partner-thermo',
+    vendorKey: 'thermo',
+    status: 'active',
+    tier: 'approved',
+    contractStart: '2025-03-01',
+    contractEnd: '2027-02-28',
+    contractValue: 220000,
+    pricingTier: 'standard',
+    discountPct: 12,
+    paymentTerms: 'Net 30',
+    autoRenew: false,
+    primaryContact: 'James Liu',
+    primaryContactRole: 'Regional Sales Manager',
+    primaryContactEmail: 'jliu@thermofisher.com',
+    integrationStatus: 'validated',
+    validatedProducts: ['thermo-magmax-ext', 'thermo-genexus-seq', 'thermo-ion-s5'],
+    integrationNotes: 'Genexus primary system for rapid turnaround. Ion S5 backup.',
+    technicalContact: 'Amanda Torres',
+    technicalContactRole: 'FAS',
+    healthScore: 72,
+    lastMeeting: '2026-03-01',
+    nextReview: '2026-06-01',
+    meetingNotes: [
+      { date: '2026-03-01', type: 'Product', notes: 'Oncomine Precision Assay v2 roadmap review.' },
+    ],
+    pipelineActivities: [
+      { id: 'pipe-4', description: 'Genexus assay menu expansion', status: 'in_progress', startDate: '2025-11-01', targetDate: '2026-06-30', value: 85000 },
+    ],
+    riskFactors: ['Genexus throughput ceiling for scaling'],
+    categories: ['Extraction', 'Sequencing'],
+  },
+  {
+    id: 'partner-twist',
+    vendorKey: 'twist',
+    status: 'evaluating',
+    tier: 'evaluating',
+    contractStart: '',
+    contractEnd: '',
+    contractValue: 0,
+    pricingTier: 'quoted',
+    discountPct: 0,
+    paymentTerms: '',
+    autoRenew: false,
+    primaryContact: 'Rachel Kim',
+    primaryContactRole: 'Sales Representative',
+    primaryContactEmail: 'rkim@twistbioscience.com',
+    integrationStatus: 'in_progress',
+    validatedProducts: [],
+    integrationNotes: 'Evaluating Exome 2.0 against Agilent SureSelect. 2hr hyb promising.',
+    technicalContact: 'Neil Patel',
+    technicalContactRole: 'Applications Scientist',
+    healthScore: 60,
+    lastMeeting: '2026-03-20',
+    nextReview: '2026-04-30',
+    meetingNotes: [
+      { date: '2026-03-20', type: 'Demo', notes: 'Twist Exome 2.0 hands-on demo. Uniformity data impressive.' },
+    ],
+    pipelineActivities: [
+      { id: 'pipe-5', description: 'Exome 2.0 validation study', status: 'in_progress', startDate: '2026-03-15', targetDate: '2026-06-15', value: 65000 },
+    ],
+    riskFactors: ['No IVD products', 'Limited clinical validation data'],
+    categories: ['Library Prep'],
+  },
+  {
+    id: 'partner-hamilton',
+    vendorKey: 'hamilton',
+    status: 'active',
+    tier: 'preferred',
+    contractStart: '2024-01-01',
+    contractEnd: '2027-12-31',
+    contractValue: 95000,
+    pricingTier: 'service_contract',
+    discountPct: 10,
+    paymentTerms: 'Net 60',
+    autoRenew: true,
+    primaryContact: 'Tom Bradley',
+    primaryContactRole: 'Automation Specialist',
+    primaryContactEmail: 'tbradley@hamiltoncompany.com',
+    integrationStatus: 'validated',
+    validatedProducts: ['hamilton-star'],
+    integrationNotes: 'Hamilton STAR primary automation platform. All NGS library prep methods validated.',
+    technicalContact: 'Tom Bradley',
+    technicalContactRole: 'Automation Specialist',
+    healthScore: 90,
+    lastMeeting: '2026-02-10',
+    nextReview: '2026-08-10',
+    meetingNotes: [
+      { date: '2026-02-10', type: 'Service', notes: 'Annual PM completed. Method library updated to v3.2.' },
+    ],
+    pipelineActivities: [],
+    riskFactors: ['Premium pricing vs Opentrons for new stations'],
+    categories: ['Automation'],
+  },
+  {
+    id: 'partner-sophia',
+    vendorKey: 'sophia',
+    status: 'active',
+    tier: 'approved',
+    contractStart: '2025-06-01',
+    contractEnd: '2026-05-31',
+    contractValue: 72000,
+    pricingTier: 'per_sample',
+    discountPct: 8,
+    paymentTerms: 'Net 30',
+    autoRenew: true,
+    primaryContact: 'Marie Dubois',
+    primaryContactRole: 'Customer Success Manager',
+    primaryContactEmail: 'mdubois@sophiagenetics.com',
+    integrationStatus: 'validated',
+    validatedProducts: ['sophia-ddm'],
+    integrationNotes: 'SOPHiA DDM primary analysis + reporting for solid tumor. Evaluating HRD module.',
+    technicalContact: 'Pierre Martin',
+    technicalContactRole: 'Bioinformatics Support',
+    healthScore: 68,
+    lastMeeting: '2026-03-05',
+    nextReview: '2026-05-31',
+    meetingNotes: [
+      { date: '2026-03-05', type: 'Renewal', notes: 'Contract renewal discussion. Requesting HRD module discount.' },
+    ],
+    pipelineActivities: [
+      { id: 'pipe-6', description: 'HRD analysis module evaluation', status: 'evaluating', startDate: '2026-02-01', targetDate: '2026-05-01', value: 28000 },
+    ],
+    riskFactors: ['Revenue growth slowing at SOPHiA', 'Renewal pricing negotiation'],
+    categories: ['Analysis', 'Reporting'],
+  },
+  {
+    id: 'partner-element',
+    vendorKey: 'element',
+    status: 'prospect',
+    tier: 'evaluating',
+    contractStart: '',
+    contractEnd: '',
+    contractValue: 0,
+    pricingTier: '',
+    discountPct: 0,
+    paymentTerms: '',
+    autoRenew: false,
+    primaryContact: 'Chris Nolan',
+    primaryContactRole: 'Business Development',
+    primaryContactEmail: 'cnolan@elembio.com',
+    integrationStatus: 'planned',
+    validatedProducts: [],
+    integrationNotes: 'Monitoring AVITI24 as potential Illumina alternative. Need IVD timeline.',
+    technicalContact: '',
+    technicalContactRole: '',
+    healthScore: 45,
+    lastMeeting: '2026-01-15',
+    nextReview: '2026-04-15',
+    meetingNotes: [
+      { date: '2026-01-15', type: 'Intro', notes: 'Initial meeting. AVITI24 demo requested. Pricing competitive.' },
+    ],
+    pipelineActivities: [
+      { id: 'pipe-7', description: 'AVITI24 instrument evaluation', status: 'planned', startDate: '2026-05-01', targetDate: '2026-10-01', value: 350000 },
+    ],
+    riskFactors: ['No IVD clearance', 'Limited installed base for validation'],
+    categories: ['Sequencing'],
+  },
+];
+
+const VALIDATION_RULES = [
+  { id: 'share-sum', name: 'Category Share Totals', description: 'Market share within each category should sum to ~100%', severity: 'critical', category: 'consistency' },
+  { id: 'regional-sum', name: 'Regional Share Consistency', description: 'Regional shares should not exceed global share significantly', severity: 'warning', category: 'consistency' },
+  { id: 'pricing-outlier', name: 'Pricing Outlier Detection', description: 'Product pricing outside 2 standard deviations of category mean', severity: 'warning', category: 'outlier' },
+  { id: 'orphan-product', name: 'Orphan Products', description: 'Products with no compatibility entries (isolated in workflow)', severity: 'info', category: 'completeness' },
+  { id: 'missing-confidence', name: 'Missing Confidence Data', description: 'Products without confidence metadata for key fields', severity: 'warning', category: 'completeness' },
+  { id: 'stale-data', name: 'Stale Data Points', description: 'Data points not updated in 6+ months', severity: 'warning', category: 'freshness' },
+  { id: 'vendor-orphan', name: 'Orphan Vendors', description: 'Vendors with no associated products', severity: 'info', category: 'completeness' },
+  { id: 'growth-trend-mismatch', name: 'Growth vs Trend Mismatch', description: 'Growth designation conflicts with historical share trajectory', severity: 'warning', category: 'consistency' },
+  { id: 'indication-coverage', name: 'Indication Coverage Gaps', description: 'Categories with no products covering key indications', severity: 'info', category: 'completeness' },
+  { id: 'partner-contract-expiry', name: 'Partner Contract Expiry', description: 'Partner contracts expiring within 90 days', severity: 'critical', category: 'partner' },
+  { id: 'partner-health-low', name: 'Low Partner Health', description: 'Partners with health score below 60', severity: 'warning', category: 'partner' },
+  { id: 'partner-integration-gap', name: 'Partner Integration Gaps', description: 'Active partners with unvalidated products', severity: 'info', category: 'partner' },
+];
+
 // MULTI-OMICS CATEGORIES (future): ['Proteomics', 'Spatial Biology', 'Long-Read Sequencing', 'Epigenomics', 'Single-Cell Multi-omics']
 
 // ============================================
@@ -1430,6 +1672,561 @@ const generateBrief = (products, vendors = DEFAULT_VENDORS) => {
 };
 
 // ============================================
+// PARTNERS VIEW
+// ============================================
+
+const PartnersView = ({ products, indicationFilter }) => {
+  const data = useData();
+  const partners = data?.partners || DEFAULT_PARTNERS;
+  const vendors = data?.vendors || DEFAULT_VENDORS;
+  const [sortBy, setSortBy] = useState('health');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterTier, setFilterTier] = useState('all');
+  const [expandedPartner, setExpandedPartner] = useState(null);
+
+  const filteredPartners = useMemo(() => {
+    return partners.filter(p =>
+      (filterStatus === 'all' || p.status === filterStatus) &&
+      (filterTier === 'all' || p.tier === filterTier)
+    ).sort((a, b) => {
+      if (sortBy === 'health') return b.healthScore - a.healthScore;
+      if (sortBy === 'value') return b.contractValue - a.contractValue;
+      if (sortBy === 'expiry') {
+        const aExp = new Date(a.contractEnd || '2099-12-31');
+        const bExp = new Date(b.contractEnd || '2099-12-31');
+        return aExp - bExp;
+      }
+      return 0;
+    });
+  }, [partners, filterStatus, filterTier, sortBy]);
+
+  const activeCount = partners.filter(p => p.status === 'active').length;
+  const totalValue = partners.filter(p => p.status === 'active').reduce((s, p) => s + p.contractValue, 0);
+  const avgHealth = Math.round(partners.filter(p => p.status === 'active').reduce((s, p) => s + p.healthScore, 0) / Math.max(activeCount, 1));
+
+  const expiringCount = partners.filter(p => {
+    if (!p.contractEnd) return false;
+    const days = (new Date(p.contractEnd) - new Date()) / (1000 * 60 * 60 * 24);
+    return days >= 0 && days <= 90;
+  }).length;
+
+  const pipelineTotal = partners.reduce((s, p) => s + p.pipelineActivities.reduce((ps, pa) => ps + pa.value, 0), 0);
+
+  const getCoverageMap = () => {
+    const map = {};
+    CATEGORIES.forEach(cat => {
+      map[cat] = partners.filter(p => p.categories.includes(cat) && p.status === 'active').map(p => vendors.find(v => v.key === p.vendorKey)?.label || p.vendorKey);
+    });
+    return map;
+  };
+
+  const coverageMap = getCoverageMap();
+
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'active': return 'bg-green-900/30 text-green-400 border-green-700';
+      case 'evaluating': return 'bg-yellow-900/30 text-yellow-400 border-yellow-700';
+      case 'former': return 'bg-gray-700 text-gray-300 border-gray-600';
+      case 'prospect': return 'bg-blue-900/30 text-blue-400 border-blue-700';
+      default: return 'bg-gray-700 text-gray-300 border-gray-600';
+    }
+  };
+
+  const getTierColor = (tier) => {
+    switch(tier) {
+      case 'strategic': return 'bg-red-900/40 border-red-700';
+      case 'preferred': return 'bg-orange-900/40 border-orange-700';
+      case 'approved': return 'bg-green-900/40 border-green-700';
+      case 'evaluating': return 'bg-blue-900/40 border-blue-700';
+      default: return 'bg-gray-800 border-gray-700';
+    }
+  };
+
+  const getHealthColor = (score) => {
+    if (score >= 80) return '#10b981';
+    if (score >= 70) return '#3b82f6';
+    if (score >= 60) return '#f59e0b';
+    return '#ef4444';
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header Stats */}
+      <div className="grid grid-cols-4 gap-4">
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <div className="text-sm text-gray-400 mb-1">Active Partners</div>
+          <div className="text-3xl font-bold text-white">{activeCount}</div>
+          <div className="text-xs text-gray-500 mt-2">Strategic relationships</div>
+        </div>
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <div className="text-sm text-gray-400 mb-1">Total Contract Value</div>
+          <div className="text-3xl font-bold text-white">${(totalValue / 1000000).toFixed(2)}M</div>
+          <div className="text-xs text-gray-500 mt-2">Annual commitment</div>
+        </div>
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <div className="text-sm text-gray-400 mb-1">Avg Health Score</div>
+          <div className="text-3xl font-bold text-white">{avgHealth}</div>
+          <div className="text-xs text-gray-500 mt-2">Out of 100</div>
+        </div>
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <div className="text-sm text-gray-400 mb-1">Expiring Soon</div>
+          <div className="text-3xl font-bold text-white">{expiringCount}</div>
+          <div className="text-xs text-gray-500 mt-2">Within 90 days</div>
+        </div>
+      </div>
+
+      {/* Filter & Sort */}
+      <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 flex gap-4 items-center">
+        <div>
+          <label className="text-xs text-gray-400 block mb-1">Status</label>
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white">
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="evaluating">Evaluating</option>
+            <option value="prospect">Prospect</option>
+            <option value="former">Former</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-xs text-gray-400 block mb-1">Tier</label>
+          <select value={filterTier} onChange={(e) => setFilterTier(e.target.value)} className="bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white">
+            <option value="all">All Tiers</option>
+            <option value="strategic">Strategic</option>
+            <option value="preferred">Preferred</option>
+            <option value="approved">Approved</option>
+            <option value="evaluating">Evaluating</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-xs text-gray-400 block mb-1">Sort By</label>
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white">
+            <option value="health">Health Score</option>
+            <option value="value">Contract Value</option>
+            <option value="expiry">Expiry Date</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Partner Cards Grid */}
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold text-white">Partner Portfolio</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {filteredPartners.map(partner => {
+            const vendor = vendors.find(v => v.key === partner.vendorKey);
+            const isExpiring = partner.contractEnd && (new Date(partner.contractEnd) - new Date()) / (1000 * 60 * 60 * 24) <= 90;
+            return (
+              <div key={partner.id} className={`border rounded-lg p-4 cursor-pointer transition ${expandedPartner === partner.id ? 'bg-gray-750 border-gray-600' : 'bg-gray-800 border-gray-700 hover:border-gray-600'} ${isExpiring ? 'border-yellow-600' : ''}`} onClick={() => setExpandedPartner(expandedPartner === partner.id ? null : partner.id)}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: vendor?.color }}></div>
+                    <div>
+                      <h4 className="font-semibold text-white">{vendor?.label || partner.vendorKey}</h4>
+                      <div className="flex gap-2 mt-1">
+                        <span className={`text-xs px-2 py-1 rounded border ${getStatusColor(partner.status)}`}>{partner.status}</span>
+                        <span className={`text-xs px-2 py-1 rounded border font-semibold ${getTierColor(partner.tier)}`}>{partner.tier}</span>
+                      </div>
+                    </div>
+                  </div>
+                  {isExpiring && <AlertTriangle className="w-4 h-4 text-yellow-500" />}
+                </div>
+
+                <div className="mb-3">
+                  <div className="text-xs text-gray-400 mb-1">Health: {partner.healthScore}/100</div>
+                  <div className="w-full bg-gray-900 rounded-full h-2 overflow-hidden">
+                    <div className="h-full" style={{ width: `${partner.healthScore}%`, backgroundColor: getHealthColor(partner.healthScore) }}></div>
+                  </div>
+                </div>
+
+                <div className="text-xs text-gray-400 space-y-1 mb-3">
+                  {partner.contractStart && (
+                    <div className="flex justify-between">
+                      <span>Contract:</span>
+                      <span className={partner.contractEnd ? (isExpiring ? 'text-yellow-400' : 'text-green-400') : 'text-gray-500'}>{partner.contractStart} to {partner.contractEnd || 'N/A'}</span>
+                    </div>
+                  )}
+                  {partner.contractValue > 0 && (
+                    <div className="flex justify-between">
+                      <span>Value:</span>
+                      <span className="text-white font-semibold">${(partner.contractValue / 1000).toFixed(0)}k/yr</span>
+                    </div>
+                  )}
+                  {partner.primaryContact && (
+                    <div className="flex justify-between">
+                      <span>Contact:</span>
+                      <span className="text-white">{partner.primaryContact}</span>
+                    </div>
+                  )}
+                </div>
+
+                {expandedPartner === partner.id && (
+                  <div className="mt-4 pt-4 border-t border-gray-700 space-y-4">
+                    <div>
+                      <h5 className="text-sm font-semibold text-white mb-2">Commercial Details</h5>
+                      <div className="bg-gray-900 rounded p-3 text-xs text-gray-300 space-y-1">
+                        <div><span className="text-gray-400">Pricing Tier:</span> {partner.pricingTier}</div>
+                        <div><span className="text-gray-400">Discount:</span> {partner.discountPct}%</div>
+                        <div><span className="text-gray-400">Terms:</span> {partner.paymentTerms || 'N/A'}</div>
+                        <div><span className="text-gray-400">Auto-Renew:</span> {partner.autoRenew ? 'Yes' : 'No'}</div>
+                        <div><span className="text-gray-400">Primary Contact:</span> {partner.primaryContact} ({partner.primaryContactRole})</div>
+                        <div><span className="text-gray-400">Email:</span> {partner.primaryContactEmail}</div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h5 className="text-sm font-semibold text-white mb-2">Technical Integration</h5>
+                      <div className="bg-gray-900 rounded p-3 text-xs text-gray-300 space-y-1">
+                        <div><span className="text-gray-400">Status:</span> <span className="px-2 py-1 bg-blue-900/30 text-blue-300 rounded text-xs">{partner.integrationStatus}</span></div>
+                        <div><span className="text-gray-400">Validated Products:</span> {partner.validatedProducts.length > 0 ? partner.validatedProducts.join(', ') : 'None'}</div>
+                        <div><span className="text-gray-400">Notes:</span> {partner.integrationNotes}</div>
+                        <div><span className="text-gray-400">Tech Contact:</span> {partner.technicalContact || 'N/A'} ({partner.technicalContactRole || 'N/A'})</div>
+                      </div>
+                    </div>
+
+                    {partner.meetingNotes.length > 0 && (
+                      <div>
+                        <h5 className="text-sm font-semibold text-white mb-2">Recent Meetings</h5>
+                        <div className="space-y-2 max-h-40 overflow-y-auto">
+                          {partner.meetingNotes.map((meeting, i) => (
+                            <div key={i} className="bg-gray-900 rounded p-2 text-xs border-l-2 border-gray-600">
+                              <div className="flex justify-between text-gray-300">
+                                <span className="font-semibold">{meeting.type}</span>
+                                <span className="text-gray-500">{meeting.date}</span>
+                              </div>
+                              <div className="text-gray-400 mt-1">{meeting.notes}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {partner.pipelineActivities.length > 0 && (
+                      <div>
+                        <h5 className="text-sm font-semibold text-white mb-2">Pipeline Activities</h5>
+                        <div className="space-y-2 max-h-40 overflow-y-auto">
+                          {partner.pipelineActivities.map(activity => (
+                            <div key={activity.id} className="bg-gray-900 rounded p-2 text-xs border-l-2 border-gray-600">
+                              <div className="flex justify-between text-gray-300 mb-1">
+                                <span className="font-semibold">{activity.description}</span>
+                                <span className="text-green-400 font-semibold">${(activity.value / 1000).toFixed(0)}k</span>
+                              </div>
+                              <div className="flex justify-between text-gray-500 text-[10px]">
+                                <span className={`px-2 py-0.5 rounded ${activity.status === 'approved' ? 'bg-green-900/30 text-green-300' : activity.status === 'in_progress' ? 'bg-blue-900/30 text-blue-300' : activity.status === 'evaluating' ? 'bg-yellow-900/30 text-yellow-300' : 'bg-gray-700 text-gray-300'}`}>{activity.status}</span>
+                                <span>{activity.startDate} → {activity.targetDate}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {partner.riskFactors.length > 0 && (
+                      <div>
+                        <h5 className="text-sm font-semibold text-white mb-2 text-orange-400">Risk Factors</h5>
+                        <ul className="text-xs text-orange-300 space-y-1 list-disc list-inside">
+                          {partner.riskFactors.map((risk, i) => <li key={i}>{risk}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Pipeline Tracker */}
+      {pipelineTotal > 0 && (
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <h3 className="text-lg font-semibold text-white mb-4">Pipeline Activities</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b border-gray-700">
+                <tr className="text-gray-400 text-left">
+                  <th className="pb-3 pl-3">Partner</th>
+                  <th className="pb-3">Activity</th>
+                  <th className="pb-3">Status</th>
+                  <th className="pb-3">Value</th>
+                  <th className="pb-3">Target Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {partners.flatMap(p => p.pipelineActivities.map(activity => ({...activity, partner: p, vendorLabel: vendors.find(v => v.key === p.vendorKey)?.label}))).sort((a, b) => new Date(b.targetDate) - new Date(a.targetDate)).map((activity, idx) => (
+                  <tr key={idx} className="border-b border-gray-700 hover:bg-gray-700/30">
+                    <td className="py-3 pl-3 font-semibold text-white">{activity.vendorLabel || activity.partner.vendorKey}</td>
+                    <td className="py-3">{activity.description}</td>
+                    <td className="py-3">
+                      <span className={`text-xs px-2 py-1 rounded font-semibold ${activity.status === 'approved' ? 'bg-green-900/40 text-green-300' : activity.status === 'in_progress' ? 'bg-blue-900/40 text-blue-300' : activity.status === 'evaluating' ? 'bg-yellow-900/40 text-yellow-300' : 'bg-gray-700 text-gray-300'}`}>
+                        {activity.status}
+                      </span>
+                    </td>
+                    <td className="py-3 text-green-400 font-semibold">${(activity.value / 1000).toFixed(0)}k</td>
+                    <td className="py-3 text-gray-400">{activity.targetDate}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-4 text-sm text-gray-300 flex justify-between">
+            <span>Total Pipeline Value:</span>
+            <span className="text-green-400 font-semibold text-lg">${(pipelineTotal / 1000000).toFixed(2)}M</span>
+          </div>
+        </div>
+      )}
+
+      {/* Vendor Coverage Map */}
+      <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h3 className="text-lg font-semibold text-white mb-4">Vendor Coverage by Workflow</h3>
+        <div className="space-y-3">
+          {CATEGORIES.map(cat => (
+            <div key={cat} className="flex items-center gap-4">
+              <div className="w-32 text-sm font-semibold text-gray-300">{cat}</div>
+              <div className="flex-1 flex flex-wrap gap-2">
+                {coverageMap[cat]?.length > 0 ? (
+                  coverageMap[cat].map((vendor, i) => (
+                    <span key={i} className="px-3 py-1 bg-green-900/30 text-green-300 rounded text-xs border border-green-700">{vendor}</span>
+                  ))
+                ) : (
+                  <span className="text-gray-500 text-xs italic">No active coverage</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================
+// VALIDATION VIEW
+// ============================================
+
+const ValidationView = ({ products }) => {
+  const data = useData();
+  const vendors = data?.vendors || DEFAULT_VENDORS;
+  const compatibility = data?.compatibility || DEFAULT_COMPATIBILITY;
+  const partners = data?.partners || DEFAULT_PARTNERS;
+  const historicalSnapshots = data?.historicalSnapshots || DEFAULT_HISTORICAL_SNAPSHOTS;
+  const [validationHistory, setValidationHistory] = useState([]);
+  const [filterSeverity, setFilterSeverity] = useState('all');
+  const [filterCategory, setFilterCategory] = useState('all');
+
+  const validationFindings = useMemo(() => {
+    const findings = [];
+
+    // Share sum check
+    CATEGORIES.forEach(cat => {
+      const sum = products.filter(p => p.category === cat).reduce((s, p) => s + (p.share || 0), 0);
+      if (Math.abs(sum - 100) > 5) {
+        findings.push({ ruleId: 'share-sum', severity: 'critical', category: 'consistency', message: `${cat} shares sum to ${sum.toFixed(1)}% (expected ~100%)`, detail: cat });
+      }
+    });
+
+    // Regional share consistency
+    products.forEach(p => {
+      if (p.regionalShare) {
+        const maxRegional = Math.max(p.regionalShare.na || 0, p.regionalShare.we || 0, p.regionalShare.hg || 0, p.regionalShare.od || 0);
+        if (maxRegional > (p.share || 0) * 3 && (p.share || 0) > 2) {
+          findings.push({ ruleId: 'regional-sum', severity: 'warning', category: 'consistency', message: `${p.name}: regional share (${maxRegional}%) seems high vs global (${p.share}%)`, detail: p.id });
+        }
+      }
+    });
+
+    // Pricing outliers
+    CATEGORIES.forEach(cat => {
+      const catProducts = products.filter(p => p.category === cat && p.pricing > 0);
+      if (catProducts.length >= 3) {
+        const mean = catProducts.reduce((s, p) => s + p.pricing, 0) / catProducts.length;
+        const stdDev = Math.sqrt(catProducts.reduce((s, p) => s + Math.pow(p.pricing - mean, 2), 0) / catProducts.length);
+        catProducts.forEach(p => {
+          if (Math.abs(p.pricing - mean) > 2 * stdDev) {
+            findings.push({ ruleId: 'pricing-outlier', severity: 'warning', category: 'outlier', message: `${p.name}: pricing $${p.pricing} is ${p.pricing > mean ? 'above' : 'below'} category avg $${mean.toFixed(0)}`, detail: p.id });
+          }
+        });
+      }
+    });
+
+    // Orphan products
+    products.forEach(p => {
+      const hasCompat = compatibility.some(c => c.source === p.id || c.target === p.id);
+      if (!hasCompat) {
+        findings.push({ ruleId: 'orphan-product', severity: 'info', category: 'completeness', message: `${p.name} has no compatibility entries`, detail: p.id });
+      }
+    });
+
+    // Missing confidence
+    products.forEach(p => {
+      if (!p.confidence || !p.confidence.share || !p.confidence.pricing) {
+        findings.push({ ruleId: 'missing-confidence', severity: 'warning', category: 'completeness', message: `${p.name} missing confidence metadata`, detail: p.id });
+      }
+    });
+
+    // Orphan vendors
+    vendors.forEach(v => {
+      if (!products.some(p => p.vendor === v.key)) {
+        findings.push({ ruleId: 'vendor-orphan', severity: 'info', category: 'completeness', message: `Vendor ${v.label} has no products`, detail: v.key });
+      }
+    });
+
+    // Partner contract expiry
+    partners.forEach(p => {
+      if (p.status === 'active' && p.contractEnd) {
+        const daysToExpiry = (new Date(p.contractEnd) - new Date()) / (1000 * 60 * 60 * 24);
+        const vendorLabel = vendors.find(v => v.key === p.vendorKey)?.label || p.vendorKey;
+        if (daysToExpiry < 90 && daysToExpiry > 0) {
+          findings.push({ ruleId: 'partner-contract-expiry', severity: 'critical', category: 'partner', message: `${vendorLabel} contract expires in ${Math.round(daysToExpiry)} days (${p.contractEnd})`, detail: p.id });
+        }
+      }
+    });
+
+    // Partner health
+    partners.forEach(p => {
+      if (p.healthScore < 60 && p.status === 'active') {
+        const vendorLabel = vendors.find(v => v.key === p.vendorKey)?.label || p.vendorKey;
+        findings.push({ ruleId: 'partner-health-low', severity: 'warning', category: 'partner', message: `${vendorLabel} health score ${p.healthScore}/100`, detail: p.id });
+      }
+    });
+
+    return findings;
+  }, [products, vendors, compatibility, partners]);
+
+  const filteredFindings = useMemo(() => {
+    return validationFindings.filter(f =>
+      (filterSeverity === 'all' || f.severity === filterSeverity) &&
+      (filterCategory === 'all' || f.category === filterCategory)
+    );
+  }, [validationFindings, filterSeverity, filterCategory]);
+
+  const criticalCount = validationFindings.filter(f => f.severity === 'critical').length;
+  const warningCount = validationFindings.filter(f => f.severity === 'warning').length;
+  const infoCount = validationFindings.filter(f => f.severity === 'info').length;
+
+  const integrityScore = Math.max(0, Math.min(100, Math.round((1 - (criticalCount * 10 + warningCount * 3 + infoCount * 1) / (products.length * 3 + partners.length * 3)) * 100)));
+
+  const handleRunValidation = () => {
+    setValidationHistory([{ timestamp: new Date().toLocaleString(), score: integrityScore, critical: criticalCount, warnings: warningCount }, ...validationHistory.slice(0, 9)]);
+  };
+
+  const getSeverityColor = (severity) => {
+    switch(severity) {
+      case 'critical': return 'bg-red-900/30 text-red-300 border-red-700';
+      case 'warning': return 'bg-yellow-900/30 text-yellow-300 border-yellow-700';
+      case 'info': return 'bg-blue-900/30 text-blue-300 border-blue-700';
+      default: return 'bg-gray-700 text-gray-300 border-gray-600';
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Validation Score Header */}
+      <div className="bg-gradient-to-r from-gray-800 to-gray-750 rounded-lg p-6 border border-gray-700">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-2">Data Integrity Score</h2>
+            <p className="text-gray-400 text-sm">Automated validation across products, vendors, and partners</p>
+          </div>
+          <button onClick={handleRunValidation} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center gap-2 text-sm font-semibold">
+            <RefreshCw className="w-4 h-4" />
+            Run Validation
+          </button>
+        </div>
+
+        <div className="grid grid-cols-5 gap-4">
+          <div className="bg-gray-900 rounded p-4 border border-gray-700">
+            <div className="text-3xl font-bold text-white mb-1">{integrityScore}</div>
+            <div className="text-xs text-gray-400">Overall Score</div>
+          </div>
+          <div className="bg-red-900/20 rounded p-4 border border-red-700">
+            <div className="text-3xl font-bold text-red-400 mb-1">{criticalCount}</div>
+            <div className="text-xs text-red-400">Critical Issues</div>
+          </div>
+          <div className="bg-yellow-900/20 rounded p-4 border border-yellow-700">
+            <div className="text-3xl font-bold text-yellow-400 mb-1">{warningCount}</div>
+            <div className="text-xs text-yellow-400">Warnings</div>
+          </div>
+          <div className="bg-blue-900/20 rounded p-4 border border-blue-700">
+            <div className="text-3xl font-bold text-blue-400 mb-1">{infoCount}</div>
+            <div className="text-xs text-blue-400">Info Items</div>
+          </div>
+          <div className="bg-gray-900 rounded p-4 border border-gray-700">
+            <div className="text-sm text-gray-400 mb-1">Last Run</div>
+            <div className="text-xs text-white">{validationHistory[0]?.timestamp || 'Never'}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 flex gap-4">
+        <div>
+          <label className="text-xs text-gray-400 block mb-1">Severity</label>
+          <select value={filterSeverity} onChange={(e) => setFilterSeverity(e.target.value)} className="bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white">
+            <option value="all">All Severity</option>
+            <option value="critical">Critical</option>
+            <option value="warning">Warning</option>
+            <option value="info">Info</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-xs text-gray-400 block mb-1">Category</label>
+          <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white">
+            <option value="all">All Categories</option>
+            <option value="consistency">Consistency</option>
+            <option value="outlier">Outlier</option>
+            <option value="completeness">Completeness</option>
+            <option value="freshness">Freshness</option>
+            <option value="partner">Partner</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Findings */}
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold text-white">Validation Findings ({filteredFindings.length})</h3>
+        {filteredFindings.length === 0 ? (
+          <div className="bg-green-900/20 border border-green-700 rounded-lg p-6 text-center">
+            <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+            <p className="text-green-300 font-semibold">No validation issues found!</p>
+            <p className="text-green-400 text-sm mt-1">All data quality checks passed</p>
+          </div>
+        ) : (
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {filteredFindings.map((finding, idx) => (
+              <div key={idx} className={`rounded-lg p-3 border flex items-start gap-3 ${getSeverityColor(finding.severity)}`}>
+                <div className="flex-1">
+                  <div className="font-semibold text-sm">{finding.message}</div>
+                  <div className="text-xs mt-1 opacity-75">{finding.ruleId} • {finding.category}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Validation History */}
+      {validationHistory.length > 0 && (
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <h3 className="text-lg font-semibold text-white mb-4">Validation History</h3>
+          <div className="space-y-2">
+            {validationHistory.map((run, idx) => (
+              <div key={idx} className="flex items-center justify-between bg-gray-900 rounded p-3 text-sm">
+                <span className="text-gray-400">{run.timestamp}</span>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <div className="text-white font-semibold">{run.score}/100</div>
+                    <div className="text-xs text-gray-500">{run.critical} critical, {run.warnings} warnings</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ============================================
 // ADMIN VIEW
 // ============================================
 
@@ -1454,6 +2251,7 @@ const AdminView = () => {
     marketSize, setMarketSize,
     intelSignals, setIntelSignals,
     costComponents, setCostComponents,
+    partners, setPartners,
   } = data;
 
   const toggleRowExpand = (id) => {
@@ -1473,6 +2271,7 @@ const AdminView = () => {
       marketSize,
       intelSignals,
       costComponents,
+      partners,
     };
     const json = JSON.stringify(exportData, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
@@ -1500,6 +2299,7 @@ const AdminView = () => {
         if (imported.marketSize) setMarketSize(imported.marketSize);
         if (imported.intelSignals) setIntelSignals(imported.intelSignals);
         if (imported.costComponents) setCostComponents(imported.costComponents);
+        if (imported.partners) setPartners(imported.partners);
         alert('Data imported successfully!');
       } catch (err) {
         alert('Import failed: ' + err.message);
@@ -1519,6 +2319,7 @@ const AdminView = () => {
       setMarketSize(DEFAULT_MARKET_SIZE);
       setIntelSignals(DEFAULT_INTEL_SIGNALS);
       setCostComponents(DEFAULT_COST_COMPONENTS);
+      setPartners(DEFAULT_PARTNERS);
     }
   };
 
@@ -1539,7 +2340,9 @@ const DEFAULT_MARKET_SIZE = ${JSON.stringify(marketSize, null, 2)};
 
 const DEFAULT_INTEL_SIGNALS = ${JSON.stringify(intelSignals, null, 2)};
 
-const DEFAULT_COST_COMPONENTS = ${JSON.stringify(costComponents, null, 2)};`;
+const DEFAULT_COST_COMPONENTS = ${JSON.stringify(costComponents, null, 2)};
+
+const DEFAULT_PARTNERS = ${JSON.stringify(partners, null, 2)};`;
 
     const blob = new Blob([code], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -1896,6 +2699,147 @@ const DEFAULT_COST_COMPONENTS = ${JSON.stringify(costComponents, null, 2)};`;
                     className="p-1 hover:bg-red-900 rounded text-red-400"
                   >
                     <Trash2 size={16} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  const renderPartnersTab = () => (
+    <div className="space-y-4">
+      <button
+        onClick={() => {
+          const newPartner = {
+            id: `partner-${Date.now()}`,
+            vendorKey: 'illumina',
+            status: 'evaluating',
+            tier: 'evaluating',
+            contractStart: '',
+            contractEnd: '',
+            contractValue: 0,
+            pricingTier: 'quoted',
+            discountPct: 0,
+            paymentTerms: '',
+            autoRenew: false,
+            primaryContact: '',
+            primaryContactRole: '',
+            primaryContactEmail: '',
+            integrationStatus: 'planned',
+            validatedProducts: [],
+            integrationNotes: '',
+            technicalContact: '',
+            technicalContactRole: '',
+            healthScore: 50,
+            lastMeeting: '',
+            nextReview: '',
+            meetingNotes: [],
+            pipelineActivities: [],
+            riskFactors: [],
+            categories: [],
+          };
+          setPartners([...partners, newPartner]);
+        }}
+        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white flex items-center gap-2"
+      >
+        <Plus size={16} /> Add Partner
+      </button>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-gray-800">
+              <th className="border border-gray-700 px-3 py-2 text-left">Vendor</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Status</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Tier</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Health</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Value</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Expiry</th>
+              <th className="border border-gray-700 px-3 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {partners.map((partner) => (
+              <tr key={partner.id} className="border border-gray-700 bg-gray-900 hover:bg-gray-800">
+                <td className="border border-gray-700 px-3 py-2">{vendors.find(v => v.key === partner.vendorKey)?.label || partner.vendorKey}</td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <select
+                    value={partner.status}
+                    onChange={(e) => {
+                      const updated = partners.map(p => p.id === partner.id ? { ...p, status: e.target.value } : p);
+                      setPartners(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                  >
+                    <option value="active">Active</option>
+                    <option value="evaluating">Evaluating</option>
+                    <option value="prospect">Prospect</option>
+                    <option value="former">Former</option>
+                  </select>
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <select
+                    value={partner.tier}
+                    onChange={(e) => {
+                      const updated = partners.map(p => p.id === partner.id ? { ...p, tier: e.target.value } : p);
+                      setPartners(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                  >
+                    <option value="strategic">Strategic</option>
+                    <option value="preferred">Preferred</option>
+                    <option value="approved">Approved</option>
+                    <option value="evaluating">Evaluating</option>
+                  </select>
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={partner.healthScore}
+                    onChange={(e) => {
+                      const updated = partners.map(p => p.id === partner.id ? { ...p, healthScore: parseInt(e.target.value) } : p);
+                      setPartners(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-16"
+                  />
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <input
+                    type="number"
+                    value={partner.contractValue}
+                    onChange={(e) => {
+                      const updated = partners.map(p => p.id === partner.id ? { ...p, contractValue: parseInt(e.target.value) } : p);
+                      setPartners(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-20"
+                  />
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <input
+                    type="date"
+                    value={partner.contractEnd}
+                    onChange={(e) => {
+                      const updated = partners.map(p => p.id === partner.id ? { ...p, contractEnd: e.target.value } : p);
+                      setPartners(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                  />
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Delete this partner?')) {
+                        setPartners(partners.filter(p => p.id !== partner.id));
+                      }
+                    }}
+                    className="px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-white text-xs flex items-center gap-1"
+                  >
+                    <Trash2 size={14} /> Delete
                   </button>
                 </td>
               </tr>
@@ -2622,6 +3566,7 @@ const DEFAULT_COST_COMPONENTS = ${JSON.stringify(costComponents, null, 2)};`;
   const tabs = [
     { id: 'products', label: 'Products', render: renderProductsTab },
     { id: 'vendors', label: 'Vendors', render: renderVendorsTab },
+    { id: 'partners', label: 'Partners', render: renderPartnersTab },
     { id: 'market', label: 'Market Sizing', render: renderMarketSizingTab },
     { id: 'history', label: 'Historical Data', render: renderHistoricalDataTab },
     { id: 'costs', label: 'Cost Components', render: renderCostComponentsTab },
@@ -2693,6 +3638,7 @@ const Sidebar = ({ activeView, setActiveView, indicationFilter }) => {
       items: [
         { name: 'Indication Strategy', key: 'indication' },
         { name: 'Scenarios', key: 'scenarios' },
+        { name: 'Partners', key: 'partners' },
       ],
     },
     {
@@ -2705,6 +3651,7 @@ const Sidebar = ({ activeView, setActiveView, indicationFilter }) => {
     {
       group: 'META',
       items: [
+        { name: 'Validation', key: 'validation' },
         { name: 'Data Quality', key: 'data quality' },
         { name: 'Regulatory', key: 'regulatory' },
       ],
@@ -3307,6 +4254,7 @@ const DashboardView = ({ products, indicationFilter }) => {
   const vendors = data?.vendors || DEFAULT_VENDORS;
   const intelSignals = data?.intelSignals || DEFAULT_INTEL_SIGNALS;
   const marketSize = data?.marketSize || DEFAULT_MARKET_SIZE;
+  const partners = data?.partners || DEFAULT_PARTNERS;
 
   const filteredProducts = useMemo(() => {
     return indicationFilter.length > 0
@@ -3348,7 +4296,7 @@ const DashboardView = ({ products, indicationFilter }) => {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-4 gap-4 mb-6">
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <h3 className="text-sm font-semibold text-gray-300 mb-3">Recent Signals</h3>
           <div className="space-y-2">
@@ -3385,6 +4333,24 @@ const DashboardView = ({ products, indicationFilter }) => {
             </div>
             <div className="text-gray-500 text-[10px] mt-2">
               Projected 2026-2031 TAM growth driven by NGS expansion in liquid biopsy and germline testing
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <h3 className="text-sm font-semibold text-gray-300 mb-3">Partner Pulse</h3>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between text-gray-300">
+              <span>Active:</span>
+              <span className="font-bold text-green-400">{partners.filter(p => p.status === 'active').length}</span>
+            </div>
+            <div className="flex justify-between text-gray-300">
+              <span>Avg Health:</span>
+              <span className="font-bold text-blue-400">{Math.round(partners.filter(p => p.status === 'active').reduce((s, p) => s + p.healthScore, 0) / Math.max(partners.filter(p => p.status === 'active').length, 1))}/100</span>
+            </div>
+            <div className="flex justify-between text-gray-300">
+              <span>Expiring:</span>
+              <span className="font-bold text-orange-400">{partners.filter(p => p.status === 'active' && p.contractEnd && (new Date(p.contractEnd) - new Date()) / (1000 * 60 * 60 * 24) <= 90 && (new Date(p.contractEnd) - new Date()) / (1000 * 60 * 60 * 24) > 0).length}</span>
             </div>
           </div>
         </div>
@@ -5056,6 +6022,7 @@ export default function App() {
   const [marketSize, setMarketSize] = useState(DEFAULT_MARKET_SIZE);
   const [intelSignals, setIntelSignals] = useState(DEFAULT_INTEL_SIGNALS);
   const [costComponents, setCostComponents] = useState(DEFAULT_COST_COMPONENTS);
+  const [partners, setPartners] = useState(DEFAULT_PARTNERS);
 
   const dataContextValue = useMemo(() => ({
     vendors, setVendors,
@@ -5067,7 +6034,8 @@ export default function App() {
     marketSize, setMarketSize,
     intelSignals, setIntelSignals,
     costComponents, setCostComponents,
-  }), [vendors, products, timelineEvents, compatibility, compatibilityLayers, historicalSnapshots, marketSize, intelSignals, costComponents]);
+    partners, setPartners,
+  }), [vendors, products, timelineEvents, compatibility, compatibilityLayers, historicalSnapshots, marketSize, intelSignals, costComponents, partners]);
 
   const filteredProducts = useMemo(() => {
     return indicationFilter.length > 0
@@ -5101,6 +6069,10 @@ export default function App() {
         return <TimelineView products={filteredProducts} indicationFilter={indicationFilter} />;
       case 'data quality':
         return <DataQualityView products={filteredProducts} />;
+      case 'partners':
+        return <PartnersView products={filteredProducts} indicationFilter={indicationFilter} />;
+      case 'validation':
+        return <ValidationView products={filteredProducts} />;
       case 'admin':
         return <AdminView />;
       default:
