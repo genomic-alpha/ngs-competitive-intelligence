@@ -27,7 +27,7 @@ const REGIONS = [
   { key: 'od', label: 'Other Dev.', color: '#8b5cf6' },
 ];
 
-const CATEGORIES = ['Extraction', 'Library Prep', 'Automation', 'Sequencing', 'Analysis', 'Reporting'];
+const CATEGORIES = ['Extraction', 'Library Prep', 'Automation', 'Sequencing', 'Analysis', 'Reporting', 'Diagnostic Services'];
 // MULTI_OMICS_CATEGORIES (future): ['Proteomics', 'Spatial Biology', 'Long-Read Sequencing', 'Epigenomics', 'Single-Cell Multi-omics']
 
 const INDICATIONS = [
@@ -95,26 +95,26 @@ const DEFAULT_VENDORS = [
   { key: 'integra', label: 'INTEGRA Biosciences', color: '#86efac', strength: 'MIRO CANVAS digital microfluidics, ASSIST PLUS versatility', weakness: 'Smaller install base vs Hamilton/Beckman', recentMove: 'MIRO CANVAS NGS workflows, ASSIST PLUS method library' },
   { key: 'sentieon', label: 'Sentieon', color: '#fde047', strength: 'GATK-compatible 10-50x faster, deterministic results', weakness: 'Commercial license required, less brand recognition', recentMove: 'DNAscope/TNscope updates, cloud deployment expansion' },
   { key: 'dnaxnexus', label: 'DNAnexus', color: '#67e8f9', strength: 'Enterprise cloud genomics, FDA-cleared Apollo platform', weakness: 'Premium enterprise pricing', recentMove: 'Apollo Informatics platform, UK Biobank partnership' },
-  { key: 'emedgene', label: 'Emedgene (Illumina)', color: '#d8b4fe', strength: 'AI-driven rare disease interpretation, Illumina ecosystem', weakness: 'Rare disease focused, limited somatic', recentMove: 'Illumina acquisition integration, expanded gene panels' },
+  { key: 'emedgene', label: 'Emedgene (Illumina Partner)', color: '#d8b4fe', strength: 'AI-driven rare disease interpretation, Illumina ecosystem', weakness: 'Rare disease focused, limited somatic', recentMove: 'Illumina platform partnership, expanded gene panels' },
 ];
 
 const DEFAULT_PRODUCTS = [
   // EXTRACTION
-  { id: 'qiagen-ffpe-ext', vendor: 'qiagen', name: 'QIAamp FFPE DNA', category: 'Extraction', tier: 'A', share: 15.1, pricing: 8, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe"], nucleicAcids: ["dna","rna"], regionalShare: {na:18,we:25,hg:17,od:22}, growth: "stable", indications: ["solid_tumor","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED + validation",date:"2026-Q1"}} },
-  { id: 'qiagen-blood-ext', vendor: 'qiagen', name: 'QIAamp Blood', category: 'Extraction', tier: 'A', share: 12.2, pricing: 5, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["blood"], nucleicAcids: ["dna"], regionalShare: {na:17,we:18,hg:12,od:14}, growth: "stable", indications: ["liquid_biopsy","hereditary_cancer"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED + validation",date:"2026-Q1"}} },
-  { id: 'promega-ffpe-ext', vendor: 'promega', name: 'Promega FFPE DNA', category: 'Extraction', tier: 'B', share: 7.2, pricing: 9, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe"], nucleicAcids: ["dna","rna"], regionalShare: {na:7,we:4,hg:5,od:6}, growth: "growing", indications: ["solid_tumor","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'promega-blood-ext', vendor: 'promega', name: 'Promega Blood DNA', category: 'Extraction', tier: 'B', share: 5, pricing: 5, regulatory: 'RUO', region: 'global', sampleTypes: ["blood"], nucleicAcids: ["dna"], regionalShare: {na:5,we:3,hg:2,od:3}, growth: "growing", indications: ["liquid_biopsy"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'roche-magna-ext', vendor: 'roche', name: 'Roche MagnaP', category: 'Extraction', tier: 'A', share: 13.7, pricing: 7, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:7,we:13,hg:9,od:12}, growth: "stable", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","heme_malig","rare_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED + validation",date:"2026-Q1"}} },
-  { id: 'thermo-magmax-ext', vendor: 'thermo', name: 'Thermo MagMAX', category: 'Extraction', tier: 'A', share: 12.9, pricing: 6, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:13,we:9,hg:10,od:9}, growth: "stable", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","heme_malig","rare_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'beckman-ampure-ext', vendor: 'beckman', name: 'Beckman Ampure', category: 'Extraction', tier: 'B', share: 5.8, pricing: 3, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:6,we:4,hg:4,od:4}, growth: "stable", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","heme_malig","rare_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'zymo-ffpe-ext', vendor: 'zymo', name: 'Zymo Quick-DNA/RNA FFPE Kit', category: 'Extraction', tier: 'B', share: 2.9, pricing: 7, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe"], nucleicAcids: ["dna","rna"], regionalShare: {na:4,we:3,hg:2,od:2}, growth: "growing", indications: ["solid_tumor","heme_malig"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
-  { id: 'zymo-cfdna-ext', vendor: 'zymo', name: 'Zymo Quick-cfDNA Serum & Plasma Kit', category: 'Extraction', tier: 'B', share: 2.2, pricing: 9, regulatory: 'RUO', region: 'global', sampleTypes: ["blood","cfdna"], nucleicAcids: ["dna"], regionalShare: {na:4,we:2,hg:1,od:1}, growth: "growing", indications: ["liquid_biopsy"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
-  { id: 'mn-nucleomag-ext', vendor: 'macherey_nagel', name: 'Macherey-Nagel NucleoMag DNA/RNA FFPE', category: 'Extraction', tier: 'B', share: 3.6, pricing: 6, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:2,we:9,hg:3,od:4}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"estimated",source:"EU distributor data",date:"2026-Q1"}} },
-  { id: 'omega-magbind-ext', vendor: 'omega', name: 'Omega Mag-Bind TotalPure NGS', category: 'Extraction', tier: 'C', share: 2.2, pricing: 2, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:3,we:1,hg:4,od:2}, growth: "growing", indications: ["solid_tumor","hereditary_cancer","rare_disease"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
-  { id: 'omega-cfdna-ext', vendor: 'omega', name: 'Omega Mag-Bind cfDNA Kit', category: 'Extraction', tier: 'C', share: 1.4, pricing: 8, regulatory: 'RUO', region: 'global', sampleTypes: ["blood","cfdna"], nucleicAcids: ["dna"], regionalShare: {na:2,we:1,hg:2,od:1}, growth: "growing", indications: ["liquid_biopsy"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
-  { id: 'qiagen-qiasymphony-ext', vendor: 'qiagen', name: 'QIAsymphony DSP DNA/RNA', category: 'Extraction', tier: 'A', share: 8.6, pricing: 10, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:10,we:13,hg:7,od:10}, growth: "stable", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","heme_malig","rare_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED",date:"2026-Q1"}} },
-  { id: 'promega-maxwell-ffpe', vendor: 'promega', name: 'Promega Maxwell RSC FFPE DNA/RNA', category: 'Extraction', tier: 'B', share: 4.3, pricing: 8, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe"], nucleicAcids: ["dna","rna"], regionalShare: {na:6,we:4,hg:3,od:4}, growth: "growing", indications: ["solid_tumor","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED",date:"2026-Q1"}} },
-  { id: 'promega-maxwell-blood', vendor: 'promega', name: 'Promega Maxwell RSC Blood DNA', category: 'Extraction', tier: 'B', share: 2.9, pricing: 6, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["blood"], nucleicAcids: ["dna"], regionalShare: {na:4,we:2,hg:2,od:2}, growth: "growing", indications: ["hereditary_cancer","liquid_biopsy"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED",date:"2026-Q1"}} },
+  { id: 'qiagen-ffpe-ext', vendor: 'qiagen', name: 'QIAamp FFPE DNA', category: 'Extraction', tier: 'A', share: 10.1, pricing: 8, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe"], nucleicAcids: ["dna","rna"], regionalShare: {na:18,we:25,hg:17,od:22}, growth: "stable", indications: ["solid_tumor","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED + validation",date:"2026-Q1"}} },
+  { id: 'qiagen-blood-ext', vendor: 'qiagen', name: 'QIAamp Blood', category: 'Extraction', tier: 'A', share: 8.1, pricing: 5, regulatory: 'RUO', region: 'global', sampleTypes: ["blood"], nucleicAcids: ["dna"], regionalShare: {na:17,we:18,hg:12,od:14}, growth: "stable", indications: ["liquid_biopsy","hereditary_cancer"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED + validation",date:"2026-Q1"}} },
+  { id: 'promega-ffpe-ext', vendor: 'promega', name: 'Promega FFPE DNA', category: 'Extraction', tier: 'B', share: 9.0, pricing: 9, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe"], nucleicAcids: ["dna","rna"], regionalShare: {na:7,we:4,hg:5,od:6}, growth: "growing", indications: ["solid_tumor","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'promega-blood-ext', vendor: 'promega', name: 'Promega Blood DNA', category: 'Extraction', tier: 'B', share: 6.5, pricing: 5, regulatory: 'RUO', region: 'global', sampleTypes: ["blood"], nucleicAcids: ["dna"], regionalShare: {na:5,we:3,hg:2,od:3}, growth: "growing", indications: ["liquid_biopsy"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'roche-magna-ext', vendor: 'roche', name: 'Roche MagnaP', category: 'Extraction', tier: 'A', share: 15.0, pricing: 7, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:7,we:13,hg:9,od:12}, growth: "stable", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","heme_malig","rare_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED + validation",date:"2026-Q1"}} },
+  { id: 'thermo-magmax-ext', vendor: 'thermo', name: 'Thermo MagMAX', category: 'Extraction', tier: 'A', share: 14.5, pricing: 6, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:13,we:9,hg:10,od:9}, growth: "stable", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","heme_malig","rare_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'beckman-ampure-ext', vendor: 'beckman', name: 'Beckman Ampure', category: 'Extraction', tier: 'B', share: 7.0, pricing: 3, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:6,we:4,hg:4,od:4}, growth: "stable", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","heme_malig","rare_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'zymo-ffpe-ext', vendor: 'zymo', name: 'Zymo Quick-DNA/RNA FFPE Kit', category: 'Extraction', tier: 'B', share: 3.5, pricing: 7, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe"], nucleicAcids: ["dna","rna"], regionalShare: {na:4,we:3,hg:2,od:2}, growth: "growing", indications: ["solid_tumor","heme_malig"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
+  { id: 'zymo-cfdna-ext', vendor: 'zymo', name: 'Zymo Quick-cfDNA Serum & Plasma Kit', category: 'Extraction', tier: 'B', share: 2.8, pricing: 9, regulatory: 'RUO', region: 'global', sampleTypes: ["blood","cfdna"], nucleicAcids: ["dna"], regionalShare: {na:4,we:2,hg:1,od:1}, growth: "growing", indications: ["liquid_biopsy"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
+  { id: 'mn-nucleomag-ext', vendor: 'macherey_nagel', name: 'Macherey-Nagel NucleoMag DNA/RNA FFPE', category: 'Extraction', tier: 'B', share: 4.5, pricing: 6, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:2,we:9,hg:3,od:4}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"estimated",source:"EU distributor data",date:"2026-Q1"}} },
+  { id: 'omega-magbind-ext', vendor: 'omega', name: 'Omega Mag-Bind TotalPure NGS', category: 'Extraction', tier: 'C', share: 2.8, pricing: 2, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:3,we:1,hg:4,od:2}, growth: "growing", indications: ["solid_tumor","hereditary_cancer","rare_disease"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
+  { id: 'omega-cfdna-ext', vendor: 'omega', name: 'Omega Mag-Bind cfDNA Kit', category: 'Extraction', tier: 'C', share: 1.8, pricing: 8, regulatory: 'RUO', region: 'global', sampleTypes: ["blood","cfdna"], nucleicAcids: ["dna"], regionalShare: {na:2,we:1,hg:2,od:1}, growth: "growing", indications: ["liquid_biopsy"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
+  { id: 'qiagen-qiasymphony-ext', vendor: 'qiagen', name: 'QIAsymphony DSP DNA/RNA', category: 'Extraction', tier: 'A', share: 5.8, pricing: 10, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:10,we:13,hg:7,od:10}, growth: "stable", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","heme_malig","rare_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED",date:"2026-Q1"}} },
+  { id: 'promega-maxwell-ffpe', vendor: 'promega', name: 'Promega Maxwell RSC FFPE DNA/RNA', category: 'Extraction', tier: 'B', share: 5.2, pricing: 8, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe"], nucleicAcids: ["dna","rna"], regionalShare: {na:6,we:4,hg:3,od:4}, growth: "growing", indications: ["solid_tumor","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED",date:"2026-Q1"}} },
+  { id: 'promega-maxwell-blood', vendor: 'promega', name: 'Promega Maxwell RSC Blood DNA', category: 'Extraction', tier: 'B', share: 3.4, pricing: 6, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["blood"], nucleicAcids: ["dna"], regionalShare: {na:4,we:2,hg:2,od:2}, growth: "growing", indications: ["hereditary_cancer","liquid_biopsy"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED",date:"2026-Q1"}} },
 
   // LIBRARY PREP
   { id: 'illumina-dna-prep', vendor: 'illumina', name: 'Illumina DNA Prep', category: 'Library Prep', tier: 'A', share: 4.5, pricing: 50, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna"], regionalShare: {na:20,we:16,hg:13,od:15}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED + validation",date:"2026-Q1"}} },
@@ -168,17 +168,17 @@ const DEFAULT_PRODUCTS = [
   { id: 'neb-nebnext-direct', vendor: 'neb', name: 'NEBNext Direct Targeted Panels', category: 'Library Prep', tier: 'C', share: 0.9, pricing: 75, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","hereditary_cancer"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
   { id: 'biorad-ddseq', vendor: 'biorad', name: 'Bio-Rad ddSEQ Library Prep', category: 'Library Prep', tier: 'C', share: 0.9, pricing: 65, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","hereditary_cancer"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
   { id: 'seqonce-rapidseq', vendor: 'seqonce', name: 'SeqOnce RapidSeq Library Prep', category: 'Library Prep', tier: 'C', share: 0.9, pricing: 18, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'guardant360-cdx', vendor: 'guardant', name: 'Guardant360 CDx (Service/Panel)', category: 'Library Prep', tier: 'A', share: 3.2, pricing: 5000, regulatory: 'FDA PMA', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:8,we:6,hg:4,od:5}, growth: "stable", indications: ["liquid_biopsy","solid_tumor"], indicationShare: {liquid_biopsy:{global:20,na:25,we:14,hg:7,od:11}}, confidence: {share:{level:"estimated",source:"DeciBio 2024 + validation",date:"2026-Q1"},pricing:{level:"verified",source:"Service model",date:"2026-Q1"},regulatory:{level:"verified",source:"FDA PMA P200010",date:"2026-Q1"}} },
-  { id: 'foundation-one-cdx', vendor: 'foundation', name: 'FoundationOne CDx (Service/Panel)', category: 'Library Prep', tier: 'A', share: 3.6, pricing: 3500, regulatory: 'FDA PMA', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:11,we:8,hg:5,od:7}, growth: "stable", indications: ["solid_tumor"], indicationShare: {solid_tumor:{global:18,na:23,we:13,hg:9,od:14}}, confidence: {share:{level:"estimated",source:"DeciBio 2024 + validation",date:"2026-Q1"},pricing:{level:"verified",source:"Service model",date:"2026-Q1"},regulatory:{level:"verified",source:"FDA PMA P170019",date:"2026-Q1"}} },
-  { id: 'foundation-liquid-cdx', vendor: 'foundation', name: 'FoundationOne Liquid CDx (Service/Panel)', category: 'Library Prep', tier: 'B', share: 2.7, pricing: 3500, regulatory: 'FDA PMA', region: 'global', sampleTypes: ["blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:5,we:4,hg:2,od:4}, growth: "growing", indications: ["liquid_biopsy","solid_tumor"], indicationShare: {liquid_biopsy:{global:13,na:16,we:9,hg:5,od:7}}, confidence: {share:{level:"estimated",source:"DeciBio 2024 + validation",date:"2026-Q1"},pricing:{level:"verified",source:"Service model",date:"2026-Q1"},regulatory:{level:"verified",source:"FDA PMA P200016",date:"2026-Q1"}} },
-  { id: 'tempus-xt', vendor: 'tempus', name: 'Tempus xT 595-Gene Panel (Service)', category: 'Library Prep', tier: 'B', share: 2.7, pricing: 3200, regulatory: 'CLIA/CAP', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:5,we:4,hg:2,od:4}, growth: "growing", indications: ["solid_tumor"], indicationShare: {solid_tumor:{global:7,na:11,we:3,hg:2,od:4}}, confidence: {share:{level:"estimated",source:"DeciBio 2024 + validation",date:"2026-Q1"},pricing:{level:"verified",source:"Service model",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'caris-mi-profile', vendor: 'caris', name: 'Caris MI Profile WES/WTS (Service)', category: 'Library Prep', tier: 'B', share: 2.3, pricing: 4500, regulatory: 'CLIA/CAP', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:4,we:4,hg:2,od:3}, growth: "growing", indications: ["solid_tumor"], indicationShare: {solid_tumor:{global:5,na:9,we:2,hg:1,od:3}}, confidence: {share:{level:"estimated",source:"DeciBio 2024 + validation",date:"2026-Q1"},pricing:{level:"verified",source:"Service model",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'guardant360-cdx', vendor: 'guardant', name: 'Guardant360 CDx (Service/Panel)', category: 'Diagnostic Services', tier: 'A', share: 3.2, pricing: 5000, regulatory: 'FDA PMA', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:8,we:6,hg:4,od:5}, growth: "stable", indications: ["liquid_biopsy","solid_tumor"], indicationShare: {liquid_biopsy:{global:20,na:25,we:14,hg:7,od:11}}, confidence: {share:{level:"estimated",source:"DeciBio 2024 + validation",date:"2026-Q1"},pricing:{level:"verified",source:"Service model",date:"2026-Q1"},regulatory:{level:"verified",source:"FDA PMA P200010",date:"2026-Q1"}} },
+  { id: 'foundation-one-cdx', vendor: 'foundation', name: 'FoundationOne CDx (Service/Panel)', category: 'Diagnostic Services', tier: 'A', share: 3.6, pricing: 3500, regulatory: 'FDA PMA', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:11,we:8,hg:5,od:7}, growth: "stable", indications: ["solid_tumor"], indicationShare: {solid_tumor:{global:18,na:23,we:13,hg:9,od:14}}, confidence: {share:{level:"estimated",source:"DeciBio 2024 + validation",date:"2026-Q1"},pricing:{level:"verified",source:"Service model",date:"2026-Q1"},regulatory:{level:"verified",source:"FDA PMA P170019",date:"2026-Q1"}} },
+  { id: 'foundation-liquid-cdx', vendor: 'foundation', name: 'FoundationOne Liquid CDx (Service/Panel)', category: 'Diagnostic Services', tier: 'B', share: 2.7, pricing: 3500, regulatory: 'FDA PMA', region: 'global', sampleTypes: ["blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:5,we:4,hg:2,od:4}, growth: "growing", indications: ["liquid_biopsy","solid_tumor"], indicationShare: {liquid_biopsy:{global:13,na:16,we:9,hg:5,od:7}}, confidence: {share:{level:"estimated",source:"DeciBio 2024 + validation",date:"2026-Q1"},pricing:{level:"verified",source:"Service model",date:"2026-Q1"},regulatory:{level:"verified",source:"FDA PMA P200016",date:"2026-Q1"}} },
+  { id: 'tempus-xt', vendor: 'tempus', name: 'Tempus xT 595-Gene Panel (Service)', category: 'Diagnostic Services', tier: 'B', share: 2.7, pricing: 3200, regulatory: 'CLIA/CAP', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:5,we:4,hg:2,od:4}, growth: "growing", indications: ["solid_tumor"], indicationShare: {solid_tumor:{global:7,na:11,we:3,hg:2,od:4}}, confidence: {share:{level:"estimated",source:"DeciBio 2024 + validation",date:"2026-Q1"},pricing:{level:"verified",source:"Service model",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'caris-mi-profile', vendor: 'caris', name: 'Caris MI Profile WES/WTS (Service)', category: 'Diagnostic Services', tier: 'B', share: 2.3, pricing: 4500, regulatory: 'CLIA/CAP', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:4,we:4,hg:2,od:3}, growth: "growing", indications: ["solid_tumor"], indicationShare: {solid_tumor:{global:5,na:9,we:2,hg:1,od:3}}, confidence: {share:{level:"estimated",source:"DeciBio 2024 + validation",date:"2026-Q1"},pricing:{level:"verified",source:"Service model",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
   { id: 'mgi-cools-panels', vendor: 'mgi', name: 'MGI CoolMPS Library Prep Panels', category: 'Library Prep', tier: 'C', share: 0.9, pricing: 30, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:0,we:1,hg:4,od:1}, growth: "emerging", indications: ["solid_tumor","hereditary_cancer","infectious_disease"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
   { id: 'pillar-oncoreveal-lung', vendor: 'pillar', name: 'oncoReveal Dx Lung & Colon Cancer Assay', category: 'Library Prep', tier: 'C', share: 0.9, pricing: 190, regulatory: 'FDA PMA', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor"], indicationShare: {solid_tumor:{global:2,na:2,we:1,hg:3,od:1}}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"FDA database",date:"2026-Q1"}} },
   { id: 'illumina-tso500-ctdna', vendor: 'illumina', name: 'TruSight Oncology 500 ctDNA', category: 'Library Prep', tier: 'B', share: 1.8, pricing: 380, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:4,we:3,hg:1,od:2}, growth: "growing", indications: ["liquid_biopsy","solid_tumor"], indicationShare: {liquid_biopsy:{global:7,na:9,we:7,hg:3,od:5}}, confidence: {share:{level:"estimated",source:"DeciBio + channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Channel intelligence",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED",date:"2026-Q1"}} },
-  { id: 'myriad-mychoice-cdx', vendor: 'myriad', name: 'Myriad myChoice CDx (HRD)', category: 'Library Prep', tier: 'A', share: 2.7, pricing: 4200, regulatory: 'FDA PMA', region: 'global', sampleTypes: ["ffpe"], nucleicAcids: ["dna"], regionalShare: {na:7,we:4,hg:2,od:3}, growth: "stable", indications: ["solid_tumor"], indicationShare: {solid_tumor:{global:7,na:11,we:5,hg:3,od:4}}, confidence: {share:{level:"estimated",source:"DeciBio + public filings",date:"2026-Q1"},pricing:{level:"verified",source:"Service model pricing",date:"2026-Q1"},regulatory:{level:"verified",source:"FDA PMA P190014",date:"2026-Q1"}} },
+  { id: 'myriad-mychoice-cdx', vendor: 'myriad', name: 'Myriad myChoice CDx (HRD)', category: 'Diagnostic Services', tier: 'A', share: 2.7, pricing: 4200, regulatory: 'FDA PMA', region: 'global', sampleTypes: ["ffpe"], nucleicAcids: ["dna"], regionalShare: {na:7,we:4,hg:2,od:3}, growth: "stable", indications: ["solid_tumor"], indicationShare: {solid_tumor:{global:7,na:11,we:5,hg:3,od:4}}, confidence: {share:{level:"estimated",source:"DeciBio + public filings",date:"2026-Q1"},pricing:{level:"verified",source:"Service model pricing",date:"2026-Q1"},regulatory:{level:"verified",source:"FDA PMA P190014",date:"2026-Q1"}} },
   { id: '10x-chromium-sc', vendor: '10x', name: '10x Chromium Single Cell Gene Expression', category: 'Library Prep', tier: 'A', share: 2.3, pricing: 500, regulatory: 'RUO', region: 'global', sampleTypes: ["blood","tissue"], nucleicAcids: ["rna"], regionalShare: {na:5,we:5,hg:2,od:3}, growth: "stable", indications: ["solid_tumor","heme_malig","rare_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"10x public filings + DeciBio",date:"2026-Q1"},pricing:{level:"estimated",source:"Public pricing",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
-  { id: 'natera-signatera', vendor: 'natera', name: 'Natera Signatera MRD (Service)', category: 'Library Prep', tier: 'A', share: 2.3, pricing: 3500, regulatory: 'CLIA/CAP', region: 'global', sampleTypes: ["blood","cfdna"], nucleicAcids: ["dna"], regionalShare: {na:6,we:2,hg:1,od:1}, growth: "growing", indications: ["solid_tumor","liquid_biopsy"], indicationShare: {liquid_biopsy:{global:5,na:9,we:3,hg:1,od:2},solid_tumor:{global:3,na:5,we:2,hg:1,od:1}}, confidence: {share:{level:"estimated",source:"Natera public filings + DeciBio",date:"2026-Q1"},pricing:{level:"verified",source:"Service model pricing",date:"2026-Q1"},regulatory:{level:"verified",source:"CLIA/CAP certified",date:"2026-Q1"}} },
+  { id: 'natera-signatera', vendor: 'natera', name: 'Natera Signatera MRD (Service)', category: 'Diagnostic Services', tier: 'A', share: 2.3, pricing: 3500, regulatory: 'CLIA/CAP', region: 'global', sampleTypes: ["blood","cfdna"], nucleicAcids: ["dna"], regionalShare: {na:6,we:2,hg:1,od:1}, growth: "growing", indications: ["solid_tumor","liquid_biopsy"], indicationShare: {liquid_biopsy:{global:5,na:9,we:3,hg:1,od:2},solid_tumor:{global:3,na:5,we:2,hg:1,od:1}}, confidence: {share:{level:"estimated",source:"Natera public filings + DeciBio",date:"2026-Q1"},pricing:{level:"verified",source:"Service model pricing",date:"2026-Q1"},regulatory:{level:"verified",source:"CLIA/CAP certified",date:"2026-Q1"}} },
 
   // AUTOMATION — Tier A (High-Throughput Production)
   { id: 'Hamilton-ngs', vendor: 'hamilton', name: 'Hamilton Microlab STAR', category: 'Automation', tier: 'A', share: 17, pricing: 5, regulatory: 'ISO 13485', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:19,we:18,hg:12,od:16}, growth: "stable", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
@@ -228,11 +228,11 @@ const DEFAULT_PRODUCTS = [
   { id: 'cg-e25', vendor: 'complete_genomics', name: 'E25 Flash Portable Sequencer', category: 'Sequencing', tier: 'C', share: 0.3, pricing: 40, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:0,we:0,hg:2,od:0}, growth: "emerging", indications: ["infectious_disease","pharmacogenomics"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Launch pricing + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
 
   // SEQUENCING — Roche (New Entrant)
-  { id: 'roche-axelios', vendor: 'roche', name: 'Roche Axelios 1 (SBX)', category: 'Sequencing', tier: 'C', share: 1.0, pricing: 150, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"approximate",source:"Launch pricing - $150 genome",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'roche-axelios', vendor: 'roche', name: 'Roche Axelios 1 (SBX)', category: 'Sequencing', tier: 'C', share: 0, pricing: 150, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "pre-launch", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Pre-commercial, planned H2 2026 launch",date:"2026-Q1"},pricing:{level:"approximate",source:"Launch pricing - $150 genome",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
 
   // SEQUENCING — Element Biosciences
-  { id: 'element-aviti', vendor: 'element', name: 'AVITI', category: 'Sequencing', tier: 'C', share: 2, pricing: 100, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:2,we:1,hg:1,od:1}, growth: "emerging", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'element-aviti24', vendor: 'element', name: 'AVITI24 5D Multiomic', category: 'Sequencing', tier: 'C', share: 1.0, pricing: 150, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:0,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","rare_disease"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Launch pricing + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'element-aviti', vendor: 'element', name: 'AVITI', category: 'Sequencing', tier: 'C', share: 2.5, pricing: 100, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:2,we:1,hg:1,od:1}, growth: "emerging", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'element-aviti24', vendor: 'element', name: 'AVITI24 5D Multiomic', category: 'Sequencing', tier: 'C', share: 1.5, pricing: 150, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:0,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","rare_disease"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Launch pricing + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
 
   // SEQUENCING — Ultima Genomics
   { id: 'ultima-ug100', vendor: 'ultima', name: 'Ultima UG 100', category: 'Sequencing', tier: 'C', share: 1.0, pricing: 100, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:0,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","rare_disease"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"approximate",source:"$80/genome bulk pricing",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
@@ -241,31 +241,31 @@ const DEFAULT_PRODUCTS = [
   // SEQUENCING — Long-Read Platforms
   { id: 'pacbio-revio', vendor: 'pacbio', name: 'PacBio Revio', category: 'Sequencing', tier: 'C', share: 2, pricing: 500, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:2,we:2,hg:1,od:1}, growth: "emerging", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig","pharmacogenomics","hla_typing"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
   { id: 'pacbio-vega', vendor: 'pacbio', name: 'PacBio Vega (Benchtop)', category: 'Sequencing', tier: 'C', share: 1.0, pricing: 250, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","hereditary_cancer","rare_disease","pharmacogenomics","hla_typing"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'oxford-minion', vendor: 'oxford', name: 'Oxford Nanopore MinION', category: 'Sequencing', tier: 'C', share: 1, pricing: 500, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:2,we:2,hg:1,od:1}, growth: "emerging", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig","infectious_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'oxford-promethion', vendor: 'oxford', name: 'Oxford Nanopore PromethION', category: 'Sequencing', tier: 'C', share: 1, pricing: 200, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'oxford-promethion-plus', vendor: 'oxford', name: 'PromethION Plus', category: 'Sequencing', tier: 'C', share: 1.0, pricing: 180, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","rare_disease"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Launch pricing + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'oxford-gridion', vendor: 'oxford', name: 'Oxford Nanopore GridION', category: 'Sequencing', tier: 'C', share: 1.5, pricing: 150, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:2,we:2,hg:1,od:1}, growth: "growing", indications: ["solid_tumor","hereditary_cancer","rare_disease","infectious_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio + channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
-  { id: 'oxford-p2i', vendor: 'oxford', name: 'Oxford Nanopore PromethION 2 Integrated', category: 'Sequencing', tier: 'C', share: 0.5, pricing: 170, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","rare_disease","hereditary_cancer"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"approximate",source:"Early access pricing",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
+  { id: 'oxford-minion', vendor: 'oxford', name: 'Oxford Nanopore MinION', category: 'Sequencing', tier: 'C', share: 0.4, pricing: 500, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:2,we:2,hg:1,od:1}, growth: "emerging", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig","infectious_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'oxford-promethion', vendor: 'oxford', name: 'Oxford Nanopore PromethION', category: 'Sequencing', tier: 'C', share: 0.4, pricing: 200, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'oxford-promethion-plus', vendor: 'oxford', name: 'PromethION Plus', category: 'Sequencing', tier: 'C', share: 0.3, pricing: 180, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","liquid_biopsy","hereditary_cancer","rare_disease"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Launch pricing + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'oxford-gridion', vendor: 'oxford', name: 'Oxford Nanopore GridION', category: 'Sequencing', tier: 'C', share: 0.5, pricing: 150, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:2,we:2,hg:1,od:1}, growth: "growing", indications: ["solid_tumor","hereditary_cancer","rare_disease","infectious_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio + channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
+  { id: 'oxford-p2i', vendor: 'oxford', name: 'Oxford Nanopore PromethION 2 Integrated', category: 'Sequencing', tier: 'C', share: 0.2, pricing: 170, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","rare_disease","hereditary_cancer"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"approximate",source:"Early access pricing",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
   { id: 'pacbio-onso', vendor: 'pacbio', name: 'PacBio Onso', category: 'Sequencing', tier: 'C', share: 0.5, pricing: 80, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","hereditary_cancer","rare_disease"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"approximate",source:"Launch pricing estimates",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
 
   // SEQUENCING — Singular Genomics
   { id: 'singular-g4x', vendor: 'singular', name: 'Singular G4X Spatial Sequencer', category: 'Sequencing', tier: 'C', share: 0.3, pricing: 300, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:0,od:0}, growth: "emerging", indications: ["solid_tumor","rare_disease"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"approximate",source:"Early adopter pricing",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
 
   // ANALYSIS
-  { id: 'illumina-basespace', vendor: 'illumina', name: 'Illumina BaseSpace', category: 'Analysis', tier: 'A', share: 20, pricing: 0, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:13,we:9,hg:5,od:8}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'sophia-ddm', vendor: 'sophia', name: 'Sophia DDM', category: 'Analysis', tier: 'B', share: 10, pricing: 45, regulatory: 'CE-IVDR', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:2,we:3,hg:11,od:3}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","heme_malig"], indicationShare: {solid_tumor:{global:8,na:5,we:12,hg:7,od:7},hereditary_cancer:{global:5,na:3,we:9,hg:4,od:4},heme_malig:{global:7,na:4,we:11,hg:5,od:5}}, confidence: {share:{level:"estimated",source:"DeciBio 2024 + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Channel intelligence",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED + validation",date:"2026-Q1"}} },
-  { id: 'roche-seqexplorer', vendor: 'roche', name: 'Roche SeqExplorer', category: 'Analysis', tier: 'B', share: 8.7, pricing: 25, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:5,we:5,hg:3,od:4}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'dragen', vendor: 'illumina', name: 'DRAGEN', category: 'Analysis', tier: 'A', share: 14.7, pricing: 8, regulatory: 'CE-IVDR', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:9,we:7,hg:4,od:6}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"FDA database",date:"2026-Q1"}} },
-  { id: 'thermo-torrent-suite', vendor: 'thermo', name: 'Torrent Suite', category: 'Analysis', tier: 'B', share: 6, pricing: 0, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:4,we:3,hg:1,od:3}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'agilent-genomics-workbench', vendor: 'agilent', name: 'Genomics Workbench', category: 'Analysis', tier: 'B', share: 4.7, pricing: 15, regulatory: 'ISO 13485', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:3,we:3,hg:1,od:2}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
-  { id: 'strand-ngs', vendor: 'qiagen', name: 'Strand NGS', category: 'Analysis', tier: 'C', share: 2.7, pricing: 10, regulatory: 'ISO 13485', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:1,od:1}, growth: "emerging", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'illumina-basespace', vendor: 'illumina', name: 'Illumina BaseSpace', category: 'Analysis', tier: 'A', share: 20, pricing: 0, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:13,we:9,hg:5,od:8}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"low",source:"Industry estimate - unverifiable at product level",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'sophia-ddm', vendor: 'sophia', name: 'Sophia DDM', category: 'Analysis', tier: 'B', share: 10, pricing: 45, regulatory: 'CE-IVDR', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:2,we:3,hg:11,od:3}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","heme_malig"], indicationShare: {solid_tumor:{global:8,na:5,we:12,hg:7,od:7},hereditary_cancer:{global:5,na:3,we:9,hg:4,od:4},heme_malig:{global:7,na:4,we:11,hg:5,od:5}}, confidence: {share:{level:"low",source:"Industry estimate - unverifiable at product level",date:"2026-Q1"},pricing:{level:"estimated",source:"Channel intelligence",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED + validation",date:"2026-Q1"}} },
+  { id: 'roche-seqexplorer', vendor: 'roche', name: 'Roche SeqExplorer', category: 'Analysis', tier: 'B', share: 8.7, pricing: 25, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:5,we:5,hg:3,od:4}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"low",source:"Industry estimate - unverifiable at product level",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'dragen', vendor: 'illumina', name: 'DRAGEN', category: 'Analysis', tier: 'A', share: 14.7, pricing: 8, regulatory: 'CE-IVDR', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:9,we:7,hg:4,od:6}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"low",source:"Industry estimate - unverifiable at product level",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"FDA database",date:"2026-Q1"}} },
+  { id: 'thermo-torrent-suite', vendor: 'thermo', name: 'Torrent Suite', category: 'Analysis', tier: 'B', share: 6, pricing: 0, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:4,we:3,hg:1,od:3}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"low",source:"Industry estimate - unverifiable at product level",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'agilent-genomics-workbench', vendor: 'agilent', name: 'Genomics Workbench', category: 'Analysis', tier: 'B', share: 4.7, pricing: 15, regulatory: 'ISO 13485', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:3,we:3,hg:1,od:2}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"low",source:"Industry estimate - unverifiable at product level",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
+  { id: 'strand-ngs', vendor: 'qiagen', name: 'Strand NGS', category: 'Analysis', tier: 'C', share: 2.7, pricing: 10, regulatory: 'ISO 13485', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:1,od:1}, growth: "emerging", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"low",source:"Industry estimate - unverifiable at product level",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"Validated 2026-Q1",date:"2026-Q1"}} },
   { id: 'nvidia-parabricks', vendor: 'nvidia', name: 'NVIDIA Parabricks', category: 'Analysis', tier: 'B', share: 3.3, pricing: 3, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:4,we:3,hg:1,od:2}, growth: "growing", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"NVIDIA licensing",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
-  { id: 'broad-gatk', vendor: 'broad', name: 'GATK (Genome Analysis Toolkit)', category: 'Analysis', tier: 'A', share: 16.7, pricing: 0, regulatory: 'Open Source', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:11,we:9,hg:7,od:8}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"Academic surveys + DeciBio",date:"2026-Q1"},pricing:{level:"verified",source:"Open source",date:"2026-Q1"},regulatory:{level:"verified",source:"Broad Institute",date:"2026-Q1"}} },
+  { id: 'broad-gatk', vendor: 'broad', name: 'GATK (Genome Analysis Toolkit)', category: 'Analysis', tier: 'A', share: 16.7, pricing: 0, regulatory: 'Open Source', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:11,we:9,hg:7,od:8}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"low",source:"Industry estimate - unverifiable at product level",date:"2026-Q1"},pricing:{level:"verified",source:"Open source",date:"2026-Q1"},regulatory:{level:"verified",source:"Broad Institute",date:"2026-Q1"}} },
   { id: 'sentieon-dnascope', vendor: 'sentieon', name: 'Sentieon DNAscope/TNscope', category: 'Analysis', tier: 'B', share: 2.7, pricing: 5, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:3,we:3,hg:1,od:2}, growth: "growing", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Commercial licensing",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
-  { id: 'qiagen-clc', vendor: 'qiagen', name: 'QIAGEN CLC Genomics Workbench', category: 'Analysis', tier: 'B', share: 5.3, pricing: 20, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:3,we:4,hg:3,od:3}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig","infectious_disease"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED",date:"2026-Q1"}} },
+  { id: 'qiagen-clc', vendor: 'qiagen', name: 'QIAGEN CLC Genomics Workbench', category: 'Analysis', tier: 'B', share: 5.3, pricing: 20, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:3,we:4,hg:3,od:3}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","rare_disease","heme_malig","infectious_disease"], indicationShare: {}, confidence: {share:{level:"low",source:"Industry estimate - unverifiable at product level",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED",date:"2026-Q1"}} },
   { id: 'pacbio-smrt-link', vendor: 'pacbio', name: 'PacBio SMRT Link', category: 'Analysis', tier: 'C', share: 1.3, pricing: 0, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:2,we:1,hg:1,od:1}, growth: "growing", indications: ["rare_disease","hereditary_cancer"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"verified",source:"Bundled with instrument",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
   { id: 'oxford-epi2me', vendor: 'oxford', name: 'Oxford Nanopore EPI2ME', category: 'Analysis', tier: 'C', share: 1.3, pricing: 0, regulatory: 'RUO', region: 'global', sampleTypes: ["ffpe","blood","tissue"], nucleicAcids: ["dna","rna"], regionalShare: {na:1,we:1,hg:1,od:1}, growth: "growing", indications: ["rare_disease","infectious_disease","hereditary_cancer"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"verified",source:"Bundled with platform",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
-  { id: 'dnaxnexus-platform', vendor: 'dnaxnexus', name: 'DNAnexus Apollo Platform', category: 'Analysis', tier: 'B', share: 2.7, pricing: 15, regulatory: 'ISO 13485', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:3,we:2,hg:1,od:1}, growth: "growing", indications: ["solid_tumor","hereditary_cancer","rare_disease","pharmacogenomics"], indicationShare: {}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Enterprise licensing",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
+  { id: 'dnaxnexus-platform', vendor: 'dnaxnexus', name: 'DNAnexus Apollo Platform', category: 'Analysis', tier: 'B', share: 2.7, pricing: 15, regulatory: 'ISO 13485', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:3,we:2,hg:1,od:1}, growth: "growing", indications: ["solid_tumor","hereditary_cancer","rare_disease","pharmacogenomics"], indicationShare: {}, confidence: {share:{level:"low",source:"Industry estimate - unverifiable at product level",date:"2026-Q1"},pricing:{level:"estimated",source:"Enterprise licensing",date:"2026-Q1"},regulatory:{level:"verified",source:"Vendor website",date:"2026-Q1"}} },
 
   // REPORTING
   { id: 'qci-interpret', vendor: 'qiagen', name: 'QCI-Interpret', category: 'Reporting', tier: 'A', share: 27.8, pricing: 50, regulatory: 'CE-IVDR', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:14,we:13,hg:8,od:11}, growth: "stable", indications: ["solid_tumor","hereditary_cancer","heme_malig"], indicationShare: {solid_tumor:{global:22,na:26,we:20,hg:13,od:17},hereditary_cancer:{global:17,na:19,we:17,hg:9,od:14}}, confidence: {share:{level:"estimated",source:"DeciBio 2024 + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Channel intelligence",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED + validation",date:"2026-Q1"}} },
@@ -784,10 +784,10 @@ const DEFAULT_HISTORICAL_SNAPSHOTS = [
 ];
 
 const DEFAULT_MARKET_SIZE = {
-  byCategory: { 'Extraction': 1800, 'Library Prep': 2400, 'Automation': 1200, 'Sequencing': 8500, 'Analysis': 3200, 'Reporting': 1400 },
-  byIndication: { solid_tumor: 5200, liquid_biopsy: 3800, hereditary_cancer: 2100, heme_malig: 1600, rare_disease: 1800, pharmacogenomics: 900, hla_typing: 600, infectious_disease: 2500 },
-  byRegion: { na: 0.42, we: 0.28, hg: 0.22, od: 0.08 },
-  totalNGS: 18500,
+  byCategory: { 'Extraction': 1300, 'Library Prep': 1600, 'Automation': 900, 'Sequencing': 6200, 'Analysis': 2300, 'Reporting': 1000, 'Diagnostic Services': 5200 },
+  byIndication: { solid_tumor: 3800, liquid_biopsy: 2800, hereditary_cancer: 1500, heme_malig: 1200, rare_disease: 1300, pharmacogenomics: 650, hla_typing: 450, infectious_disease: 1800 },
+  byRegion: { na: 0.46, we: 0.27, hg: 0.20, od: 0.07 },
+  totalNGS: 13500,
   cagr: 0.142,
   year: 2026,
   futureCategories: { 'Proteomics': 2800, 'Spatial Biology': 1200, 'Long-Read Sequencing': 1800, 'Epigenomics': 600, 'Single-Cell Multi-omics': 900 },
@@ -837,6 +837,236 @@ const DEFAULT_COST_COMPONENTS = {
   'dragen': { reagents: 0, instrument_amortized: 2.0, labor: 0.5, qc: 0, total: 2.5 },
   'sophia-ddm': { reagents: 0, instrument_amortized: 0, labor: 1.5, qc: 0.5, total: 2.0 },
   'qci-interpret': { reagents: 0, instrument_amortized: 0, labor: 2.0, qc: 0.5, total: 2.5 },
+};
+
+// ============================================
+// FINANCIAL DATA (SEC FILINGS)
+// ============================================
+
+const DEFAULT_FINANCIALS = {
+  illumina: {
+    ticker: 'ILMN', vendorKey: 'illumina', lastFY: 'FY2024', revenue: 4300, segmentRevenue: null,
+    revenueGrowth: -0.02, grossMargin: 0.683, opMargin: 0.213, rdSpend: 1169, rdPct: 0.271,
+    epsNonGaap: 4.16, cash: 1220, totalDebt: 2622, marketCap: 22000,
+    guidanceRevenue: [4280, 4400], guidanceEps: [4.20, 4.30],
+    keyCommentary: 'Slowing research funding; GRAIL spinoff completed June 2024. Greater China facing geopolitical headwinds. Tariff impact ~$85M.',
+    filingSource: 'SEC 10-K FY2024, filed Feb 12, 2025', lastUpdated: '2025-02-12', profitable: true,
+    quarterly: [
+      { quarter: 'Q1 2024', revenue: 1060 }, { quarter: 'Q2 2024', revenue: 1090 },
+      { quarter: 'Q3 2024', revenue: 1080 }, { quarter: 'Q4 2024', revenue: 1100 },
+      { quarter: 'Q1 2025', revenue: 1040 },
+    ],
+    balanceSheet: { totalAssets: 6303, totalLiabilities: 3930, equity: 2373 },
+    installedBase: { total: 22000, note: 'NovaSeq X: 630 units; 56% clinical customers' },
+  },
+  roche: {
+    ticker: 'RHHBY', vendorKey: 'roche', lastFY: 'FY2024', revenue: 68700, segmentRevenue: 16200,
+    revenueGrowth: 0.07, grossMargin: 0.65, opMargin: 0.344, rdSpend: 9300, rdPct: 0.153,
+    epsNonGaap: 18.80, cash: 17600, totalDebt: 50400, marketCap: 230000,
+    guidanceRevenue: null, guidanceEps: null,
+    keyCommentary: 'Diagnostics division +4% CER. SBX sequencer launched Feb 2025. China healthcare pricing reforms headwind. Mid-single-digit CER growth guided.',
+    filingSource: 'Roche Annual Report 2024', lastUpdated: '2025-01-30', profitable: true,
+    quarterly: [
+      { quarter: 'H1 2024', revenue: 34100 }, { quarter: 'H2 2024', revenue: 34600 },
+    ],
+    balanceSheet: { totalAssets: 114000, totalLiabilities: 71200, equity: 42800 },
+    installedBase: null,
+  },
+  thermo: {
+    ticker: 'TMO', vendorKey: 'thermo', lastFY: 'FY2024', revenue: 42880, segmentRevenue: 9630,
+    revenueGrowth: 0.0, grossMargin: 0.413, opMargin: 0.179, rdSpend: 1390, rdPct: 0.032,
+    epsNonGaap: 21.86, cash: 8700, totalDebt: 35000, marketCap: 190000,
+    guidanceRevenue: [46300, 47200], guidanceEps: [24.22, 24.80],
+    keyCommentary: 'Life Sciences Solutions segment $9.6B. FY2025 total $44.6B (+4%). Genexus and Ion Torrent platforms. Genetic Sciences growth.',
+    filingSource: 'SEC 10-K FY2024', lastUpdated: '2025-02-05', profitable: true,
+    quarterly: [
+      { quarter: 'Q1 2024', revenue: 10470 }, { quarter: 'Q2 2024', revenue: 10540 },
+      { quarter: 'Q3 2024', revenue: 10600 }, { quarter: 'Q4 2024', revenue: 11400 },
+    ],
+    balanceSheet: { totalAssets: 97320, totalLiabilities: 47650, equity: 49670 },
+    installedBase: null,
+  },
+  qiagen: {
+    ticker: 'QGEN', vendorKey: 'qiagen', lastFY: 'FY2024', revenue: 1978, segmentRevenue: null,
+    revenueGrowth: 0.007, grossMargin: 0.489, opMargin: 0.049, rdSpend: 193, rdPct: 0.098,
+    epsNonGaap: 2.19, cash: 664, totalDebt: 1300, marketCap: 10500,
+    guidanceRevenue: [2060, 2080], guidanceEps: [2.35, 2.40],
+    keyCommentary: 'QIAstat-Dx syndromic testing +41% CER. QuantiFERON TB +11%. Parse Biosciences acquisition for single-cell ($225M). 4-5% CER growth guided.',
+    filingSource: 'QIAGEN FY2024 Annual Results', lastUpdated: '2025-02-05', profitable: true,
+    quarterly: [
+      { quarter: 'Q1 2024', revenue: 459 }, { quarter: 'Q2 2024', revenue: 496 },
+      { quarter: 'Q3 2024', revenue: 502 }, { quarter: 'Q4 2024', revenue: 521 },
+    ],
+    balanceSheet: { totalAssets: 6800, totalLiabilities: 3200, equity: 3600 },
+    installedBase: null,
+  },
+  agilent: {
+    ticker: 'A', vendorKey: 'agilent', lastFY: 'FY2025', revenue: 6950, segmentRevenue: 2800,
+    revenueGrowth: 0.067, grossMargin: 0.547, opMargin: 0.213, rdSpend: 455, rdPct: 0.065,
+    epsNonGaap: 5.59, cash: 1800, totalDebt: 3000, marketCap: 38000,
+    guidanceRevenue: [7300, 7500], guidanceEps: [5.86, 6.00],
+    keyCommentary: 'LDG segment +15% Q4. SureSelect NGS target enrichment growing. BIOVECTRA acquisition ($925M). Avida Biomed NGS enrichment acquired.',
+    filingSource: 'Agilent FY2025 Q4 Results', lastUpdated: '2025-11-24', profitable: true,
+    quarterly: [
+      { quarter: 'Q1 FY25', revenue: 1680 }, { quarter: 'Q2 FY25', revenue: 1700 },
+      { quarter: 'Q3 FY25', revenue: 1710 }, { quarter: 'Q4 FY25', revenue: 1860 },
+    ],
+    balanceSheet: { totalAssets: 14500, totalLiabilities: 7200, equity: 7300 },
+    installedBase: null,
+  },
+  twist: {
+    ticker: 'TWST', vendorKey: 'twist', lastFY: 'FY2024', revenue: 313, segmentRevenue: null,
+    revenueGrowth: 0.28, grossMargin: 0.426, opMargin: -0.35, rdSpend: 91, rdPct: 0.29,
+    epsNonGaap: null, cash: 350, totalDebt: 100, marketCap: 3200,
+    guidanceRevenue: [372, 379], guidanceEps: null,
+    keyCommentary: 'NGS revenue +25% YoY. Exome 2.0 and panel products growing. FY2025 guidance 19-21% growth. Gross margin expanding from 37% to 43%.',
+    filingSource: 'Twist Bioscience FY2024 (ended Sept 30, 2024)', lastUpdated: '2024-11-15', profitable: false,
+    quarterly: [
+      { quarter: 'Q1 FY24', revenue: 72 }, { quarter: 'Q2 FY24', revenue: 75 },
+      { quarter: 'Q3 FY24', revenue: 82 }, { quarter: 'Q4 FY24', revenue: 85 },
+    ],
+    balanceSheet: { totalAssets: 1200, totalLiabilities: 450, equity: 750 },
+    installedBase: null,
+  },
+  pacbio: {
+    ticker: 'PACB', vendorKey: 'pacbio', lastFY: 'FY2024', revenue: 154, segmentRevenue: null,
+    revenueGrowth: -0.23, grossMargin: 0.31, opMargin: -0.85, rdSpend: 140, rdPct: 0.91,
+    epsNonGaap: null, cash: 390, totalDebt: 645, marketCap: 500,
+    guidanceRevenue: null, guidanceEps: null,
+    keyCommentary: 'Revio installed base ~200 systems. 45% first-time PacBio users. Revenue declined 23% YoY. Debt restructuring completed. Gross margin improving.',
+    filingSource: 'PacBio FY2024 Results', lastUpdated: '2025-02-13', profitable: false,
+    quarterly: [
+      { quarter: 'Q1 2024', revenue: 39 }, { quarter: 'Q2 2024', revenue: 36 },
+      { quarter: 'Q3 2024', revenue: 40 }, { quarter: 'Q4 2024', revenue: 39 },
+    ],
+    balanceSheet: { totalAssets: 1400, totalLiabilities: 900, equity: 500 },
+    installedBase: { total: 200, note: 'Revio systems; 97 shipped in 2024' },
+  },
+  oxford: {
+    ticker: 'ONT.L', vendorKey: 'oxford', lastFY: 'FY2024', revenue: 228, segmentRevenue: null,
+    revenueGrowth: 0.08, grossMargin: 0.573, opMargin: -0.60, rdSpend: 120, rdPct: 0.53,
+    epsNonGaap: null, cash: 505, totalDebt: 50, marketCap: 2800,
+    guidanceRevenue: null, guidanceEps: null,
+    keyCommentary: 'H2 2024 underlying growth +34%. 1,900+ P2 devices in field. EBITDA breakeven targeted FY27. GridION Q for clinical customers launched.',
+    filingSource: 'ONT FY2024 Annual Results (London Stock Exchange)', lastUpdated: '2025-03-06', profitable: false,
+    quarterly: [
+      { quarter: 'H1 2024', revenue: 105 }, { quarter: 'H2 2024', revenue: 123 },
+    ],
+    balanceSheet: { totalAssets: 850, totalLiabilities: 300, equity: 550 },
+    installedBase: { total: 1900, note: 'PromethION 2 devices; 14,000+ peer-reviewed publications' },
+  },
+  '10x': {
+    ticker: 'TXG', vendorKey: '10x', lastFY: 'FY2024', revenue: 611, segmentRevenue: null,
+    revenueGrowth: -0.01, grossMargin: 0.68, opMargin: -0.443, rdSpend: 265, rdPct: 0.43,
+    epsNonGaap: null, cash: 393, totalDebt: 50, marketCap: 2100,
+    guidanceRevenue: [610, 630], guidanceEps: null,
+    keyCommentary: 'Flat to +3% growth guided. NIH funding 20-25% of revenue; mid-single-digit decline expected. Chromium X and Xenium spatial platforms.',
+    filingSource: '10x Genomics FY2024 Results', lastUpdated: '2025-02-12', profitable: false,
+    quarterly: [
+      { quarter: 'Q1 2024', revenue: 141 }, { quarter: 'Q2 2024', revenue: 153 },
+      { quarter: 'Q3 2024', revenue: 152 }, { quarter: 'Q4 2024', revenue: 165 },
+    ],
+    balanceSheet: { totalAssets: 900, totalLiabilities: 350, equity: 550 },
+    installedBase: null,
+  },
+  guardant: {
+    ticker: 'GH', vendorKey: 'guardant', lastFY: 'FY2024', revenue: 727, segmentRevenue: null,
+    revenueGrowth: 0.31, grossMargin: 0.62, opMargin: -0.60, rdSpend: 250, rdPct: 0.34,
+    epsNonGaap: null, cash: 526, totalDebt: 1100, marketCap: 5500,
+    guidanceRevenue: [850, 860], guidanceEps: null,
+    keyCommentary: 'Precision oncology +30-35% YoY. Q4 clinical tests 57,300 (+24%). Shield screening platform ramping. Non-screening FCF breakeven Q4 2025.',
+    filingSource: 'Guardant Health FY2024 Results', lastUpdated: '2025-02-20', profitable: false,
+    quarterly: [
+      { quarter: 'Q1 2024', revenue: 160 }, { quarter: 'Q2 2024', revenue: 174 },
+      { quarter: 'Q3 2024', revenue: 192 }, { quarter: 'Q4 2024', revenue: 202 },
+    ],
+    balanceSheet: { totalAssets: 2800, totalLiabilities: 2400, equity: -140 },
+    installedBase: null,
+  },
+  natera: {
+    ticker: 'NTRA', vendorKey: 'natera', lastFY: 'FY2025', revenue: 2306, segmentRevenue: null,
+    revenueGrowth: 0.36, grossMargin: 0.647, opMargin: -0.134, rdSpend: 624, rdPct: 0.27,
+    epsNonGaap: null, cash: 1076, totalDebt: 0, marketCap: 28000,
+    guidanceRevenue: [2620, 2700], guidanceEps: null,
+    keyCommentary: 'Signatera MRD volumes +56% Q4. Total 3.53M tests in FY2025. Oncology tests 800K (+52%). Zero debt. Aggressive R&D investment ($750-850M guided 2026).',
+    filingSource: 'Natera FY2025 Q4 Results', lastUpdated: '2026-02-20', profitable: false,
+    quarterly: [
+      { quarter: 'Q1 2025', revenue: 505 }, { quarter: 'Q2 2025', revenue: 555 },
+      { quarter: 'Q3 2025', revenue: 580 }, { quarter: 'Q4 2025', revenue: 666 },
+    ],
+    balanceSheet: { totalAssets: 3500, totalLiabilities: 1200, equity: 2300 },
+    installedBase: null,
+  },
+  myriad: {
+    ticker: 'MYGN', vendorKey: 'myriad', lastFY: 'FY2025', revenue: 825, segmentRevenue: null,
+    revenueGrowth: -0.02, grossMargin: 0.70, opMargin: -0.02, rdSpend: 85, rdPct: 0.10,
+    epsNonGaap: 0.04, cash: 150, totalDebt: 158, marketCap: 430,
+    guidanceRevenue: [860, 880], guidanceEps: null,
+    keyCommentary: 'Hereditary cancer volume +10%. GeneSight pharmacogenomics +9%. myChoice CDx expanding tumor types. Near breakeven profitability.',
+    filingSource: 'Myriad FY2025 Q4 Results', lastUpdated: '2026-02-23', profitable: false,
+    quarterly: [
+      { quarter: 'Q1 2025', revenue: 200 }, { quarter: 'Q2 2025', revenue: 207 },
+      { quarter: 'Q3 2025', revenue: 208 }, { quarter: 'Q4 2025', revenue: 210 },
+    ],
+    balanceSheet: { totalAssets: 2100, totalLiabilities: 900, equity: 1200 },
+    installedBase: null,
+  },
+  tempus: {
+    ticker: 'TEM', vendorKey: 'tempus', lastFY: 'FY2025', revenue: 1270, segmentRevenue: 955,
+    revenueGrowth: 0.80, grossMargin: 0.636, opMargin: -0.25, rdSpend: 200, rdPct: 0.16,
+    epsNonGaap: null, cash: 764, totalDebt: 1250, marketCap: 12000,
+    guidanceRevenue: null, guidanceEps: null,
+    keyCommentary: 'IPO June 2024. Diagnostics $955M. 217K clinical tests Q3 (+33%). Adjusted EBITDA slightly positive FY2025. Ambry acquisition boosted hereditary.',
+    filingSource: 'Tempus AI FY2025 Preliminary Results', lastUpdated: '2026-01-10', profitable: false,
+    quarterly: [
+      { quarter: 'Q1 2025', revenue: 280 }, { quarter: 'Q2 2025', revenue: 310 },
+      { quarter: 'Q3 2025', revenue: 334 }, { quarter: 'Q4 2025', revenue: 346 },
+    ],
+    balanceSheet: { totalAssets: 4500, totalLiabilities: 2800, equity: 1700 },
+    installedBase: null,
+  },
+  sophia: {
+    ticker: 'SOPH', vendorKey: 'sophia', lastFY: 'FY2025', revenue: 77, segmentRevenue: null,
+    revenueGrowth: 0.19, grossMargin: 0.674, opMargin: -0.80, rdSpend: 35, rdPct: 0.45,
+    epsNonGaap: null, cash: 82, totalDebt: 63, marketCap: 306,
+    guidanceRevenue: [92, 94], guidanceEps: null,
+    keyCommentary: 'Cloud genomics platform +19% growth. Adjusted EBITDA loss $41.5M. Gross margin expanding to 74% adjusted. Early-stage scaling.',
+    filingSource: 'SOPHiA Genetics FY2025 Results', lastUpdated: '2026-02-28', profitable: false,
+    quarterly: [
+      { quarter: 'Q1 2025', revenue: 17 }, { quarter: 'Q2 2025', revenue: 19 },
+      { quarter: 'Q3 2025', revenue: 19 }, { quarter: 'Q4 2025', revenue: 22 },
+    ],
+    balanceSheet: { totalAssets: 350, totalLiabilities: 150, equity: 200 },
+    installedBase: null,
+  },
+  revvity: {
+    ticker: 'RVTY', vendorKey: 'revvity', lastFY: 'FY2025', revenue: 2856, segmentRevenue: 1400,
+    revenueGrowth: 0.037, grossMargin: 0.533, opMargin: 0.149, rdSpend: 200, rdPct: 0.07,
+    epsNonGaap: 5.20, cash: 920, totalDebt: 2600, marketCap: 12050,
+    guidanceRevenue: [2960, 2990], guidanceEps: [5.35, 5.45],
+    keyCommentary: 'Life Sciences segment organic growth 2-3%. IDT genomics consumables soft. NGS products at IDT showing growth. Abcam recombinant proteins strong.',
+    filingSource: 'Revvity FY2025 Q4 Results', lastUpdated: '2026-01-30', profitable: true,
+    quarterly: [
+      { quarter: 'Q1 2025', revenue: 690 }, { quarter: 'Q2 2025', revenue: 700 },
+      { quarter: 'Q3 2025', revenue: 710 }, { quarter: 'Q4 2025', revenue: 756 },
+    ],
+    balanceSheet: { totalAssets: 12200, totalLiabilities: 6500, equity: 5700 },
+    installedBase: null,
+  },
+  danaher: {
+    ticker: 'DHR', vendorKey: 'danaher', lastFY: 'FY2025', revenue: 24600, segmentRevenue: 7200,
+    revenueGrowth: 0.03, grossMargin: 0.591, opMargin: 0.282, rdSpend: 1800, rdPct: 0.073,
+    epsNonGaap: 8.92, cash: 4620, totalDebt: 17000, marketCap: 150000,
+    guidanceRevenue: null, guidanceEps: null,
+    keyCommentary: 'Parent of Beckman Coulter + IDT. Life Sciences segment +0.5% core. IDT genomics consumables materially down (lost 2 major customers). NGS products growing.',
+    filingSource: 'Danaher FY2025 Q4 Results', lastUpdated: '2026-01-28', profitable: true,
+    quarterly: [
+      { quarter: 'Q1 2025', revenue: 5900 }, { quarter: 'Q2 2025', revenue: 6100 },
+      { quarter: 'Q3 2025', revenue: 6200 }, { quarter: 'Q4 2025', revenue: 6400 },
+    ],
+    balanceSheet: { totalAssets: 78000, totalLiabilities: 38000, equity: 40000 },
+    installedBase: null,
+  },
 };
 
 const DEFAULT_PARTNERS = [
@@ -2300,6 +2530,7 @@ const AdminView = () => {
         if (imported.intelSignals) setIntelSignals(imported.intelSignals);
         if (imported.costComponents) setCostComponents(imported.costComponents);
         if (imported.partners) setPartners(imported.partners);
+        if (imported.financials) setFinancials(imported.financials);
         alert('Data imported successfully!');
       } catch (err) {
         alert('Import failed: ' + err.message);
@@ -2320,6 +2551,7 @@ const AdminView = () => {
       setIntelSignals(DEFAULT_INTEL_SIGNALS);
       setCostComponents(DEFAULT_COST_COMPONENTS);
       setPartners(DEFAULT_PARTNERS);
+      setFinancials(DEFAULT_FINANCIALS);
     }
   };
 
@@ -2342,7 +2574,9 @@ const DEFAULT_INTEL_SIGNALS = ${JSON.stringify(intelSignals, null, 2)};
 
 const DEFAULT_COST_COMPONENTS = ${JSON.stringify(costComponents, null, 2)};
 
-const DEFAULT_PARTNERS = ${JSON.stringify(partners, null, 2)};`;
+const DEFAULT_PARTNERS = ${JSON.stringify(partners, null, 2)};
+
+const DEFAULT_FINANCIALS = ${JSON.stringify(financials, null, 2)};`;
 
     const blob = new Blob([code], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -4671,11 +4905,14 @@ const ProductsView = ({ products, indicationFilter }) => {
 const VendorsView = ({ products, indicationFilter }) => {
   const data = useData();
   const vendors = data?.vendors || DEFAULT_VENDORS;
+  const financials = data?.financials || DEFAULT_FINANCIALS;
 
+  const [activeTab, setActiveTab] = useState('overview');
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [expandedVendor, setExpandedVendor] = useState(null);
   const [sortField, setSortField] = useState('share');
+  const [selectedFinancialVendor, setSelectedFinancialVendor] = useState('illumina');
 
   const baseProducts = useMemo(() => {
     return indicationFilter.length > 0
@@ -4723,12 +4960,56 @@ const VendorsView = ({ products, indicationFilter }) => {
 
   const toggleCategory = (cat) => setSelectedCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
 
+  // Library Prep competitive data for Archer/IDT perspective
+  const libPrepProducts = useMemo(() => {
+    return products.filter(p => p.category === 'Library Prep' || p.category === 'Diagnostic Services');
+  }, [products]);
+
+  const libPrepVendorStats = useMemo(() => {
+    const vendorMap = {};
+    libPrepProducts.forEach(p => {
+      if (!vendorMap[p.vendor]) {
+        const v = vendors.find(v => v.key === p.vendor);
+        vendorMap[p.vendor] = { key: p.vendor, label: v?.label || p.vendor, color: v?.color || '#6b7280', products: [], totalShare: 0, categories: new Set(), indications: new Set(), regulatoryTypes: new Set(), tiers: { A: 0, B: 0, C: 0 } };
+      }
+      const entry = vendorMap[p.vendor];
+      entry.products.push(p);
+      entry.totalShare += (p.share || 0);
+      entry.categories.add(p.category);
+      (p.indications || []).forEach(i => entry.indications.add(i));
+      if (p.regulatory) entry.regulatoryTypes.add(p.regulatory);
+      if (p.tier && entry.tiers[p.tier] !== undefined) entry.tiers[p.tier]++;
+    });
+    return Object.values(vendorMap).sort((a, b) => b.totalShare - a.totalShare);
+  }, [libPrepProducts, vendors]);
+
+  // Illumina financial data
+  const ilmn = financials?.illumina;
+
   return (
     <div className="space-y-5">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-white">Vendors</h2>
         <span className="text-sm text-gray-400">{vendorStats.length} vendors</span>
       </div>
+
+      {/* Tab Bar */}
+      <div className="flex gap-1 bg-gray-900 rounded-lg p-1 border border-gray-700">
+        {[
+          { key: 'overview', label: 'Overview', icon: Users },
+          { key: 'competitive', label: 'Competitive Landscape', icon: BarChart3 },
+          { key: 'financials', label: 'Financial Intel', icon: DollarSign },
+        ].map(tab => (
+          <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 justify-center ${activeTab === tab.key ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+            <tab.icon className="w-4 h-4" />
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ===== OVERVIEW TAB ===== */}
+      {activeTab === 'overview' && <>
 
       {/* Search + Sort */}
       <div className="flex gap-3">
@@ -4914,6 +5195,418 @@ const VendorsView = ({ products, indicationFilter }) => {
           );
         })}
       </div>
+      </>}
+
+      {/* ===== COMPETITIVE LANDSCAPE TAB ===== */}
+      {activeTab === 'competitive' && <>
+        <div className="space-y-5">
+          {/* Archer / IDT Context Banner */}
+          <div className="bg-gradient-to-r from-cyan-900/30 to-purple-900/30 border border-cyan-700/40 rounded-lg p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <Shield className="w-5 h-5 text-cyan-400" />
+              <h3 className="text-sm font-bold text-white">Targeted Assay Competitive Landscape</h3>
+            </div>
+            <p className="text-xs text-gray-300">Library Prep and Diagnostic Services competitive positioning from the Archer (ArcherDX) and IDT perspective. {libPrepVendorStats.length} vendors, {libPrepProducts.length} products tracked.</p>
+          </div>
+
+          {/* Market Share by Vendor - Bar Chart */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+              <h3 className="text-sm font-bold text-white mb-3">Library Prep + Dx Services Market Share by Vendor</h3>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={libPrepVendorStats.slice(0, 15).map(v => ({ name: v.label.length > 14 ? v.label.substring(0, 14) + '...' : v.label, share: Math.round(v.totalShare * 10) / 10, products: v.products.length, color: v.color }))} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis type="number" stroke="#9ca3af" fontSize={11} unit="%" />
+                  <YAxis dataKey="name" type="category" stroke="#9ca3af" width={110} fontSize={10} interval={0} />
+                  <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} formatter={(v) => [`${v}%`, 'Share']} />
+                  <Bar dataKey="share" radius={[0, 4, 4, 0]}>
+                    {libPrepVendorStats.slice(0, 15).map((v, i) => (
+                      <Cell key={v.key} fill={v.key === 'archerdx' || v.key === 'idt' ? '#f59e0b' : v.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Indication Coverage Comparison */}
+            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+              <h3 className="text-sm font-bold text-white mb-3">Indication Coverage Depth (Products per Indication)</h3>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={INDICATIONS.map(ind => {
+                  const entry = { indication: ind.label.length > 12 ? ind.label.substring(0, 12) + '...' : ind.label };
+                  ['illumina', 'archerdx', 'idt', 'roche', 'thermo', 'agilent', 'twist'].forEach(vk => {
+                    const v = vendors.find(v => v.key === vk);
+                    entry[v?.label || vk] = libPrepProducts.filter(p => p.vendor === vk && (p.indications || []).includes(ind.key)).length;
+                  });
+                  return entry;
+                })} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis type="number" stroke="#9ca3af" fontSize={11} />
+                  <YAxis dataKey="indication" type="category" stroke="#9ca3af" width={100} fontSize={10} interval={0} />
+                  <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} />
+                  <Legend wrapperStyle={{ fontSize: '10px' }} />
+                  {['illumina', 'archerdx', 'idt', 'roche', 'thermo', 'agilent', 'twist'].map(vk => {
+                    const v = vendors.find(v => v.key === vk);
+                    return <Bar key={vk} dataKey={v?.label || vk} fill={vk === 'archerdx' ? '#f97316' : vk === 'idt' ? '#a855f7' : v?.color || '#6b7280'} />;
+                  })}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Head-to-Head Comparison Table */}
+          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <h3 className="text-sm font-bold text-white mb-3">Head-to-Head: Product Comparison Matrix</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-gray-600">
+                    <th className="px-3 py-2 text-left text-gray-400 font-medium">Vendor</th>
+                    <th className="px-3 py-2 text-left text-gray-400 font-medium">Products</th>
+                    <th className="px-3 py-2 text-left text-gray-400 font-medium">Combined Share</th>
+                    <th className="px-3 py-2 text-left text-gray-400 font-medium">Tier A</th>
+                    <th className="px-3 py-2 text-left text-gray-400 font-medium">Avg Price</th>
+                    <th className="px-3 py-2 text-left text-gray-400 font-medium">Regulatory</th>
+                    <th className="px-3 py-2 text-left text-gray-400 font-medium">Indications</th>
+                    <th className="px-3 py-2 text-left text-gray-400 font-medium">Growth Profile</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {libPrepVendorStats.map((v, i) => {
+                    const avgPrice = v.products.length > 0 ? Math.round(v.products.reduce((s, p) => s + (p.pricing || 0), 0) / v.products.length) : 0;
+                    const growthCounts = {};
+                    v.products.forEach(p => { growthCounts[p.growth || 'unknown'] = (growthCounts[p.growth || 'unknown'] || 0) + 1; });
+                    const topGrowth = Object.entries(growthCounts).sort((a, b) => b[1] - a[1])[0];
+                    const isHighlighted = v.key === 'archerdx' || v.key === 'idt';
+                    return (
+                      <tr key={v.key} className={`border-b border-gray-700/50 ${isHighlighted ? 'bg-amber-900/20' : i % 2 === 0 ? '' : 'bg-gray-900/30'} hover:bg-gray-700/30`}>
+                        <td className="px-3 py-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: v.color }}></div>
+                            <span className={`font-medium ${isHighlighted ? 'text-amber-300' : 'text-white'}`}>{v.label}</span>
+                          </div>
+                        </td>
+                        <td className="px-3 py-2 text-gray-300 font-mono">{v.products.length}</td>
+                        <td className="px-3 py-2 text-white font-mono font-bold">{Math.round(v.totalShare * 10) / 10}%</td>
+                        <td className="px-3 py-2"><span className={`px-1.5 py-0.5 rounded text-xs font-bold ${v.tiers.A > 0 ? 'bg-green-900/50 text-green-300' : 'bg-gray-700 text-gray-500'}`}>{v.tiers.A}</span></td>
+                        <td className="px-3 py-2 text-gray-300 font-mono">{avgPrice > 500 ? 'Service' : `$${avgPrice}`}</td>
+                        <td className="px-3 py-2"><div className="flex gap-1 flex-wrap">{[...v.regulatoryTypes].map(r => <span key={r} className={`px-1 py-0.5 rounded text-xs ${getRegulatoryBadge(r)}`}>{r}</span>)}</div></td>
+                        <td className="px-3 py-2 text-gray-400">{v.indications.size}</td>
+                        <td className="px-3 py-2">{topGrowth && <span className={`text-xs ${topGrowth[0] === 'growing' || topGrowth[0] === 'emerging' ? 'text-green-400' : topGrowth[0] === 'declining' ? 'text-red-400' : 'text-gray-400'}`}>{topGrowth[0]} ({topGrowth[1]})</span>}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Archer & IDT Spotlight */}
+          <div className="grid grid-cols-2 gap-4">
+            {['archerdx', 'idt'].map(vk => {
+              const vData = libPrepVendorStats.find(v => v.key === vk);
+              const vInfo = vendors.find(v => v.key === vk);
+              if (!vData) return null;
+              return (
+                <div key={vk} className="bg-gray-800 rounded-lg p-4 border border-amber-700/40">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: (vInfo?.color || '#f59e0b') + '30' }}>
+                      <span className="text-sm font-bold" style={{ color: vInfo?.color || '#f59e0b' }}>{vInfo?.label?.charAt(0) || vk.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">{vInfo?.label || vk}</h4>
+                      <p className="text-xs text-gray-400">{vData.products.length} products, {Math.round(vData.totalShare * 10) / 10}% combined share</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {vData.products.sort((a, b) => (b.share || 0) - (a.share || 0)).map(p => (
+                      <div key={p.id} className="flex items-center justify-between bg-gray-900/50 rounded px-3 py-2">
+                        <div>
+                          <span className="text-xs text-white font-medium">{p.name}</span>
+                          <div className="flex gap-1 mt-0.5">
+                            <span className={`px-1 py-0 rounded text-xs ${getRegulatoryBadge(p.regulatory)}`}>{p.regulatory}</span>
+                            <span className={`px-1 py-0 rounded text-xs ${p.tier === 'A' ? 'bg-green-900/50 text-green-300' : p.tier === 'B' ? 'bg-blue-900/50 text-blue-300' : 'bg-gray-700 text-gray-400'}`}>Tier {p.tier}</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xs text-white font-mono font-bold">{p.share}%</span>
+                          <div className="text-xs text-gray-400">${p.pricing}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {vInfo && (
+                    <div className="mt-3 pt-3 border-t border-gray-700">
+                      <p className="text-xs text-green-400 mb-1"><span className="font-semibold">Strength:</span> {vInfo.strength}</p>
+                      <p className="text-xs text-red-400 mb-1"><span className="font-semibold">Weakness:</span> {vInfo.weakness}</p>
+                      <p className="text-xs text-blue-400"><span className="font-semibold">Recent:</span> {vInfo.recentMove}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </>}
+
+      {/* ===== FINANCIAL INTEL TAB ===== */}
+      {activeTab === 'financials' && <>
+        <div className="space-y-5">
+          {/* Vendor Selector */}
+          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <label className="text-xs font-semibold text-gray-400 block mb-2">Select Vendor for Detail View</label>
+            <select
+              value={selectedFinancialVendor}
+              onChange={(e) => setSelectedFinancialVendor(e.target.value)}
+              className="w-full bg-gray-900 text-white border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+            >
+              {Object.entries(financials).map(([key, data]) => (
+                <option key={key} value={key}>{data.ticker} - {vendors.find(v => v.key === key)?.label || key}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Comparison Overview Table */}
+          <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+            <div className="px-4 py-3 bg-gray-900 border-b border-gray-700">
+              <h3 className="text-sm font-bold text-white">Financial Comparison - All Public Vendors</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-gray-300">
+                <thead className="bg-gray-900 border-b border-gray-700 sticky top-0">
+                  <tr>
+                    {['Vendor', 'Ticker', 'Revenue ($M)', 'Growth %', 'Gross Margin', 'Op Margin', 'R&D %', 'Cash ($M)', 'Debt ($M)', 'Market Cap ($M)', 'Profitable', 'Filing Date'].map(h => (
+                      <th key={h} className="px-3 py-2 text-left text-gray-400 font-semibold whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(financials).sort((a, b) => b[1].revenue - a[1].revenue).map(([key, f]) => (
+                    <tr
+                      key={key}
+                      className={`border-b border-gray-700 hover:bg-gray-700/50 cursor-pointer transition-colors ${selectedFinancialVendor === key ? 'bg-blue-900/30' : ''}`}
+                      onClick={() => setSelectedFinancialVendor(key)}
+                    >
+                      <td className="px-3 py-2 font-medium text-white">{vendors.find(v => v.key === key)?.label || key}</td>
+                      <td className="px-3 py-2 text-gray-400 font-mono">{f.ticker}</td>
+                      <td className="px-3 py-2 text-blue-400 font-mono">${f.revenue?.toLocaleString() || 'N/A'}</td>
+                      <td className={`px-3 py-2 font-mono ${f.revenueGrowth > 0 ? 'text-green-400' : f.revenueGrowth < 0 ? 'text-red-400' : 'text-gray-400'}`}>{f.revenueGrowth ? `${(f.revenueGrowth * 100).toFixed(1)}%` : 'N/A'}</td>
+                      <td className="px-3 py-2 font-mono">{f.grossMargin ? `${(f.grossMargin * 100).toFixed(1)}%` : 'N/A'}</td>
+                      <td className="px-3 py-2 font-mono">{f.opMargin ? `${(f.opMargin * 100).toFixed(1)}%` : 'N/A'}</td>
+                      <td className="px-3 py-2 font-mono">{f.rdPct ? `${(f.rdPct * 100).toFixed(1)}%` : 'N/A'}</td>
+                      <td className="px-3 py-2 text-green-400 font-mono">${f.cash?.toLocaleString() || 'N/A'}</td>
+                      <td className="px-3 py-2 text-red-400 font-mono">${f.totalDebt?.toLocaleString() || 'N/A'}</td>
+                      <td className="px-3 py-2 text-yellow-400 font-mono">${f.marketCap?.toLocaleString() || 'N/A'}</td>
+                      <td className="px-3 py-2">{f.profitable ? <CheckCircle className="w-4 h-4 text-green-400" /> : <AlertCircle className="w-4 h-4 text-red-400" />}</td>
+                      <td className="px-3 py-2 text-gray-400 text-xs">{f.lastUpdated}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Revenue & Growth Charts */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+              <h3 className="text-sm font-bold text-white mb-3">Revenue by Vendor (Horizontal Bar)</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={Object.entries(financials).sort((a, b) => b[1].revenue - a[1].revenue).map(([key, f]) => ({
+                    vendor: vendors.find(v => v.key === key)?.label || key,
+                    revenue: f.revenue,
+                    color: vendors.find(v => v.key === key)?.color || '#6b7280'
+                  }))}
+                  layout="vertical"
+                  margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis type="number" stroke="#9ca3af" fontSize={11} />
+                  <YAxis dataKey="vendor" type="category" stroke="#9ca3af" fontSize={10} width={115} />
+                  <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} formatter={(v) => `$${v}M`} />
+                  <Bar dataKey="revenue" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+              <h3 className="text-sm font-bold text-white mb-3">Growth vs Margin Scatter</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis dataKey="growth" name="Revenue Growth %" stroke="#9ca3af" fontSize={11} />
+                  <YAxis dataKey="margin" name="Gross Margin %" stroke="#9ca3af" fontSize={11} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+                    formatter={(v, name, props) => {
+                      if (name === 'growth') return `${(v * 100).toFixed(1)}%`;
+                      if (name === 'margin') return `${(v * 100).toFixed(1)}%`;
+                      return v;
+                    }}
+                    labelFormatter={(label) => ''}
+                  />
+                  <Scatter
+                    name="Vendors"
+                    data={Object.entries(financials).map(([key, f]) => ({
+                      growth: f.revenueGrowth || 0,
+                      margin: f.grossMargin || 0,
+                      size: (f.revenue || 0) / 50,
+                      name: vendors.find(v => v.key === key)?.label || key,
+                      color: vendors.find(v => v.key === key)?.color || '#6b7280'
+                    }))}
+                    fill="#3b82f6"
+                  >
+                    {Object.entries(financials).map(([key, f]) => (
+                      <Cell key={key} fill={vendors.find(v => v.key === key)?.color || '#6b7280'} />
+                    ))}
+                  </Scatter>
+                </ScatterChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Selected Vendor Detail Section */}
+          {financials[selectedFinancialVendor] && (() => {
+            const f = financials[selectedFinancialVendor];
+            const vendor = vendors.find(v => v.key === selectedFinancialVendor);
+            const netPosition = (f.cash || 0) - (f.totalDebt || 0);
+            return (
+              <>
+                {/* Header */}
+                <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg p-4 border border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg" style={{ backgroundColor: vendor?.color || '#6b7280' }}></div>
+                      <div>
+                        <h3 className="text-lg font-bold text-white">{vendor?.label}</h3>
+                        <p className="text-xs text-gray-400">{f.ticker} | {f.lastFY} | Filed {f.lastUpdated}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-6 text-right">
+                      <div>
+                        <p className="text-xs text-gray-400">Revenue</p>
+                        <p className="text-2xl font-bold text-blue-400 font-mono">${f.revenue?.toLocaleString()}M</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400">Growth YoY</p>
+                        <p className={`text-2xl font-bold font-mono ${f.revenueGrowth > 0 ? 'text-green-400' : f.revenueGrowth < 0 ? 'text-red-400' : 'text-gray-400'}`}>{f.revenueGrowth ? `${(f.revenueGrowth * 100).toFixed(1)}%` : 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400">Market Cap</p>
+                        <p className="text-2xl font-bold text-yellow-400 font-mono">${f.marketCap?.toLocaleString()}M</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quarterly Revenue Bar Chart */}
+                <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                  <h3 className="text-sm font-bold text-white mb-3">Quarterly Revenue ($M)</h3>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={f.quarterly || []}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis dataKey="quarter" stroke="#9ca3af" fontSize={11} />
+                      <YAxis stroke="#9ca3af" fontSize={11} />
+                      <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} formatter={(v) => `$${v}M`} />
+                      <Bar dataKey="revenue" fill={vendor?.color || '#3b82f6'} radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Key Metrics Grid */}
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                    <p className="text-xs text-gray-400 mb-1">Revenue + Growth</p>
+                    <p className="text-xl font-bold text-blue-400 font-mono">${f.revenue?.toLocaleString()}M</p>
+                    <p className={`text-xs font-mono mt-1 ${f.revenueGrowth > 0 ? 'text-green-400' : f.revenueGrowth < 0 ? 'text-red-400' : 'text-gray-400'}`}>{f.revenueGrowth ? `${(f.revenueGrowth * 100).toFixed(1)}%` : 'N/A'}</p>
+                  </div>
+                  <div className="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                    <p className="text-xs text-gray-400 mb-1">Gross Margin + Op Margin</p>
+                    <p className="text-xl font-bold text-green-400 font-mono">{f.grossMargin ? `${(f.grossMargin * 100).toFixed(1)}%` : 'N/A'}</p>
+                    <p className="text-xs text-amber-400 mt-1 font-mono">{f.opMargin ? `Op: ${(f.opMargin * 100).toFixed(1)}%` : 'N/A'}</p>
+                  </div>
+                  <div className="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                    <p className="text-xs text-gray-400 mb-1">R&D Spend + % Revenue</p>
+                    <p className="text-xl font-bold text-purple-400 font-mono">${f.rdSpend?.toLocaleString()}M</p>
+                    <p className="text-xs text-purple-300 mt-1 font-mono">{f.rdPct ? `${(f.rdPct * 100).toFixed(1)}%` : 'N/A'}</p>
+                  </div>
+                  <div className="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                    <p className="text-xs text-gray-400 mb-1">Cash - Debt = Net</p>
+                    <p className={`text-xl font-bold font-mono ${netPosition > 0 ? 'text-green-400' : 'text-red-400'}`}>${netPosition?.toLocaleString()}M</p>
+                    <p className="text-xs text-gray-400 mt-1 font-mono">{f.cash}C / {f.totalDebt}D</p>
+                  </div>
+                </div>
+
+                {/* Balance Sheet Summary */}
+                <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                  <h3 className="text-sm font-bold text-white mb-3">Balance Sheet Summary</h3>
+                  <div className="grid grid-cols-3 gap-6">
+                    <div>
+                      <p className="text-xs text-gray-400 mb-2">Assets & Liabilities</p>
+                      <div className="space-y-1.5 text-sm">
+                        <div className="flex justify-between"><span className="text-gray-400">Total Assets</span><span className="text-blue-400 font-mono">${f.balanceSheet?.totalAssets?.toLocaleString()}M</span></div>
+                        <div className="flex justify-between"><span className="text-gray-400">Total Liabilities</span><span className="text-red-400 font-mono">${f.balanceSheet?.totalLiabilities?.toLocaleString()}M</span></div>
+                        <div className="flex justify-between"><span className="text-gray-400">Equity</span><span className="text-green-400 font-mono">${f.balanceSheet?.equity?.toLocaleString()}M</span></div>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-400 mb-2">Cash Position</p>
+                      <div className="space-y-1.5 text-sm">
+                        <div className="flex justify-between"><span className="text-gray-400">Cash</span><span className="text-green-400 font-mono">${f.cash?.toLocaleString()}M</span></div>
+                        <div className="flex justify-between"><span className="text-gray-400">Total Debt</span><span className="text-red-400 font-mono">${f.totalDebt?.toLocaleString()}M</span></div>
+                        <div className="flex justify-between"><span className="text-gray-400">Net Position</span><span className={netPosition > 0 ? 'text-green-400 font-mono' : 'text-red-400 font-mono'}>${netPosition?.toLocaleString()}M</span></div>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-400 mb-2">Profitability & EPS</p>
+                      <div className="space-y-1.5 text-sm">
+                        <div className="flex justify-between"><span className="text-gray-400">Profitable</span><span className="text-gray-300">{f.profitable ? <CheckCircle className="w-4 h-4 text-green-400 inline" /> : <AlertCircle className="w-4 h-4 text-red-400 inline" />}</span></div>
+                        <div className="flex justify-between"><span className="text-gray-400">EPS (Non-GAAP)</span><span className="text-amber-400 font-mono">${f.epsNonGaap?.toFixed(2) || 'N/A'}</span></div>
+                        <div className="text-xs text-gray-500 mt-2">Market cap reflects public pricing</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Guidance & Commentary */}
+                {(f.guidanceRevenue || f.guidanceEps || f.keyCommentary) && (
+                  <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                    <h3 className="text-sm font-bold text-white mb-3">Forward Guidance & Key Commentary</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-gray-400 font-semibold mb-2">Forward Guidance</p>
+                        {f.guidanceRevenue && (
+                          <div className="mb-2">
+                            <p className="text-xs text-gray-300">Revenue Range</p>
+                            <p className="text-sm font-mono text-blue-400">${f.guidanceRevenue[0]}-${f.guidanceRevenue[1]}M</p>
+                          </div>
+                        )}
+                        {f.guidanceEps && (
+                          <div>
+                            <p className="text-xs text-gray-300">EPS Range</p>
+                            <p className="text-sm font-mono text-amber-400">${f.guidanceEps[0]}-${f.guidanceEps[1]}</p>
+                          </div>
+                        )}
+                        {!f.guidanceRevenue && !f.guidanceEps && <p className="text-xs text-gray-500">No specific guidance provided</p>}
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400 font-semibold mb-2">Key Commentary</p>
+                        <p className="text-xs text-gray-300 leading-relaxed">{f.keyCommentary || 'No commentary available'}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Data Source */}
+                <div className="bg-gray-900/50 rounded-lg p-3 border border-gray-700/50">
+                  <p className="text-xs text-gray-500">Source: {f.filingSource} | Last Updated: {f.lastUpdated}</p>
+                  <p className="text-xs text-gray-600 mt-1">All figures in USD millions. Non-GAAP metrics exclude stock-based compensation and amortization of acquired intangibles.</p>
+                </div>
+              </>
+            );
+          })()}
+        </div>
+      </>}
     </div>
   );
 };
@@ -6038,6 +6731,7 @@ export default function App() {
   const [intelSignals, setIntelSignals] = useState(DEFAULT_INTEL_SIGNALS);
   const [costComponents, setCostComponents] = useState(DEFAULT_COST_COMPONENTS);
   const [partners, setPartners] = useState(DEFAULT_PARTNERS);
+  const [financials, setFinancials] = useState(DEFAULT_FINANCIALS);
 
   const dataContextValue = useMemo(() => ({
     vendors, setVendors,
@@ -6050,7 +6744,8 @@ export default function App() {
     intelSignals, setIntelSignals,
     costComponents, setCostComponents,
     partners, setPartners,
-  }), [vendors, products, timelineEvents, compatibility, compatibilityLayers, historicalSnapshots, marketSize, intelSignals, costComponents, partners]);
+    financials, setFinancials,
+  }), [vendors, products, timelineEvents, compatibility, compatibilityLayers, historicalSnapshots, marketSize, intelSignals, costComponents, partners, financials]);
 
   const filteredProducts = useMemo(() => {
     return indicationFilter.length > 0
