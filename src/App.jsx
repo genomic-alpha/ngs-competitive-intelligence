@@ -2715,7 +2715,7 @@ const DEFAULT_PARTNERS = ${JSON.stringify(partners, null, 2)};`;
         onClick={() => {
           const newPartner = {
             id: `partner-${Date.now()}`,
-            vendorKey: 'illumina',
+            vendorKey: '',
             status: 'evaluating',
             tier: 'evaluating',
             contractStart: '',
@@ -2764,7 +2764,19 @@ const DEFAULT_PARTNERS = ${JSON.stringify(partners, null, 2)};`;
           <tbody>
             {partners.map((partner) => (
               <tr key={partner.id} className="border border-gray-700 bg-gray-900 hover:bg-gray-800">
-                <td className="border border-gray-700 px-3 py-2">{vendors.find(v => v.key === partner.vendorKey)?.label || partner.vendorKey}</td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <select
+                    value={partner.vendorKey}
+                    onChange={(e) => {
+                      const updated = partners.map(p => p.id === partner.id ? { ...p, vendorKey: e.target.value } : p);
+                      setPartners(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                  >
+                    <option value="">Select vendor...</option>
+                    {vendors.map(v => <option key={v.key} value={v.key}>{v.label}</option>)}
+                  </select>
+                </td>
                 <td className="border border-gray-700 px-3 py-2">
                   <select
                     value={partner.status}
