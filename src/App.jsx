@@ -4633,7 +4633,7 @@ const ProductsView = ({ products, indicationFilter }) => {
             </thead>
             <tbody>
               {filteredProducts.map((p, i) => {
-                const v = VENDORS.find(v => v.key === p.vendor);
+                const v = vendors.find(v => v.key === p.vendor);
                 return (
                   <tr key={p.id} className={`border-b border-gray-700/50 ${i % 2 === 0 ? 'bg-gray-800' : 'bg-gray-800/50'} hover:bg-gray-700/50`}>
                     <td className="px-4 py-2 text-white font-medium">{p.name}</td>
@@ -4955,7 +4955,7 @@ const CompareView = ({ products, indicationFilter }) => {
   const vendorChartData = useMemo(() => {
     const map = {};
     filteredProducts.forEach(p => {
-      const v = VENDORS.find(v => v.key === p.vendor);
+      const v = vendors.find(v => v.key === p.vendor);
       if (!map[p.vendor]) map[p.vendor] = { vendor: v?.label || p.vendor, color: v?.color || '#6b7280', share: 0, products: 0, avgPrice: 0, totalPrice: 0 };
       map[p.vendor].share += (p.share || 0);
       map[p.vendor].products++;
@@ -5071,7 +5071,7 @@ const CompareView = ({ products, indicationFilter }) => {
               <BarChart data={(() => {
                 const map = {};
                 filteredProducts.forEach(p => {
-                  const v = VENDORS.find(v => v.key === p.vendor);
+                  const v = vendors.find(v => v.key === p.vendor);
                   const vLabel = v?.label || p.vendor;
                   if (!map[vLabel]) map[vLabel] = { vendor: vLabel.length > 14 ? vLabel.substring(0, 14) + '…' : vLabel, 'IVD/Cleared': 0, 'RUO': 0, 'Service': 0 };
                   if (['CE-IVD','CE-IVDR','FDA PMA','FDA 510(k)','FDA EUA'].includes(p.regulatory)) map[vLabel]['IVD/Cleared']++;
@@ -5096,10 +5096,10 @@ const CompareView = ({ products, indicationFilter }) => {
             <h3 className="text-sm font-bold text-white mb-3">Regional Footprint (Top 6 Vendors)</h3>
             <ResponsiveContainer width="100%" height={Math.max(200, vendorChartData.length * 28)}>
               <RadarChart data={[
-                { region: 'North America', ...Object.fromEntries(vendorChartData.slice(0, 6).map(v => [v.vendor, filteredProducts.filter(p => VENDORS.find(vv => vv.key === p.vendor)?.label === v.vendor).reduce((s, p) => s + (p.regionalShare?.na || 0), 0)])) },
-                { region: 'W. Europe', ...Object.fromEntries(vendorChartData.slice(0, 6).map(v => [v.vendor, filteredProducts.filter(p => VENDORS.find(vv => vv.key === p.vendor)?.label === v.vendor).reduce((s, p) => s + (p.regionalShare?.we || 0), 0)])) },
-                { region: 'High-Growth', ...Object.fromEntries(vendorChartData.slice(0, 6).map(v => [v.vendor, filteredProducts.filter(p => VENDORS.find(vv => vv.key === p.vendor)?.label === v.vendor).reduce((s, p) => s + (p.regionalShare?.hg || 0), 0)])) },
-                { region: 'Other Dev.', ...Object.fromEntries(vendorChartData.slice(0, 6).map(v => [v.vendor, filteredProducts.filter(p => VENDORS.find(vv => vv.key === p.vendor)?.label === v.vendor).reduce((s, p) => s + (p.regionalShare?.od || 0), 0)])) },
+                { region: 'North America', ...Object.fromEntries(vendorChartData.slice(0, 6).map(v => [v.vendor, filteredProducts.filter(p => vendors.find(vv => vv.key === p.vendor)?.label === v.vendor).reduce((s, p) => s + (p.regionalShare?.na || 0), 0)])) },
+                { region: 'W. Europe', ...Object.fromEntries(vendorChartData.slice(0, 6).map(v => [v.vendor, filteredProducts.filter(p => vendors.find(vv => vv.key === p.vendor)?.label === v.vendor).reduce((s, p) => s + (p.regionalShare?.we || 0), 0)])) },
+                { region: 'High-Growth', ...Object.fromEntries(vendorChartData.slice(0, 6).map(v => [v.vendor, filteredProducts.filter(p => vendors.find(vv => vv.key === p.vendor)?.label === v.vendor).reduce((s, p) => s + (p.regionalShare?.hg || 0), 0)])) },
+                { region: 'Other Dev.', ...Object.fromEntries(vendorChartData.slice(0, 6).map(v => [v.vendor, filteredProducts.filter(p => vendors.find(vv => vv.key === p.vendor)?.label === v.vendor).reduce((s, p) => s + (p.regionalShare?.od || 0), 0)])) },
               ]}>
                 <PolarGrid stroke="#374151" />
                 <PolarAngleAxis dataKey="region" stroke="#9ca3af" fontSize={11} />
@@ -5134,7 +5134,7 @@ const CompareView = ({ products, indicationFilter }) => {
             </thead>
             <tbody>
               {filteredProducts.map((p, i) => {
-                const v = VENDORS.find(v => v.key === p.vendor);
+                const v = vendors.find(v => v.key === p.vendor);
                 return (
                   <tr key={p.id} className={`border-b border-gray-700/50 ${i % 2 === 0 ? 'bg-gray-800' : 'bg-gray-800/50'} hover:bg-gray-700/50`}>
                     <td className="px-4 py-2.5 text-white font-medium">{p.name}</td>
@@ -5240,6 +5240,7 @@ const CompatibilityView = ({ products }) => {
   const data = useData();
   const compatibilityLayers = data?.compatibilityLayers || DEFAULT_COMPATIBILITY_LAYERS;
   const compatibility = data?.compatibility || DEFAULT_COMPATIBILITY;
+  const vendors = data?.vendors || DEFAULT_VENDORS;
 
   const [selectedLayer, setSelectedLayer] = useState('ext_to_libprep');
   const [selectedDetail, setSelectedDetail] = useState(null);
@@ -5288,7 +5289,7 @@ const CompatibilityView = ({ products }) => {
 
   const getProduct = (id) => products.find(p => p.id === id);
   const getProductName = (id) => { const p = getProduct(id); return p ? p.name : id; };
-  const getVendor = (id) => { const p = getProduct(id); return p ? VENDORS.find(v => v.key === p.vendor) : null; };
+  const getVendor = (id) => { const p = getProduct(id); return p ? vendors.find(v => v.key === p.vendor) : null; };
 
   if (viewMode === 'builder') {
     return (
@@ -5659,6 +5660,7 @@ const TCOCalculatorView = ({ products, indicationFilter }) => {
 const IndicationStrategyView = ({ products, indicationFilter }) => {
   const data = useData();
   const marketSize = data?.marketSize || DEFAULT_MARKET_SIZE;
+  const vendors = data?.vendors || DEFAULT_VENDORS;
 
   const [selectedIndication, setSelectedIndication] = useState('solid_tumor');
 
@@ -5672,10 +5674,10 @@ const IndicationStrategyView = ({ products, indicationFilter }) => {
       vendorShare[p.vendor] = (vendorShare[p.vendor] || 0) + (p.share || 0);
     });
     return Object.entries(vendorShare).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([v, s]) => ({
-      vendor: VENDORS.find(vnd => vnd.key === v)?.label || v,
+      vendor: vendors.find(vnd => vnd.key === v)?.label || v,
       share: s,
     }));
-  }, [indicationProducts]);
+  }, [indicationProducts, vendors]);
 
   return (
     <div className="space-y-6">
@@ -5706,9 +5708,9 @@ const IndicationStrategyView = ({ products, indicationFilter }) => {
             <div className="text-xs text-gray-500 mb-1">TAM for {indication?.label}</div>
             <div className="text-3xl font-bold text-emerald-400">${indicationTAM}M</div>
             <div className="text-xs text-gray-400 mt-2">
-              NA: ${(indicationTAM * MARKET_SIZE.byRegion.na).toFixed(0)}M |
-              WE: ${(indicationTAM * MARKET_SIZE.byRegion.we).toFixed(0)}M |
-              HG: ${(indicationTAM * MARKET_SIZE.byRegion.hg).toFixed(0)}M
+              NA: ${(indicationTAM * marketSize.byRegion.na).toFixed(0)}M |
+              WE: ${(indicationTAM * marketSize.byRegion.we).toFixed(0)}M |
+              HG: ${(indicationTAM * marketSize.byRegion.hg).toFixed(0)}M
             </div>
           </div>
           <div className="bg-gray-900 rounded p-4">
@@ -5724,7 +5726,7 @@ const IndicationStrategyView = ({ products, indicationFilter }) => {
           {indicationProducts.slice(0, 9).map(p => (
             <div key={p.id} className="bg-gray-900 rounded p-3 border border-gray-700">
               <div className="font-semibold text-sm mb-1">{p.name}</div>
-              <div className="text-xs text-gray-400 mb-2">{VENDORS.find(v => v.key === p.vendor)?.label}</div>
+              <div className="text-xs text-gray-400 mb-2">{vendors.find(v => v.key === p.vendor)?.label}</div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-500">Share:</span>
                 <span className="font-bold text-emerald-400">{p.share}%</span>
@@ -5858,6 +5860,7 @@ const ScenarioView = ({ products, indicationFilter }) => {
 const IntelSignalsView = ({ products, indicationFilter }) => {
   const data = useData();
   const intelSignals = data?.intelSignals || DEFAULT_INTEL_SIGNALS;
+  const vendors = data?.vendors || DEFAULT_VENDORS;
 
   const [filterType, setFilterType] = useState('');
   const [filterVendor, setFilterVendor] = useState('');
@@ -5875,19 +5878,19 @@ const IntelSignalsView = ({ products, indicationFilter }) => {
 
   const signalsByType = useMemo(() => {
     const types = {};
-    INTEL_SIGNALS.forEach(s => {
+    intelSignals.forEach(s => {
       types[s.type] = (types[s.type] || 0) + 1;
     });
     return Object.entries(types).map(([k, v]) => ({ name: k, value: v }));
-  }, []);
+  }, [intelSignals]);
 
   const signalsByVendor = useMemo(() => {
-    const vendors = {};
-    INTEL_SIGNALS.forEach(s => {
-      vendors[s.vendor] = (vendors[s.vendor] || 0) + 1;
+    const vendorCounts = {};
+    intelSignals.forEach(s => {
+      vendorCounts[s.vendor] = (vendorCounts[s.vendor] || 0) + 1;
     });
-    return Object.entries(vendors).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => ({ name: VENDORS.find(vnd => vnd.key === k)?.label || k, value: v }));
-  }, []);
+    return Object.entries(vendorCounts).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => ({ name: vendors.find(vnd => vnd.key === k)?.label || k, value: v }));
+  }, [intelSignals, vendors]);
 
   return (
     <div className="space-y-6">
@@ -5931,8 +5934,8 @@ const IntelSignalsView = ({ products, indicationFilter }) => {
             <label className="text-xs text-gray-400 mb-2 block">Vendor</label>
             <select value={filterVendor} onChange={(e) => setFilterVendor(e.target.value)} className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-2 text-sm text-white">
               <option value="">All Vendors</option>
-              {[...new Set(INTEL_SIGNALS.map(s => s.vendor))].map(v => (
-                <option key={v} value={v}>{VENDORS.find(vnd => vnd.key === v)?.label || v}</option>
+              {[...new Set(intelSignals.map(s => s.vendor))].map(v => (
+                <option key={v} value={v}>{vendors.find(vnd => vnd.key === v)?.label || v}</option>
               ))}
             </select>
           </div>
