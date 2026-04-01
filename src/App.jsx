@@ -1,12 +1,19 @@
 import React, { useState, useMemo, useCallback, createContext, useContext } from 'react';
 import { BarChart, Bar, ScatterChart, Scatter, RadarChart, Radar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PolarAngleAxis, PolarGrid, PieChart, Pie, Cell, Area, AreaChart, ComposedChart, ReferenceLine } from 'recharts';
-import { ChevronDown, ChevronRight, AlertCircle, CheckCircle, TrendingUp, TrendingDown, ArrowRight, Users, Package, Zap, Globe, DollarSign, FileText, Calendar, Download } from 'lucide-react';
+import { ChevronDown, ChevronRight, AlertCircle, CheckCircle, TrendingUp, TrendingDown, ArrowRight, Users, Package, Zap, Globe, DollarSign, FileText, Calendar, Download, Plus, Trash2, Edit3, Save, Upload, Copy, RefreshCw, Search, Filter, ChevronUp, X } from 'lucide-react';
 
 // ============================================
 // SCENARIO CONTEXT
 // ============================================
 
 const ScenarioContext = createContext({ adjustments: {}, setAdjustments: () => {} });
+
+// ============================================
+// DATA CONTEXT
+// ============================================
+
+const DataContext = createContext(null);
+const useData = () => useContext(DataContext);
 
 // ============================================
 // DATA CONSTANTS
@@ -34,7 +41,7 @@ const INDICATIONS = [
   { key: "infectious_disease", label: "Infectious Disease", icon: "🦠", color: "#84cc16" },
 ];
 
-const VENDORS = [
+const DEFAULT_VENDORS = [
   { key: 'illumina', label: 'Illumina', color: '#3b82f6', strength: 'Sequencing dominance + integrated workflows', weakness: 'Premium pricing, closed ecosystem', recentMove: 'DRAGEN on-instrument, XLEAP-SBS chemistry' },
   { key: 'roche', label: 'Roche', color: '#ef4444', strength: 'KAPA workhorse + MagNA Pure IVD extraction', weakness: 'SBX sequencer pre-clinical, KAPA commodity pressure', recentMove: 'Axelios 1 SBX sequencer launch ($150 genome), AVENIO ctDNA updates' },
   { key: 'thermo', label: 'Thermo Fisher', color: '#10b981', strength: 'Genexus sample-to-report + AmpliSeq catalog', weakness: 'Semiconductor throughput ceiling', recentMove: 'Oncomine Precision Assay, Genexus system' },
@@ -91,7 +98,7 @@ const VENDORS = [
   { key: 'emedgene', label: 'Emedgene (Illumina)', color: '#d8b4fe', strength: 'AI-driven rare disease interpretation, Illumina ecosystem', weakness: 'Rare disease focused, limited somatic', recentMove: 'Illumina acquisition integration, expanded gene panels' },
 ];
 
-const PRODUCTS = [
+const DEFAULT_PRODUCTS = [
   // EXTRACTION
   { id: 'qiagen-ffpe-ext', vendor: 'qiagen', name: 'QIAamp FFPE DNA', category: 'Extraction', tier: 'A', share: 15.1, pricing: 8, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe"], nucleicAcids: ["dna","rna"], regionalShare: {na:18,we:25,hg:17,od:22}, growth: "stable", indications: ["solid_tumor","heme_malig"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED + validation",date:"2026-Q1"}} },
   { id: 'qiagen-blood-ext', vendor: 'qiagen', name: 'QIAamp Blood', category: 'Extraction', tier: 'A', share: 12.2, pricing: 5, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["blood"], nucleicAcids: ["dna"], regionalShare: {na:17,we:18,hg:12,od:14}, growth: "stable", indications: ["liquid_biopsy","hereditary_cancer"], indicationShare: {}, confidence: {share:{level:"estimated",source:"DeciBio/Grand View + validation",date:"2026-Q1"},pricing:{level:"estimated",source:"Public sources + validation",date:"2026-Q1"},regulatory:{level:"verified",source:"EU EUDAMED + validation",date:"2026-Q1"}} },
@@ -271,7 +278,7 @@ const PRODUCTS = [
   { id: 'emedgene-interpret', vendor: 'emedgene', name: 'Emedgene (Illumina) AI Interpretation', category: 'Reporting', tier: 'B', share: 7.4, pricing: 40, regulatory: 'CE-IVD', region: 'global', sampleTypes: ["ffpe","blood","cfdna"], nucleicAcids: ["dna","rna"], regionalShare: {na:5,we:4,hg:2,od:3}, growth: "growing", indications: ["rare_disease","hereditary_cancer"], indicationShare: {rare_disease:{global:11,na:13,we:9,hg:6,od:7},hereditary_cancer:{global:6,na:7,we:5,hg:3,od:4}}, confidence: {share:{level:"approximate",source:"Channel intelligence",date:"2026-Q1"},pricing:{level:"estimated",source:"Enterprise licensing",date:"2026-Q1"},regulatory:{level:"estimated",source:"EU regulatory tracking",date:"2026-Q1"}} },
 ];
 
-const TIMELINE_EVENTS = [
+const DEFAULT_TIMELINE_EVENTS = [
   { year: 2015, event: 'Illumina DxSeq launch', vendor: 'illumina', impact: 'High' },
   { year: 2017, event: 'FDA NGS guidance published', vendor: 'regulatory', impact: 'High' },
   { year: 2018, event: 'Roche Avenio acquisition', vendor: 'roche', impact: 'Medium' },
@@ -301,7 +308,7 @@ const TIMELINE_EVENTS = [
   { year: 2026, event: 'INTEGRA MIRO CANVAS NGS workflow library', vendor: 'integra', impact: 'Medium' },
 ];
 
-const COMPATIBILITY_LAYERS = [
+const DEFAULT_COMPATIBILITY_LAYERS = [
   { key: 'ext_to_libprep', label: 'Extraction → Library Prep', source: 'Extraction', target: 'Library Prep' },
   { key: 'libprep_to_auto', label: 'Library Prep → Automation', source: 'Library Prep', target: 'Automation' },
   { key: 'libprep_to_seq', label: 'Library Prep → Sequencing', source: 'Library Prep', target: 'Sequencing' },
@@ -309,7 +316,7 @@ const COMPATIBILITY_LAYERS = [
   { key: 'analysis_to_report', label: 'Analysis → Reporting', source: 'Analysis', target: 'Reporting' },
 ];
 
-const COMPATIBILITY = [
+const DEFAULT_COMPATIBILITY = [
   { source: 'qiagen-ffpe-ext', target: 'illumina-dna-prep', layer: 'ext_to_libprep', level: 'validated', notes: 'QIAamp FFPE → Illumina DNA Prep validated protocol', protocol: 'Illumina TN 1234' },
   { source: 'qiagen-ffpe-ext', target: 'illumina-tso500', layer: 'ext_to_libprep', level: 'validated', notes: 'Standard FFPE extraction for TSO500', protocol: 'Illumina TN 5678' },
   { source: 'qiagen-ffpe-ext', target: 'agilent-sureselect', layer: 'ext_to_libprep', level: 'validated', notes: 'QIAamp + SureSelect validated', protocol: 'Agilent AN 2345' },
@@ -767,7 +774,7 @@ const COMPATIBILITY = [
 // HISTORICAL DATA & MARKET SIZING
 // ============================================
 
-const HISTORICAL_SNAPSHOTS = [
+const DEFAULT_HISTORICAL_SNAPSHOTS = [
   { quarter: '2024-Q4', data: { 'qiagen-ffpe-ext': { share: 14.8, pricing: 8 }, 'qiagen-blood-ext': { share: 12.0, pricing: 5 }, 'roche-magna-ext': { share: 13.2, pricing: 7 }, 'thermo-magmax-ext': { share: 12.5, pricing: 6 }, 'illumina-dna-prep': { share: 18.3, pricing: 42 }, 'illumina-tso500': { share: 8.5, pricing: 78 }, 'agilent-sureselect': { share: 14.2, pricing: 65 }, 'twist-panels': { share: 5.8, pricing: 75 }, 'kapa-hyperprep': { share: 11.2, pricing: 52 }, 'idt-xgen': { share: 6.5, pricing: 68 }, 'neb-ultraii': { share: 4.2, pricing: 55 }, 'oncomine-dx': { share: 6.8, pricing: 82 }, 'miseq': { share: 16.5, pricing: 350 }, 'nextseq': { share: 14.2, pricing: 420 }, 'novaseq': { share: 12.8, pricing: 850 }, 'ion-s5': { share: 8.5, pricing: 280 }, 'mgi-seq': { share: 3.2, pricing: 120 }, 'element-aviti': { share: 0.8, pricing: 85 }, 'pacbio-revio': { share: 2.1, pricing: 350 }, 'oxford-minion': { share: 1.5, pricing: 80 }, 'dragen': { share: 11.5, pricing: 0 }, 'sophia-ddm': { share: 7.2, pricing: 95 }, 'qci-interpret': { share: 9.8, pricing: 48 }, 'velsera-cg': { share: 3.1, pricing: 0 }, 'illumina-basespace': { share: 16.2, pricing: 0 }, 'archer-fusionplex': { share: 2.4, pricing: 89 }, 'hamilton-ngs': { share: 8.9, pricing: 280 }, 'tecan-fluent': { share: 4.2, pricing: 225 } } },
   { quarter: '2025-Q1', data: { 'qiagen-ffpe-ext': { share: 14.9, pricing: 8 }, 'qiagen-blood-ext': { share: 12.1, pricing: 5 }, 'roche-magna-ext': { share: 13.4, pricing: 7 }, 'thermo-magmax-ext': { share: 12.6, pricing: 6 }, 'illumina-dna-prep': { share: 18.0, pricing: 42 }, 'illumina-tso500': { share: 8.3, pricing: 78 }, 'agilent-sureselect': { share: 14.0, pricing: 65 }, 'twist-panels': { share: 6.1, pricing: 75 }, 'kapa-hyperprep': { share: 11.0, pricing: 52 }, 'idt-xgen': { share: 6.7, pricing: 68 }, 'neb-ultraii': { share: 4.4, pricing: 55 }, 'oncomine-dx': { share: 6.9, pricing: 82 }, 'miseq': { share: 16.2, pricing: 350 }, 'nextseq': { share: 13.9, pricing: 420 }, 'novaseq': { share: 12.5, pricing: 850 }, 'ion-s5': { share: 8.3, pricing: 280 }, 'mgi-seq': { share: 3.8, pricing: 120 }, 'element-aviti': { share: 1.5, pricing: 85 }, 'pacbio-revio': { share: 2.3, pricing: 350 }, 'oxford-minion': { share: 1.8, pricing: 80 }, 'dragen': { share: 12.0, pricing: 0 }, 'sophia-ddm': { share: 7.4, pricing: 95 }, 'qci-interpret': { share: 10.0, pricing: 48 }, 'velsera-cg': { share: 3.3, pricing: 0 }, 'illumina-basespace': { share: 16.4, pricing: 0 }, 'archer-fusionplex': { share: 2.6, pricing: 89 }, 'hamilton-ngs': { share: 9.1, pricing: 280 }, 'tecan-fluent': { share: 4.4, pricing: 225 } } },
   { quarter: '2025-Q2', data: { 'qiagen-ffpe-ext': { share: 15.0, pricing: 8 }, 'qiagen-blood-ext': { share: 12.2, pricing: 5 }, 'roche-magna-ext': { share: 13.5, pricing: 7 }, 'thermo-magmax-ext': { share: 12.7, pricing: 6 }, 'illumina-dna-prep': { share: 17.8, pricing: 42 }, 'illumina-tso500': { share: 8.1, pricing: 78 }, 'agilent-sureselect': { share: 13.9, pricing: 65 }, 'twist-panels': { share: 6.3, pricing: 75 }, 'kapa-hyperprep': { share: 10.9, pricing: 52 }, 'idt-xgen': { share: 6.8, pricing: 68 }, 'neb-ultraii': { share: 4.5, pricing: 55 }, 'oncomine-dx': { share: 7.0, pricing: 82 }, 'miseq': { share: 15.9, pricing: 350 }, 'nextseq': { share: 13.6, pricing: 420 }, 'novaseq': { share: 12.2, pricing: 850 }, 'ion-s5': { share: 8.1, pricing: 280 }, 'mgi-seq': { share: 4.4, pricing: 120 }, 'element-aviti': { share: 2.2, pricing: 85 }, 'pacbio-revio': { share: 2.5, pricing: 350 }, 'oxford-minion': { share: 2.1, pricing: 80 }, 'dragen': { share: 12.4, pricing: 0 }, 'sophia-ddm': { share: 7.6, pricing: 95 }, 'qci-interpret': { share: 10.2, pricing: 48 }, 'velsera-cg': { share: 3.5, pricing: 0 }, 'illumina-basespace': { share: 16.5, pricing: 0 }, 'archer-fusionplex': { share: 2.8, pricing: 89 }, 'hamilton-ngs': { share: 9.2, pricing: 280 }, 'tecan-fluent': { share: 4.6, pricing: 225 } } },
@@ -776,7 +783,7 @@ const HISTORICAL_SNAPSHOTS = [
   { quarter: '2026-Q1', data: { 'qiagen-ffpe-ext': { share: 15.1, pricing: 8 }, 'qiagen-blood-ext': { share: 12.2, pricing: 5 }, 'roche-magna-ext': { share: 13.7, pricing: 7 }, 'thermo-magmax-ext': { share: 12.9, pricing: 6 }, 'illumina-dna-prep': { share: 17.0, pricing: 42 }, 'illumina-tso500': { share: 7.8, pricing: 78 }, 'agilent-sureselect': { share: 13.6, pricing: 65 }, 'twist-panels': { share: 6.8, pricing: 75 }, 'kapa-hyperprep': { share: 10.6, pricing: 52 }, 'idt-xgen': { share: 7.1, pricing: 68 }, 'neb-ultraii': { share: 4.8, pricing: 55 }, 'oncomine-dx': { share: 7.2, pricing: 82 }, 'miseq': { share: 15.2, pricing: 350 }, 'nextseq': { share: 13.1, pricing: 420 }, 'novaseq': { share: 11.6, pricing: 850 }, 'ion-s5': { share: 7.6, pricing: 280 }, 'mgi-seq': { share: 6.1, pricing: 120 }, 'element-aviti': { share: 4.0, pricing: 85 }, 'pacbio-revio': { share: 2.9, pricing: 350 }, 'oxford-minion': { share: 2.5, pricing: 80 }, 'dragen': { share: 13.2, pricing: 0 }, 'sophia-ddm': { share: 8.1, pricing: 95 }, 'qci-interpret': { share: 10.7, pricing: 48 }, 'velsera-cg': { share: 3.9, pricing: 0 }, 'illumina-basespace': { share: 16.8, pricing: 0 }, 'archer-fusionplex': { share: 3.1, pricing: 89 }, 'hamilton-ngs': { share: 9.5, pricing: 280 }, 'tecan-fluent': { share: 4.9, pricing: 225 } } },
 ];
 
-const MARKET_SIZE = {
+const DEFAULT_MARKET_SIZE = {
   byCategory: { 'Extraction': 1800, 'Library Prep': 2400, 'Automation': 1200, 'Sequencing': 8500, 'Analysis': 3200, 'Reporting': 1400 },
   byIndication: { solid_tumor: 5200, liquid_biopsy: 3800, hereditary_cancer: 2100, heme_malig: 1600, rare_disease: 1800, pharmacogenomics: 900, hla_typing: 600, infectious_disease: 2500 },
   byRegion: { na: 0.42, we: 0.28, hg: 0.22, od: 0.08 },
@@ -786,7 +793,7 @@ const MARKET_SIZE = {
   futureCategories: { 'Proteomics': 2800, 'Spatial Biology': 1200, 'Long-Read Sequencing': 1800, 'Epigenomics': 600, 'Single-Cell Multi-omics': 900 },
 };
 
-const INTEL_SIGNALS = [
+const DEFAULT_INTEL_SIGNALS = [
   { id: 'sig-1', date: '2026-03-15', type: 'regulatory', vendor: 'illumina', title: 'FDA clearance: DRAGEN OncoPipeline v4', impact: 'high', summary: 'Illumina DRAGEN OncoPipeline v4 receives FDA 510(k) clearance enabling on-instrument IVD analysis', source: 'FDA 510(k) database', products: ['illumina-dragen'] },
   { id: 'sig-2', date: '2026-03-10', type: 'pricing', vendor: 'element', title: 'Element AVITI24 pricing announced at $98/genome', impact: 'high', summary: 'Element Biosciences announces AVITI24 benchtop sequencer with $98 cost-per-genome, 5% lower than previous estimate', source: 'Element press release', products: ['element-aviti'] },
   { id: 'sig-3', date: '2026-03-05', type: 'product_launch', vendor: 'roche', title: 'Roche Axelios 1 SBX sequencer FDA 510(k) submission', impact: 'high', summary: 'Roche submits Axelios 1 SBX sequencer for FDA clearance targeting $150/genome with KAPA library prep', source: 'Roche investor call', products: ['roche-sbx'] },
@@ -804,7 +811,7 @@ const INTEL_SIGNALS = [
   { id: 'sig-15', date: '2025-12-20', type: 'pricing', vendor: 'twist', title: 'Twist Bioscience panel pricing reduction in high-volume tiers', impact: 'medium', summary: 'Twist introduces aggressive volume discounting on exome and cancer panels to drive adoption', source: 'Twist pricing updates', products: ['twist-panels'] },
 ];
 
-const COST_COMPONENTS = {
+const DEFAULT_COST_COMPONENTS = {
   'qiagen-ffpe-ext': { reagents: 4.50, instrument_amortized: 0.8, labor: 1.5, qc: 0.6, total: 7.4 },
   'qiagen-blood-ext': { reagents: 2.50, instrument_amortized: 0.5, labor: 1.0, qc: 0.4, total: 4.4 },
   'roche-magna-ext': { reagents: 3.50, instrument_amortized: 0.8, labor: 1.2, qc: 0.5, total: 6.0 },
@@ -931,6 +938,9 @@ const IndicationFilterBar = ({ indicationFilter, setIndicationFilter }) => {
 };
 
 const IndicationHeatmap = ({ products }) => {
+  const data = useData();
+  const vendors = data?.vendors || DEFAULT_VENDORS;
+
   const [selectedCategory, setSelectedCategory] = useState('All');
   const categoryOpts = ['All', ...CATEGORIES];
 
@@ -995,7 +1005,7 @@ const IndicationHeatmap = ({ products }) => {
             </div>
           </div>
           {vendorShares.map(vendorKey => {
-            const vendor = VENDORS.find(v => v.key === vendorKey);
+            const vendor = vendors.find(v => v.key === vendorKey);
             return (
               <div key={vendorKey} className="flex">
                 <div className="w-40 pr-3 py-2 text-sm font-medium text-gray-300 text-right truncate" title={vendor?.label}>{vendor?.label}</div>
@@ -1033,6 +1043,11 @@ const IndicationHeatmap = ({ products }) => {
 
 // PHASE 3: WORKFLOW BUILDER COMPONENT
 const WorkflowBuilder = ({ products }) => {
+  const data = useData();
+  const vendors = data?.vendors || DEFAULT_VENDORS;
+  const compatibility = data?.compatibility || DEFAULT_COMPATIBILITY;
+  const compatibilityLayers = data?.compatibilityLayers || DEFAULT_COMPATIBILITY_LAYERS;
+
   const [builderMode, setBuilderMode] = useState(false);
   const [selections, setSelections] = useState({ extraction: null, libprep: null, automation: null, sequencing: null, analysis: null, reporting: null });
 
@@ -1052,31 +1067,31 @@ const WorkflowBuilder = ({ products }) => {
     if (stepKey === 'extraction') return categoryProducts;
 
     if (stepKey === 'libprep' && selections.extraction) {
-      const compat = COMPATIBILITY.filter(c => c.layer === 'ext_to_libprep' && c.source === selections.extraction);
+      const compat = compatibility.filter(c => c.layer === 'ext_to_libprep' && c.source === selections.extraction);
       const targetIds = compat.map(c => c.target);
       return categoryProducts.filter(p => targetIds.includes(p.id));
     }
 
     if (stepKey === 'automation' && selections.libprep) {
-      const compat = COMPATIBILITY.filter(c => c.layer === 'libprep_to_auto' && c.source === selections.libprep);
+      const compat = compatibility.filter(c => c.layer === 'libprep_to_auto' && c.source === selections.libprep);
       const targetIds = compat.map(c => c.target);
       return categoryProducts.filter(p => targetIds.includes(p.id));
     }
 
     if (stepKey === 'sequencing' && selections.libprep) {
-      const compat = COMPATIBILITY.filter(c => c.layer === 'libprep_to_seq' && c.source === selections.libprep);
+      const compat = compatibility.filter(c => c.layer === 'libprep_to_seq' && c.source === selections.libprep);
       const targetIds = compat.map(c => c.target);
       return categoryProducts.filter(p => targetIds.includes(p.id));
     }
 
     if (stepKey === 'analysis' && selections.sequencing) {
-      const compat = COMPATIBILITY.filter(c => c.layer === 'seq_to_analysis' && c.source === selections.sequencing);
+      const compat = compatibility.filter(c => c.layer === 'seq_to_analysis' && c.source === selections.sequencing);
       const targetIds = compat.map(c => c.target);
       return categoryProducts.filter(p => targetIds.includes(p.id));
     }
 
     if (stepKey === 'reporting' && selections.analysis) {
-      const compat = COMPATIBILITY.filter(c => c.layer === 'analysis_to_report' && c.source === selections.analysis);
+      const compat = compatibility.filter(c => c.layer === 'analysis_to_report' && c.source === selections.analysis);
       const targetIds = compat.map(c => c.target);
       return categoryProducts.filter(p => targetIds.includes(p.id));
     }
@@ -1085,7 +1100,7 @@ const WorkflowBuilder = ({ products }) => {
   };
 
   const getCompatibilityLevel = (sourceId, targetId, layer) => {
-    const compat = COMPATIBILITY.find(c => c.source === sourceId && c.target === targetId && c.layer === layer);
+    const compat = compatibility.find(c => c.source === sourceId && c.target === targetId && c.layer === layer);
     return compat?.level || null;
   };
 
@@ -1101,7 +1116,7 @@ const WorkflowBuilder = ({ products }) => {
   };
 
   const getCompatlevel = (src, tgt, layer) => {
-    const c = COMPATIBILITY.find(x => x.source === src && x.target === tgt && x.layer === layer);
+    const c = compatibility.find(x => x.source === src && x.target === tgt && x.layer === layer);
     return c?.level || 'none';
   };
 
@@ -1118,7 +1133,7 @@ const WorkflowBuilder = ({ products }) => {
       <div className="flex items-center bg-gray-800 rounded-lg p-3 border border-gray-700 overflow-x-auto gap-1">
         {steps.map((step, idx) => {
           const prod = getProduct(selections[step.key]);
-          const v = prod ? VENDORS.find(v => v.key === prod.vendor) : null;
+          const v = prod ? vendors.find(v => v.key === prod.vendor) : null;
           return (
             <React.Fragment key={step.key}>
               <div className={`flex-1 min-w-0 rounded-lg p-2 text-center ${prod ? 'bg-gray-700' : 'bg-gray-900'}`}>
@@ -1164,9 +1179,9 @@ const WorkflowBuilder = ({ products }) => {
               <div className="px-4 pb-4 grid grid-cols-3 gap-2">
                 {stepProducts.map(prod => {
                   const isSelected = selections[step.key] === prod.id;
-                  const v = VENDORS.find(v => v.key === prod.vendor);
+                  const v = vendors.find(v => v.key === prod.vendor);
                   const levelColor = { validated: '#10b981', compatible: '#f59e0b', theoretical: '#6b7280', none: '#374151' };
-                  const prevLayerKey = prevStep ? COMPATIBILITY_LAYERS.find(l => l.target === step.category)?.key : null;
+                  const prevLayerKey = prevStep ? compatibilityLayers.find(l => l.target === step.category)?.key : null;
                   const level = prevLayerKey && selections[prevStep.key] ? getCompatlevel(selections[prevStep.key], prod.id, prevLayerKey) : null;
                   return (
                     <div
@@ -1319,7 +1334,7 @@ const DataQualityView = ({ products }) => {
 };
 
 // PHASE 3: EXPORT BRIEF
-const generateBrief = (products) => {
+const generateBrief = (products, vendors = DEFAULT_VENDORS) => {
   const vendorCount = new Set(products.map(p => p.vendor)).size;
   const productCount = products.length;
   const indicationCount = INDICATIONS.length;
@@ -1380,7 +1395,7 @@ const generateBrief = (products) => {
         <h3>${cat}</h3>
         <table>
           <tr><th>Product</th><th>Vendor</th><th>Market Share</th></tr>
-          ${leaders.map(p => `<tr><td>${p.name}</td><td>${VENDORS.find(v => v.key === p.vendor)?.label || p.vendor}</td><td>${p.share || 0}%</td></tr>`).join('')}
+          ${leaders.map(p => `<tr><td>${p.name}</td><td>${vendors.find(v => v.key === p.vendor)?.label || p.vendor}</td><td>${p.share || 0}%</td></tr>`).join('')}
         </table>
       `;
     }).join('')}
@@ -1388,7 +1403,7 @@ const generateBrief = (products) => {
     <h2>Top 5 Products by Market Share</h2>
     <table>
       <tr><th>Product</th><th>Category</th><th>Vendor</th><th>Market Share</th></tr>
-      ${topProducts.map(p => `<tr><td>${p.name}</td><td>${p.category}</td><td>${VENDORS.find(v => v.key === p.vendor)?.label || p.vendor}</td><td>${p.share || 0}%</td></tr>`).join('')}
+      ${topProducts.map(p => `<tr><td>${p.name}</td><td>${p.category}</td><td>${vendors.find(v => v.key === p.vendor)?.label || p.vendor}</td><td>${p.share || 0}%</td></tr>`).join('')}
     </table>
 
     <h2>Indication Coverage</h2>
@@ -1412,6 +1427,1242 @@ const generateBrief = (products) => {
   a.download = 'ngs-competitive-brief.html';
   a.click();
   URL.revokeObjectURL(url);
+};
+
+// ============================================
+// ADMIN VIEW
+// ============================================
+
+const AdminView = () => {
+  const data = useData();
+  const [activeTab, setActiveTab] = useState('products');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [expandedRows, setExpandedRows] = useState({});
+  const [currentQuarter, setCurrentQuarter] = useState('2026-Q1');
+  const [compatLayerFilter, setCompatLayerFilter] = useState('');
+  const [historyPage, setHistoryPage] = useState(0);
+
+  if (!data) return <div className="p-8">Loading data context...</div>;
+
+  const {
+    vendors, setVendors,
+    products, setProducts,
+    timelineEvents, setTimelineEvents,
+    compatibility, setCompatibility,
+    compatibilityLayers, setCompatibilityLayers,
+    historicalSnapshots, setHistoricalSnapshots,
+    marketSize, setMarketSize,
+    intelSignals, setIntelSignals,
+    costComponents, setCostComponents,
+  } = data;
+
+  const toggleRowExpand = (id) => {
+    setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleExport = () => {
+    const exportData = {
+      version: '4.0',
+      exportDate: new Date().toISOString().split('T')[0],
+      vendors,
+      products,
+      timelineEvents,
+      compatibility,
+      compatibilityLayers,
+      historicalSnapshots,
+      marketSize,
+      intelSignals,
+      costComponents,
+    };
+    const json = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ngs-data-export.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const imported = JSON.parse(evt.target?.result);
+        if (imported.vendors) setVendors(imported.vendors);
+        if (imported.products) setProducts(imported.products);
+        if (imported.timelineEvents) setTimelineEvents(imported.timelineEvents);
+        if (imported.compatibility) setCompatibility(imported.compatibility);
+        if (imported.compatibilityLayers) setCompatibilityLayers(imported.compatibilityLayers);
+        if (imported.historicalSnapshots) setHistoricalSnapshots(imported.historicalSnapshots);
+        if (imported.marketSize) setMarketSize(imported.marketSize);
+        if (imported.intelSignals) setIntelSignals(imported.intelSignals);
+        if (imported.costComponents) setCostComponents(imported.costComponents);
+        alert('Data imported successfully!');
+      } catch (err) {
+        alert('Import failed: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleReset = () => {
+    if (window.confirm('Reset all data to defaults? This cannot be undone.')) {
+      setVendors(DEFAULT_VENDORS);
+      setProducts(DEFAULT_PRODUCTS);
+      setTimelineEvents(DEFAULT_TIMELINE_EVENTS);
+      setCompatibility(DEFAULT_COMPATIBILITY);
+      setCompatibilityLayers(DEFAULT_COMPATIBILITY_LAYERS);
+      setHistoricalSnapshots(DEFAULT_HISTORICAL_SNAPSHOTS);
+      setMarketSize(DEFAULT_MARKET_SIZE);
+      setIntelSignals(DEFAULT_INTEL_SIGNALS);
+      setCostComponents(DEFAULT_COST_COMPONENTS);
+    }
+  };
+
+  const generateCodeConstants = () => {
+    const code = `const DEFAULT_VENDORS = ${JSON.stringify(vendors, null, 2)};
+
+const DEFAULT_PRODUCTS = ${JSON.stringify(products, null, 2)};
+
+const DEFAULT_TIMELINE_EVENTS = ${JSON.stringify(timelineEvents, null, 2)};
+
+const DEFAULT_COMPATIBILITY_LAYERS = ${JSON.stringify(compatibilityLayers, null, 2)};
+
+const DEFAULT_COMPATIBILITY = ${JSON.stringify(compatibility, null, 2)};
+
+const DEFAULT_HISTORICAL_SNAPSHOTS = ${JSON.stringify(historicalSnapshots, null, 2)};
+
+const DEFAULT_MARKET_SIZE = ${JSON.stringify(marketSize, null, 2)};
+
+const DEFAULT_INTEL_SIGNALS = ${JSON.stringify(intelSignals, null, 2)};
+
+const DEFAULT_COST_COMPONENTS = ${JSON.stringify(costComponents, null, 2)};`;
+
+    const blob = new Blob([code], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'constants.js';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const renderProductsTab = () => (
+    <div className="space-y-4">
+      <div className="flex gap-2 mb-4">
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
+        />
+        <button
+          onClick={() => {
+            const newProduct = {
+              id: `new-product-${Date.now()}`,
+              vendor: vendors[0]?.key || 'illumina',
+              name: 'New Product',
+              category: CATEGORIES[0],
+              tier: 'C',
+              share: 0,
+              pricing: 0,
+              regulatory: 'RUO',
+              region: 'global',
+              sampleTypes: [],
+              nucleicAcids: [],
+              regionalShare: { na: 0, we: 0, hg: 0, od: 0 },
+              growth: 'stable',
+              indications: [],
+              indicationShare: {},
+              confidence: { share: { level: 'estimated', source: '', date: '' }, pricing: { level: 'estimated', source: '', date: '' }, regulatory: { level: 'verified', source: '', date: '' } },
+            };
+            setProducts([...products, newProduct]);
+          }}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white flex items-center gap-2"
+        >
+          <Plus size={16} /> Add Product
+        </button>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-gray-800">
+              <th className="border border-gray-700 px-3 py-2 text-left">ID</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Vendor</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Name</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Category</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Tier</th>
+              <th className="border border-gray-700 px-3 py-2 text-right">Share%</th>
+              <th className="border border-gray-700 px-3 py-2 text-right">Price</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Reg</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Growth</th>
+              <th className="border border-gray-700 px-3 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products
+              .filter(p => !searchTerm || p.id.includes(searchTerm) || p.name.includes(searchTerm))
+              .map((product, idx) => (
+                <React.Fragment key={product.id}>
+                  <tr className="border border-gray-700 bg-gray-900 hover:bg-gray-800">
+                    <td className="border border-gray-700 px-3 py-2 text-xs">{product.id}</td>
+                    <td className="border border-gray-700 px-3 py-2">
+                      <select
+                        value={product.vendor}
+                        onChange={(e) => {
+                          const updated = products.map(p => p.id === product.id ? { ...p, vendor: e.target.value } : p);
+                          setProducts(updated);
+                        }}
+                        className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                      >
+                        {vendors.map(v => <option key={v.key} value={v.key}>{v.label}</option>)}
+                      </select>
+                    </td>
+                    <td className="border border-gray-700 px-3 py-2">
+                      <input
+                        type="text"
+                        value={product.name}
+                        onChange={(e) => {
+                          const updated = products.map(p => p.id === product.id ? { ...p, name: e.target.value } : p);
+                          setProducts(updated);
+                        }}
+                        className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                      />
+                    </td>
+                    <td className="border border-gray-700 px-3 py-2">
+                      <select
+                        value={product.category}
+                        onChange={(e) => {
+                          const updated = products.map(p => p.id === product.id ? { ...p, category: e.target.value } : p);
+                          setProducts(updated);
+                        }}
+                        className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                      >
+                        {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </td>
+                    <td className="border border-gray-700 px-3 py-2">
+                      <input
+                        type="text"
+                        value={product.tier}
+                        onChange={(e) => {
+                          const updated = products.map(p => p.id === product.id ? { ...p, tier: e.target.value } : p);
+                          setProducts(updated);
+                        }}
+                        className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                      />
+                    </td>
+                    <td className="border border-gray-700 px-3 py-2 text-right">
+                      <input
+                        type="number"
+                        value={product.share}
+                        onChange={(e) => {
+                          const updated = products.map(p => p.id === product.id ? { ...p, share: parseFloat(e.target.value) || 0 } : p);
+                          setProducts(updated);
+                        }}
+                        className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full text-right"
+                        step="0.1"
+                      />
+                    </td>
+                    <td className="border border-gray-700 px-3 py-2 text-right">
+                      <input
+                        type="number"
+                        value={product.pricing}
+                        onChange={(e) => {
+                          const updated = products.map(p => p.id === product.id ? { ...p, pricing: parseFloat(e.target.value) || 0 } : p);
+                          setProducts(updated);
+                        }}
+                        className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full text-right"
+                        step="0.1"
+                      />
+                    </td>
+                    <td className="border border-gray-700 px-3 py-2 text-xs">
+                      <select
+                        value={product.regulatory}
+                        onChange={(e) => {
+                          const updated = products.map(p => p.id === product.id ? { ...p, regulatory: e.target.value } : p);
+                          setProducts(updated);
+                        }}
+                        className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                      >
+                        <option value="RUO">RUO</option>
+                        <option value="CE-IVD">CE-IVD</option>
+                        <option value="FDA 510k">FDA 510k</option>
+                      </select>
+                    </td>
+                    <td className="border border-gray-700 px-3 py-2 text-xs">
+                      <select
+                        value={product.growth}
+                        onChange={(e) => {
+                          const updated = products.map(p => p.id === product.id ? { ...p, growth: e.target.value } : p);
+                          setProducts(updated);
+                        }}
+                        className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                      >
+                        <option value="stable">Stable</option>
+                        <option value="growing">Growing</option>
+                        <option value="declining">Declining</option>
+                      </select>
+                    </td>
+                    <td className="border border-gray-700 px-3 py-2 flex gap-1">
+                      <button
+                        onClick={() => toggleRowExpand(product.id)}
+                        className="p-1 hover:bg-gray-700 rounded"
+                        title="Expand"
+                      >
+                        {expandedRows[product.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm('Delete this product?')) {
+                            setProducts(products.filter(p => p.id !== product.id));
+                          }
+                        }}
+                        className="p-1 hover:bg-red-900 rounded text-red-400"
+                        title="Delete"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                  {expandedRows[product.id] && (
+                    <tr className="bg-gray-800 border border-gray-700">
+                      <td colSpan="10" className="px-4 py-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-xs font-semibold text-gray-300 block mb-2">Regional Share</label>
+                            <div className="grid grid-cols-4 gap-2">
+                              {['na', 'we', 'hg', 'od'].map(region => (
+                                <div key={region}>
+                                  <label className="text-xs text-gray-400">{region.toUpperCase()}</label>
+                                  <input
+                                    type="number"
+                                    value={product.regionalShare?.[region] || 0}
+                                    onChange={(e) => {
+                                      const updated = products.map(p => p.id === product.id ? {
+                                        ...p,
+                                        regionalShare: { ...p.regionalShare, [region]: parseFloat(e.target.value) || 0 }
+                                      } : p);
+                                      setProducts(updated);
+                                    }}
+                                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-xs font-semibold text-gray-300 block mb-2">Indications</label>
+                            <div className="space-y-1">
+                              {INDICATIONS.map(ind => (
+                                <label key={ind.key} className="flex items-center gap-2 text-sm">
+                                  <input
+                                    type="checkbox"
+                                    checked={product.indications?.includes(ind.key) || false}
+                                    onChange={(e) => {
+                                      const updated = products.map(p => p.id === product.id ? {
+                                        ...p,
+                                        indications: e.target.checked
+                                          ? [...(p.indications || []), ind.key]
+                                          : p.indications?.filter(i => i !== ind.key)
+                                      } : p);
+                                      setProducts(updated);
+                                    }}
+                                    className="w-4 h-4"
+                                  />
+                                  {ind.label}
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  const renderVendorsTab = () => (
+    <div className="space-y-4">
+      <button
+        onClick={() => {
+          const newVendor = {
+            key: `vendor-${Date.now()}`,
+            label: 'New Vendor',
+            color: '#ffffff',
+            strength: '',
+            weakness: '',
+            recentMove: '',
+          };
+          setVendors([...vendors, newVendor]);
+        }}
+        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white flex items-center gap-2"
+      >
+        <Plus size={16} /> Add Vendor
+      </button>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-gray-800">
+              <th className="border border-gray-700 px-3 py-2 text-left">Key</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Label</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Color</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Strength</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Weakness</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Recent Move</th>
+              <th className="border border-gray-700 px-3 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {vendors.map((vendor) => (
+              <tr key={vendor.key} className="border border-gray-700 bg-gray-900 hover:bg-gray-800">
+                <td className="border border-gray-700 px-3 py-2 text-xs font-mono">{vendor.key}</td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <input
+                    type="text"
+                    value={vendor.label}
+                    onChange={(e) => {
+                      const updated = vendors.map(v => v.key === vendor.key ? { ...v, label: e.target.value } : v);
+                      setVendors(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                  />
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={vendor.color}
+                      onChange={(e) => {
+                        const updated = vendors.map(v => v.key === vendor.key ? { ...v, color: e.target.value } : v);
+                        setVendors(updated);
+                      }}
+                      className="h-8 w-12 cursor-pointer border border-gray-600"
+                    />
+                    <span className="text-xs text-gray-400">{vendor.color}</span>
+                  </div>
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <input
+                    type="text"
+                    value={vendor.strength}
+                    onChange={(e) => {
+                      const updated = vendors.map(v => v.key === vendor.key ? { ...v, strength: e.target.value } : v);
+                      setVendors(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                  />
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <input
+                    type="text"
+                    value={vendor.weakness}
+                    onChange={(e) => {
+                      const updated = vendors.map(v => v.key === vendor.key ? { ...v, weakness: e.target.value } : v);
+                      setVendors(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                  />
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <input
+                    type="text"
+                    value={vendor.recentMove}
+                    onChange={(e) => {
+                      const updated = vendors.map(v => v.key === vendor.key ? { ...v, recentMove: e.target.value } : v);
+                      setVendors(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                  />
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Delete this vendor?')) {
+                        setVendors(vendors.filter(v => v.key !== vendor.key));
+                      }
+                    }}
+                    className="p-1 hover:bg-red-900 rounded text-red-400"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  const renderMarketSizingTab = () => (
+    <div className="space-y-6 max-w-3xl">
+      <div>
+        <h3 className="text-lg font-semibold mb-4">By Category</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {Object.entries(marketSize.byCategory || {}).map(([cat, val]) => (
+            <div key={cat}>
+              <label className="text-sm text-gray-400 block mb-1">{cat}</label>
+              <input
+                type="number"
+                value={val}
+                onChange={(e) => {
+                  setMarketSize({
+                    ...marketSize,
+                    byCategory: { ...marketSize.byCategory, [cat]: parseInt(e.target.value) || 0 }
+                  });
+                }}
+                className="px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white w-full"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-lg font-semibold mb-4">By Indication</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {Object.entries(marketSize.byIndication || {}).map(([ind, val]) => (
+            <div key={ind}>
+              <label className="text-sm text-gray-400 block mb-1">{ind}</label>
+              <input
+                type="number"
+                value={val}
+                onChange={(e) => {
+                  setMarketSize({
+                    ...marketSize,
+                    byIndication: { ...marketSize.byIndication, [ind]: parseInt(e.target.value) || 0 }
+                  });
+                }}
+                className="px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white w-full"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-lg font-semibold mb-4">By Region</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {Object.entries(marketSize.byRegion || {}).map(([reg, val]) => (
+            <div key={reg}>
+              <label className="text-sm text-gray-400 block mb-1">{reg}</label>
+              <input
+                type="number"
+                value={val}
+                onChange={(e) => {
+                  setMarketSize({
+                    ...marketSize,
+                    byRegion: { ...marketSize.byRegion, [reg]: parseFloat(e.target.value) || 0 }
+                  });
+                }}
+                className="px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white w-full"
+                step="0.01"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm text-gray-400 block mb-1">Total NGS</label>
+          <input
+            type="number"
+            value={marketSize.totalNGS || 0}
+            onChange={(e) => {
+              setMarketSize({ ...marketSize, totalNGS: parseInt(e.target.value) || 0 });
+            }}
+            className="px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm text-gray-400 block mb-1">CAGR</label>
+          <input
+            type="number"
+            value={marketSize.cagr || 0}
+            onChange={(e) => {
+              setMarketSize({ ...marketSize, cagr: parseFloat(e.target.value) || 0 });
+            }}
+            className="px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white w-full"
+            step="0.001"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderHistoricalDataTab = () => {
+    const quarters = historicalSnapshots.map(h => h.quarter);
+    const currentSnapshot = historicalSnapshots.find(h => h.quarter === currentQuarter);
+
+    return (
+      <div className="space-y-4">
+        <div className="flex gap-2 items-center mb-4">
+          <label className="text-sm text-gray-400">Quarter:</label>
+          <select
+            value={currentQuarter}
+            onChange={(e) => setCurrentQuarter(e.target.value)}
+            className="px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
+          >
+            {quarters.map(q => <option key={q} value={q}>{q}</option>)}
+          </select>
+        </div>
+
+        {currentSnapshot && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-gray-800">
+                  <th className="border border-gray-700 px-3 py-2 text-left">Product ID</th>
+                  <th className="border border-gray-700 px-3 py-2 text-right">Share %</th>
+                  <th className="border border-gray-700 px-3 py-2 text-right">Pricing</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(currentSnapshot.data).map(([productId, values]) => (
+                  <tr key={productId} className="border border-gray-700 bg-gray-900 hover:bg-gray-800">
+                    <td className="border border-gray-700 px-3 py-2 text-xs font-mono">{productId}</td>
+                    <td className="border border-gray-700 px-3 py-2">
+                      <input
+                        type="number"
+                        value={values.share}
+                        onChange={(e) => {
+                          const updated = historicalSnapshots.map(h => h.quarter === currentQuarter ? {
+                            ...h,
+                            data: { ...h.data, [productId]: { ...values, share: parseFloat(e.target.value) || 0 } }
+                          } : h);
+                          setHistoricalSnapshots(updated);
+                        }}
+                        className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full text-right"
+                        step="0.1"
+                      />
+                    </td>
+                    <td className="border border-gray-700 px-3 py-2">
+                      <input
+                        type="number"
+                        value={values.pricing}
+                        onChange={(e) => {
+                          const updated = historicalSnapshots.map(h => h.quarter === currentQuarter ? {
+                            ...h,
+                            data: { ...h.data, [productId]: { ...values, pricing: parseFloat(e.target.value) || 0 } }
+                          } : h);
+                          setHistoricalSnapshots(updated);
+                        }}
+                        className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full text-right"
+                        step="0.1"
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderCostComponentsTab = () => (
+    <div className="space-y-4 overflow-x-auto">
+      <table className="w-full text-sm border-collapse">
+        <thead>
+          <tr className="bg-gray-800">
+            <th className="border border-gray-700 px-3 py-2 text-left">Product ID</th>
+            <th className="border border-gray-700 px-3 py-2 text-right">Reagents</th>
+            <th className="border border-gray-700 px-3 py-2 text-right">Instrument</th>
+            <th className="border border-gray-700 px-3 py-2 text-right">Labor</th>
+            <th className="border border-gray-700 px-3 py-2 text-right">QC</th>
+            <th className="border border-gray-700 px-3 py-2 text-right">Total</th>
+            <th className="border border-gray-700 px-3 py-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(costComponents).map(([productId, costs]) => (
+            <tr key={productId} className="border border-gray-700 bg-gray-900 hover:bg-gray-800">
+              <td className="border border-gray-700 px-3 py-2 text-xs font-mono">{productId}</td>
+              <td className="border border-gray-700 px-3 py-2">
+                <input
+                  type="number"
+                  value={costs.reagents}
+                  onChange={(e) => {
+                    const newCosts = {
+                      ...costs,
+                      reagents: parseFloat(e.target.value) || 0,
+                      total: (parseFloat(e.target.value) || 0) + costs.instrument_amortized + costs.labor + costs.qc
+                    };
+                    setCostComponents({ ...costComponents, [productId]: newCosts });
+                  }}
+                  className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full text-right"
+                  step="0.1"
+                />
+              </td>
+              <td className="border border-gray-700 px-3 py-2">
+                <input
+                  type="number"
+                  value={costs.instrument_amortized}
+                  onChange={(e) => {
+                    const newCosts = {
+                      ...costs,
+                      instrument_amortized: parseFloat(e.target.value) || 0,
+                      total: costs.reagents + (parseFloat(e.target.value) || 0) + costs.labor + costs.qc
+                    };
+                    setCostComponents({ ...costComponents, [productId]: newCosts });
+                  }}
+                  className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full text-right"
+                  step="0.1"
+                />
+              </td>
+              <td className="border border-gray-700 px-3 py-2">
+                <input
+                  type="number"
+                  value={costs.labor}
+                  onChange={(e) => {
+                    const newCosts = {
+                      ...costs,
+                      labor: parseFloat(e.target.value) || 0,
+                      total: costs.reagents + costs.instrument_amortized + (parseFloat(e.target.value) || 0) + costs.qc
+                    };
+                    setCostComponents({ ...costComponents, [productId]: newCosts });
+                  }}
+                  className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full text-right"
+                  step="0.1"
+                />
+              </td>
+              <td className="border border-gray-700 px-3 py-2">
+                <input
+                  type="number"
+                  value={costs.qc}
+                  onChange={(e) => {
+                    const newCosts = {
+                      ...costs,
+                      qc: parseFloat(e.target.value) || 0,
+                      total: costs.reagents + costs.instrument_amortized + costs.labor + (parseFloat(e.target.value) || 0)
+                    };
+                    setCostComponents({ ...costComponents, [productId]: newCosts });
+                  }}
+                  className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full text-right"
+                  step="0.1"
+                />
+              </td>
+              <td className="border border-gray-700 px-3 py-2 text-right font-semibold">{costs.total.toFixed(2)}</td>
+              <td className="border border-gray-700 px-3 py-2">
+                <button
+                  onClick={() => {
+                    if (window.confirm('Delete cost for this product?')) {
+                      const updated = { ...costComponents };
+                      delete updated[productId];
+                      setCostComponents(updated);
+                    }
+                  }}
+                  className="p-1 hover:bg-red-900 rounded text-red-400"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const renderIntelSignalsTab = () => (
+    <div className="space-y-4">
+      <button
+        onClick={() => {
+          const newSignal = {
+            id: `sig-${Date.now()}`,
+            date: new Date().toISOString().split('T')[0],
+            type: 'regulatory',
+            vendor: vendors[0]?.key || 'illumina',
+            title: 'New Signal',
+            impact: 'medium',
+            summary: '',
+            source: '',
+            products: [],
+          };
+          setIntelSignals([...intelSignals, newSignal]);
+        }}
+        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white flex items-center gap-2"
+      >
+        <Plus size={16} /> Add Signal
+      </button>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-gray-800">
+              <th className="border border-gray-700 px-3 py-2 text-left">Date</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Type</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Vendor</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Title</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Impact</th>
+              <th className="border border-gray-700 px-3 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {intelSignals.map((signal) => (
+              <tr key={signal.id} className="border border-gray-700 bg-gray-900 hover:bg-gray-800">
+                <td className="border border-gray-700 px-3 py-2">
+                  <input
+                    type="date"
+                    value={signal.date}
+                    onChange={(e) => {
+                      const updated = intelSignals.map(s => s.id === signal.id ? { ...s, date: e.target.value } : s);
+                      setIntelSignals(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                  />
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <select
+                    value={signal.type}
+                    onChange={(e) => {
+                      const updated = intelSignals.map(s => s.id === signal.id ? { ...s, type: e.target.value } : s);
+                      setIntelSignals(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                  >
+                    <option value="regulatory">Regulatory</option>
+                    <option value="pricing">Pricing</option>
+                    <option value="product_launch">Product Launch</option>
+                    <option value="partnership">Partnership</option>
+                    <option value="market_entry">Market Entry</option>
+                    <option value="acquisition">Acquisition</option>
+                    <option value="clinical_data">Clinical Data</option>
+                  </select>
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <select
+                    value={signal.vendor}
+                    onChange={(e) => {
+                      const updated = intelSignals.map(s => s.id === signal.id ? { ...s, vendor: e.target.value } : s);
+                      setIntelSignals(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                  >
+                    {vendors.map(v => <option key={v.key} value={v.key}>{v.label}</option>)}
+                  </select>
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <input
+                    type="text"
+                    value={signal.title}
+                    onChange={(e) => {
+                      const updated = intelSignals.map(s => s.id === signal.id ? { ...s, title: e.target.value } : s);
+                      setIntelSignals(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                  />
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <select
+                    value={signal.impact}
+                    onChange={(e) => {
+                      const updated = intelSignals.map(s => s.id === signal.id ? { ...s, impact: e.target.value } : s);
+                      setIntelSignals(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Delete this signal?')) {
+                        setIntelSignals(intelSignals.filter(s => s.id !== signal.id));
+                      }
+                    }}
+                    className="p-1 hover:bg-red-900 rounded text-red-400"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  const renderCompatibilityTab = () => {
+    const filteredCompat = compatLayerFilter
+      ? compatibility.filter(c => c.layer === compatLayerFilter)
+      : compatibility;
+    const pageSize = 50;
+    const paginatedCompat = filteredCompat.slice(historyPage * pageSize, (historyPage + 1) * pageSize);
+
+    return (
+      <div className="space-y-4">
+        <div className="flex gap-2 mb-4">
+          <select
+            value={compatLayerFilter}
+            onChange={(e) => {
+              setCompatLayerFilter(e.target.value);
+              setHistoryPage(0);
+            }}
+            className="px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
+          >
+            <option value="">All Layers</option>
+            {compatibilityLayers.map(layer => (
+              <option key={layer.key} value={layer.key}>{layer.label}</option>
+            ))}
+          </select>
+          <button
+            onClick={() => {
+              const newCompat = {
+                source: products[0]?.id || '',
+                target: products[1]?.id || '',
+                layer: compatibilityLayers[0]?.key || 'ext_to_libprep',
+                level: 'compatible',
+                notes: '',
+                protocol: '',
+              };
+              setCompatibility([...compatibility, newCompat]);
+            }}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white flex items-center gap-2"
+          >
+            <Plus size={16} /> Add Entry
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-gray-800">
+                <th className="border border-gray-700 px-3 py-2 text-left">Source</th>
+                <th className="border border-gray-700 px-3 py-2 text-left">Target</th>
+                <th className="border border-gray-700 px-3 py-2 text-left">Layer</th>
+                <th className="border border-gray-700 px-3 py-2 text-left">Level</th>
+                <th className="border border-gray-700 px-3 py-2 text-left">Notes</th>
+                <th className="border border-gray-700 px-3 py-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedCompat.map((entry, idx) => (
+                <tr key={idx} className="border border-gray-700 bg-gray-900 hover:bg-gray-800">
+                  <td className="border border-gray-700 px-3 py-2 text-xs">
+                    <select
+                      value={entry.source}
+                      onChange={(e) => {
+                        const updated = compatibility.map((c, i) => i === (historyPage * 50 + idx) ? { ...c, source: e.target.value } : c);
+                        setCompatibility(updated);
+                      }}
+                      className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                    >
+                      {products.map(p => <option key={p.id} value={p.id}>{p.id}</option>)}
+                    </select>
+                  </td>
+                  <td className="border border-gray-700 px-3 py-2 text-xs">
+                    <select
+                      value={entry.target}
+                      onChange={(e) => {
+                        const updated = compatibility.map((c, i) => i === (historyPage * 50 + idx) ? { ...c, target: e.target.value } : c);
+                        setCompatibility(updated);
+                      }}
+                      className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                    >
+                      {products.map(p => <option key={p.id} value={p.id}>{p.id}</option>)}
+                    </select>
+                  </td>
+                  <td className="border border-gray-700 px-3 py-2 text-xs">
+                    <select
+                      value={entry.layer}
+                      onChange={(e) => {
+                        const updated = compatibility.map((c, i) => i === (historyPage * 50 + idx) ? { ...c, layer: e.target.value } : c);
+                        setCompatibility(updated);
+                      }}
+                      className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                    >
+                      {compatibilityLayers.map(l => <option key={l.key} value={l.key}>{l.label}</option>)}
+                    </select>
+                  </td>
+                  <td className="border border-gray-700 px-3 py-2 text-xs">
+                    <select
+                      value={entry.level}
+                      onChange={(e) => {
+                        const updated = compatibility.map((c, i) => i === (historyPage * 50 + idx) ? { ...c, level: e.target.value } : c);
+                        setCompatibility(updated);
+                      }}
+                      className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                    >
+                      <option value="validated">Validated</option>
+                      <option value="compatible">Compatible</option>
+                      <option value="not_compatible">Not Compatible</option>
+                    </select>
+                  </td>
+                  <td className="border border-gray-700 px-3 py-2 text-xs">
+                    <input
+                      type="text"
+                      value={entry.notes}
+                      onChange={(e) => {
+                        const updated = compatibility.map((c, i) => i === (historyPage * 50 + idx) ? { ...c, notes: e.target.value } : c);
+                        setCompatibility(updated);
+                      }}
+                      className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                    />
+                  </td>
+                  <td className="border border-gray-700 px-3 py-2">
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Delete this entry?')) {
+                          setCompatibility(compatibility.filter((_, i) => i !== (historyPage * 50 + idx)));
+                        }
+                      }}
+                      className="p-1 hover:bg-red-900 rounded text-red-400"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex justify-between items-center text-sm text-gray-400">
+          <span>Page {historyPage + 1} of {Math.ceil(filteredCompat.length / 50)}</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setHistoryPage(Math.max(0, historyPage - 1))}
+              disabled={historyPage === 0}
+              className="px-3 py-1 bg-gray-800 hover:bg-gray-700 disabled:bg-gray-900 rounded"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setHistoryPage(Math.min(Math.ceil(filteredCompat.length / 50) - 1, historyPage + 1))}
+              disabled={historyPage >= Math.ceil(filteredCompat.length / 50) - 1}
+              className="px-3 py-1 bg-gray-800 hover:bg-gray-700 disabled:bg-gray-900 rounded"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderTimelineTab = () => (
+    <div className="space-y-4">
+      <button
+        onClick={() => {
+          const newEvent = {
+            year: new Date().getFullYear(),
+            event: 'New Event',
+            vendor: vendors[0]?.key || 'illumina',
+            impact: 'Medium',
+          };
+          setTimelineEvents([...timelineEvents, newEvent]);
+        }}
+        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white flex items-center gap-2"
+      >
+        <Plus size={16} /> Add Event
+      </button>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-gray-800">
+              <th className="border border-gray-700 px-3 py-2 text-left">Year</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Event</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Vendor</th>
+              <th className="border border-gray-700 px-3 py-2 text-left">Impact</th>
+              <th className="border border-gray-700 px-3 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {timelineEvents.map((event, idx) => (
+              <tr key={idx} className="border border-gray-700 bg-gray-900 hover:bg-gray-800">
+                <td className="border border-gray-700 px-3 py-2">
+                  <input
+                    type="number"
+                    value={event.year}
+                    onChange={(e) => {
+                      const updated = timelineEvents.map((evt, i) => i === idx ? { ...evt, year: parseInt(e.target.value) || 2026 } : evt);
+                      setTimelineEvents(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full text-right"
+                  />
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <input
+                    type="text"
+                    value={event.event}
+                    onChange={(e) => {
+                      const updated = timelineEvents.map((evt, i) => i === idx ? { ...evt, event: e.target.value } : evt);
+                      setTimelineEvents(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 w-full"
+                  />
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <select
+                    value={event.vendor}
+                    onChange={(e) => {
+                      const updated = timelineEvents.map((evt, i) => i === idx ? { ...evt, vendor: e.target.value } : evt);
+                      setTimelineEvents(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                  >
+                    {vendors.map(v => <option key={v.key} value={v.key}>{v.label}</option>)}
+                    <option value="regulatory">Regulatory</option>
+                    <option value="industry">Industry</option>
+                  </select>
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <select
+                    value={event.impact}
+                    onChange={(e) => {
+                      const updated = timelineEvents.map((evt, i) => i === idx ? { ...evt, impact: e.target.value } : evt);
+                      setTimelineEvents(updated);
+                    }}
+                    className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                  >
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                  </select>
+                </td>
+                <td className="border border-gray-700 px-3 py-2">
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Delete this event?')) {
+                        setTimelineEvents(timelineEvents.filter((_, i) => i !== idx));
+                      }
+                    }}
+                    className="p-1 hover:bg-red-900 rounded text-red-400"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  const renderImportExportTab = () => (
+    <div className="space-y-6 max-w-2xl">
+      <div className="bg-gray-800 rounded p-4 space-y-4">
+        <h3 className="text-lg font-semibold">Data Statistics</h3>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>Vendors: {vendors.length}</div>
+          <div>Products: {products.length}</div>
+          <div>Compatibility: {compatibility.length}</div>
+          <div>Timeline Events: {timelineEvents.length}</div>
+          <div>Intel Signals: {intelSignals.length}</div>
+          <div>Historical Quarters: {historicalSnapshots.length}</div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold">Export Data</h3>
+        <button
+          onClick={handleExport}
+          className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 rounded text-white font-medium flex items-center justify-center gap-2"
+        >
+          <Download size={18} /> Export All Data (JSON)
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold">Import Data</h3>
+        <label className="block px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded text-white font-medium cursor-pointer text-center flex items-center justify-center gap-2">
+          <Upload size={18} /> Import Data (JSON)
+          <input
+            type="file"
+            accept=".json"
+            onChange={handleImport}
+            className="hidden"
+          />
+        </label>
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold">Generate Code Constants</h3>
+        <button
+          onClick={generateCodeConstants}
+          className="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 rounded text-white font-medium flex items-center justify-center gap-2"
+        >
+          <Copy size={18} /> Generate & Download JS
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold">Reset Data</h3>
+        <button
+          onClick={handleReset}
+          className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 rounded text-white font-medium flex items-center justify-center gap-2"
+        >
+          <RefreshCw size={18} /> Reset to Defaults
+        </button>
+      </div>
+    </div>
+  );
+
+  const tabs = [
+    { id: 'products', label: 'Products', render: renderProductsTab },
+    { id: 'vendors', label: 'Vendors', render: renderVendorsTab },
+    { id: 'market', label: 'Market Sizing', render: renderMarketSizingTab },
+    { id: 'history', label: 'Historical Data', render: renderHistoricalDataTab },
+    { id: 'costs', label: 'Cost Components', render: renderCostComponentsTab },
+    { id: 'signals', label: 'Intel Signals', render: renderIntelSignalsTab },
+    { id: 'compatibility', label: 'Compatibility', render: renderCompatibilityTab },
+    { id: 'timeline', label: 'Timeline', render: renderTimelineTab },
+    { id: 'import', label: 'Import/Export', render: renderImportExportTab },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold mb-1">Data Editor</h2>
+        <p className="text-gray-400">Manage all editable data for the NGS Intelligence Platform</p>
+      </div>
+
+      <div className="flex gap-2 border-b border-gray-700 overflow-x-auto">
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => {
+              setActiveTab(tab.id);
+              setSearchTerm('');
+              setHistoryPage(0);
+            }}
+            className={`px-4 py-3 font-medium border-b-2 transition-colors ${
+              activeTab === tab.id
+                ? 'border-blue-500 text-white'
+                : 'border-transparent text-gray-400 hover:text-gray-300'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="bg-gray-900 rounded p-6">
+        {tabs.find(t => t.id === activeTab)?.render()}
+      </div>
+    </div>
+  );
 };
 
 const Sidebar = ({ activeView, setActiveView, indicationFilter }) => {
@@ -1456,6 +2707,12 @@ const Sidebar = ({ activeView, setActiveView, indicationFilter }) => {
       items: [
         { name: 'Data Quality', key: 'data quality' },
         { name: 'Regulatory', key: 'regulatory' },
+      ],
+    },
+    {
+      group: 'ADMIN',
+      items: [
+        { name: 'Data Editor', key: 'admin' },
       ],
     },
   ];
@@ -1521,8 +2778,11 @@ const NUCLEIC_ACID_LABELS = { dna: 'DNA', rna: 'RNA' };
 // ============================================
 
 const MiniSparkline = ({ productId, metric = 'share', width = 80, height = 24 }) => {
+  const data = useData();
+  const historicalSnapshots = data?.historicalSnapshots || DEFAULT_HISTORICAL_SNAPSHOTS;
+
   const history = useMemo(() => {
-    return HISTORICAL_SNAPSHOTS.map(s => ({
+    return historicalSnapshots.map(s => ({
       q: s.quarter,
       value: s.data[productId]?.[metric] ?? null
     })).filter(d => d.value !== null);
@@ -1546,7 +2806,10 @@ const MiniSparkline = ({ productId, metric = 'share', width = 80, height = 24 })
 };
 
 const TAMOverlay = ({ share, category, indication }) => {
-  const tam = category ? MARKET_SIZE.byCategory[category] : indication ? MARKET_SIZE.byIndication[indication] : MARKET_SIZE.totalNGS;
+  const data = useData();
+  const marketSize = data?.marketSize || DEFAULT_MARKET_SIZE;
+
+  const tam = category ? marketSize.byCategory[category] : indication ? marketSize.byIndication[indication] : marketSize.totalNGS;
   if (!tam || !share) return null;
   const dollarValue = ((share / 100) * tam).toFixed(0);
   return <span className="text-xs text-emerald-400 ml-1" title={`${share}% of $${tam}M TAM`}>(${dollarValue}M)</span>;
@@ -1709,6 +2972,9 @@ const MarketShareByCategory = ({ products }) => {
 };
 
 const TopVendorsBubble = ({ products }) => {
+  const dataContext = useData();
+  const vendors = dataContext?.vendors || DEFAULT_VENDORS;
+
   const [regionKey, setRegionKey] = useState('global');
   const regionOpts = [
     { key: 'global', label: 'Global', color: '#3b82f6' },
@@ -1722,7 +2988,7 @@ const TopVendorsBubble = ({ products }) => {
     const vendorMap = {};
     products.forEach(p => {
       if (!vendorMap[p.vendor]) {
-        const v = VENDORS.find(v => v.key === p.vendor);
+        const v = vendors.find(v => v.key === p.vendor);
         vendorMap[p.vendor] = { vendor: v?.label || p.vendor, totalShare: 0, products: 0, color: v?.color || '#6b7280', categories: new Set() };
       }
       if (regionKey === 'global') {
@@ -1737,7 +3003,7 @@ const TopVendorsBubble = ({ products }) => {
       .map(v => ({ ...v, categories: v.categories.size, label: `${v.vendor} (${v.products})` }))
       .sort((a, b) => b.totalShare - a.totalShare)
       .slice(0, 12);
-  }, [products, regionKey]);
+  }, [products, regionKey, vendors]);
 
   return (
     <div>
@@ -1769,6 +3035,9 @@ const TopVendorsBubble = ({ products }) => {
 };
 
 const SequencerLandscape = ({ products }) => {
+  const dataContext = useData();
+  const vendors = dataContext?.vendors || DEFAULT_VENDORS;
+
   const [selectedCategory, setSelectedCategory] = useState('Sequencing');
   const catColors = { 'Extraction': '#f59e0b', 'Library Prep': '#3b82f6', 'Automation': '#8b5cf6', 'Sequencing': '#ef4444', 'Analysis': '#10b981', 'Reporting': '#ec4899' };
 
@@ -1776,10 +3045,10 @@ const SequencerLandscape = ({ products }) => {
     return products
       .filter(p => p.category === selectedCategory)
       .map(p => {
-        const v = VENDORS.find(v => v.key === p.vendor);
+        const v = vendors.find(v => v.key === p.vendor);
         return { name: p.name, share: p.share || 0, pricing: p.pricing || 0, vendor: v?.label || p.vendor, color: v?.color || '#6b7280', tier: p.tier, regulatory: p.regulatory, category: p.category };
       });
-  }, [products, selectedCategory]);
+  }, [products, selectedCategory, vendors]);
 
   const maxShare = useMemo(() => Math.max(...data.map(d => d.share), 1), [data]);
 
@@ -1830,6 +3099,9 @@ const SequencerLandscape = ({ products }) => {
 };
 
 const RegionalDistribution = ({ products }) => {
+  const dataContext = useData();
+  const vendors = dataContext?.vendors || DEFAULT_VENDORS;
+
   const [regionKey, setRegionKey] = useState('na');
   const regions = [
     { key: 'na', label: 'North America', color: '#ef4444' },
@@ -1844,7 +3116,7 @@ const RegionalDistribution = ({ products }) => {
       if (!p.regionalShare) return;
       const rShare = p.regionalShare[regionKey] || 0;
       if (!vendorMap[p.vendor]) {
-        const v = VENDORS.find(v => v.key === p.vendor);
+        const v = vendors.find(v => v.key === p.vendor);
         vendorMap[p.vendor] = { vendor: v?.label || p.vendor, share: 0, products: 0, color: v?.color || '#6b7280', categories: new Set() };
       }
       vendorMap[p.vendor].share += rShare;
@@ -1855,7 +3127,7 @@ const RegionalDistribution = ({ products }) => {
       .map(v => ({ ...v, categories: v.categories.size }))
       .sort((a, b) => b.share - a.share)
       .slice(0, 10);
-  }, [products, regionKey]);
+  }, [products, regionKey, vendors]);
 
   return (
     <div>
@@ -1887,12 +3159,15 @@ const RegionalDistribution = ({ products }) => {
 };
 
 const GrowthDistribution = ({ products }) => {
+  const dataContext = useData();
+  const vendors = dataContext?.vendors || DEFAULT_VENDORS;
+
   const data = useMemo(() => {
     const vendorMap = {};
     products.forEach(p => {
       if (!p.growth || !p.share) return;
       if (!vendorMap[p.vendor]) {
-        const v = VENDORS.find(v => v.key === p.vendor);
+        const v = vendors.find(v => v.key === p.vendor);
         vendorMap[p.vendor] = { vendor: v?.label || p.vendor, growing: 0, emerging: 0, declining: 0, stable: 0, color: v?.color || '#6b7280' };
       }
       vendorMap[p.vendor][p.growth] += p.share;
@@ -1901,7 +3176,7 @@ const GrowthDistribution = ({ products }) => {
       .map(v => ({ ...v, momentum: v.growing + v.emerging - v.declining }))
       .sort((a, b) => b.momentum - a.momentum)
       .slice(0, 12);
-  }, [products]);
+  }, [products, vendors]);
 
   return (
     <ResponsiveContainer width="100%" height={380}>
@@ -2028,6 +3303,11 @@ const SampleTypeBreakdown = ({ products }) => {
 // ============================================
 
 const DashboardView = ({ products, indicationFilter }) => {
+  const data = useData();
+  const vendors = data?.vendors || DEFAULT_VENDORS;
+  const intelSignals = data?.intelSignals || DEFAULT_INTEL_SIGNALS;
+  const marketSize = data?.marketSize || DEFAULT_MARKET_SIZE;
+
   const filteredProducts = useMemo(() => {
     return indicationFilter.length > 0
       ? products.filter(p => p.indications?.some(ind => indicationFilter.includes(ind)))
@@ -2046,7 +3326,7 @@ const DashboardView = ({ products, indicationFilter }) => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-white">Dashboard</h2>
         <button
-          onClick={() => generateBrief(filteredProducts)}
+          onClick={() => generateBrief(filteredProducts, vendors)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium flex items-center gap-2 hover:bg-blue-700"
         >
           <Download className="w-4 h-4" />
@@ -2072,7 +3352,7 @@ const DashboardView = ({ products, indicationFilter }) => {
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <h3 className="text-sm font-semibold text-gray-300 mb-3">Recent Signals</h3>
           <div className="space-y-2">
-            {INTEL_SIGNALS.filter(s => s.impact === 'high').slice(0, 3).map(signal => (
+            {intelSignals.filter(s => s.impact === 'high').slice(0, 3).map(signal => (
               <div key={signal.id} className="bg-gray-900 rounded p-2 text-xs border border-gray-700">
                 <div className="font-semibold text-white truncate">{signal.title.substring(0, 40)}</div>
                 <div className="text-gray-500 text-[10px] mt-1">{signal.date}</div>
@@ -2086,12 +3366,12 @@ const DashboardView = ({ products, indicationFilter }) => {
           <div className="space-y-1 text-xs">
             <div className="flex justify-between text-gray-300">
               <span>Total NGS:</span>
-              <span className="font-bold text-emerald-400">${MARKET_SIZE.totalNGS}M</span>
+              <span className="font-bold text-emerald-400">${marketSize.totalNGS}M</span>
             </div>
             <div className="text-gray-500 text-[10px] space-y-0.5 mt-2">
-              <div>Sequencing: ${MARKET_SIZE.byCategory['Sequencing']}M</div>
-              <div>Analysis: ${MARKET_SIZE.byCategory['Analysis']}M</div>
-              <div>Library Prep: ${MARKET_SIZE.byCategory['Library Prep']}M</div>
+              <div>Sequencing: ${marketSize.byCategory['Sequencing']}M</div>
+              <div>Analysis: ${marketSize.byCategory['Analysis']}M</div>
+              <div>Library Prep: ${marketSize.byCategory['Library Prep']}M</div>
             </div>
           </div>
         </div>
@@ -2101,7 +3381,7 @@ const DashboardView = ({ products, indicationFilter }) => {
           <div className="space-y-1 text-xs">
             <div className="flex justify-between text-gray-300">
               <span>NGS CAGR:</span>
-              <span className="font-bold text-blue-400">{(MARKET_SIZE.cagr * 100).toFixed(1)}%</span>
+              <span className="font-bold text-blue-400">{(marketSize.cagr * 100).toFixed(1)}%</span>
             </div>
             <div className="text-gray-500 text-[10px] mt-2">
               Projected 2026-2031 TAM growth driven by NGS expansion in liquid biopsy and germline testing
@@ -2152,6 +3432,9 @@ const DashboardView = ({ products, indicationFilter }) => {
 };
 
 const ProductsView = ({ products, indicationFilter }) => {
+  const data = useData();
+  const vendors = data?.vendors || DEFAULT_VENDORS;
+
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedVendors, setSelectedVendors] = useState([]);
   const [searchText, setSearchText] = useState('');
@@ -2174,7 +3457,7 @@ const ProductsView = ({ products, indicationFilter }) => {
     if (selectedNucleicAcids.length > 0) result = result.filter(p => (p.nucleicAcids || []).some(na => selectedNucleicAcids.includes(na)));
     if (searchText.trim()) {
       const q = searchText.toLowerCase();
-      result = result.filter(p => p.name.toLowerCase().includes(q) || (VENDORS.find(v => v.key === p.vendor)?.label || '').toLowerCase().includes(q));
+      result = result.filter(p => p.name.toLowerCase().includes(q) || (vendors.find(v => v.key === p.vendor)?.label || '').toLowerCase().includes(q));
     }
     if (sortField === 'tier') result = [...result].sort((a, b) => getTier(a) - getTier(b) || (b.share || 0) - (a.share || 0));
     else if (sortField === 'share') result = [...result].sort((a, b) => (b.share || 0) - (a.share || 0));
@@ -2185,8 +3468,8 @@ const ProductsView = ({ products, indicationFilter }) => {
 
   const availableVendors = useMemo(() => {
     const vKeys = [...new Set(baseProducts.filter(p => selectedCategories.length === 0 || selectedCategories.includes(p.category)).map(p => p.vendor))];
-    return VENDORS.filter(v => vKeys.includes(v.key)).sort((a, b) => a.label.localeCompare(b.label));
-  }, [baseProducts, selectedCategories]);
+    return vendors.filter(v => vKeys.includes(v.key)).sort((a, b) => a.label.localeCompare(b.label));
+  }, [baseProducts, selectedCategories, vendors]);
 
   const toggleCategory = (cat) => setSelectedCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
   const toggleVendor = (key) => setSelectedVendors(prev => prev.includes(key) ? prev.filter(v => v !== key) : [...prev, key]);
@@ -2408,6 +3691,9 @@ const ProductsView = ({ products, indicationFilter }) => {
 };
 
 const VendorsView = ({ products, indicationFilter }) => {
+  const data = useData();
+  const vendors = data?.vendors || DEFAULT_VENDORS;
+
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [expandedVendor, setExpandedVendor] = useState(null);
@@ -2425,7 +3711,7 @@ const VendorsView = ({ products, indicationFilter }) => {
   }, [baseProducts, selectedCategories]);
 
   const vendorStats = useMemo(() => {
-    return VENDORS.map(vendor => {
+    return vendors.map(vendor => {
       const vendorProds = filteredProducts.filter(p => p.vendor === vendor.key);
       const categories = [...new Set(vendorProds.map(p => p.category))];
       const tierCounts = { A: 0, B: 0, C: 0 };
@@ -2455,7 +3741,7 @@ const VendorsView = ({ products, indicationFilter }) => {
       if (sortField === 'name') return a.label.localeCompare(b.label);
       return b.totalShare - a.totalShare;
     });
-  }, [filteredProducts, searchText, sortField]);
+  }, [filteredProducts, searchText, sortField, vendors]);
 
   const toggleCategory = (cat) => setSelectedCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
 
@@ -2655,6 +3941,9 @@ const VendorsView = ({ products, indicationFilter }) => {
 };
 
 const CompareView = ({ products, indicationFilter }) => {
+  const data = useData();
+  const vendors = data?.vendors || DEFAULT_VENDORS;
+
   const [selectedVendors, setSelectedVendors] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [sortField, setSortField] = useState('share');
@@ -2669,8 +3958,8 @@ const CompareView = ({ products, indicationFilter }) => {
   // Derive available vendors/categories from current product set
   const availableVendors = useMemo(() => {
     const vKeys = [...new Set(allProducts.map(p => p.vendor))];
-    return VENDORS.filter(v => vKeys.includes(v.key)).sort((a, b) => a.label.localeCompare(b.label));
-  }, [allProducts]);
+    return vendors.filter(v => vKeys.includes(v.key)).sort((a, b) => a.label.localeCompare(b.label));
+  }, [allProducts, vendors]);
 
   const availableCategories = useMemo(() => {
     return [...new Set(allProducts.map(p => p.category))];
@@ -2957,9 +4246,12 @@ const RegulatoryView = ({ products, indicationFilter }) => {
 };
 
 const TimelineView = ({ products, indicationFilter }) => {
+  const data = useData();
+  const timelineEvents = data?.timelineEvents || DEFAULT_TIMELINE_EVENTS;
+
   return (
     <div className="space-y-3">
-      {TIMELINE_EVENTS.map((event, i) => (
+      {timelineEvents.map((event, i) => (
         <div key={i} className="bg-gray-800 rounded-lg p-4 border border-gray-700 flex items-start gap-4">
           <div className="text-right min-w-16">
             <p className="text-xl font-bold text-blue-400">{event.year}</p>
@@ -2979,13 +4271,17 @@ const TimelineView = ({ products, indicationFilter }) => {
 };
 
 const CompatibilityView = ({ products }) => {
+  const data = useData();
+  const compatibilityLayers = data?.compatibilityLayers || DEFAULT_COMPATIBILITY_LAYERS;
+  const compatibility = data?.compatibility || DEFAULT_COMPATIBILITY;
+
   const [selectedLayer, setSelectedLayer] = useState('ext_to_libprep');
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [viewMode, setViewMode] = useState('matrix'); // 'matrix' or 'builder'
   const [hoveredCell, setHoveredCell] = useState(null);
 
-  const currentLayer = COMPATIBILITY_LAYERS.find(l => l.key === selectedLayer);
-  const layerData = useMemo(() => COMPATIBILITY.filter(c => c.layer === selectedLayer), [selectedLayer]);
+  const currentLayer = compatibilityLayers.find(l => l.key === selectedLayer);
+  const layerData = useMemo(() => compatibility.filter(c => c.layer === selectedLayer), [selectedLayer, compatibility]);
 
   const sources = useMemo(() => [...new Set(layerData.map(c => c.source))].sort(), [layerData]);
   const targets = useMemo(() => [...new Set(layerData.map(c => c.target))].sort(), [layerData]);
@@ -3010,9 +4306,9 @@ const CompatibilityView = ({ products }) => {
 
   const totalStats = useMemo(() => {
     const counts = { validated: 0, compatible: 0, theoretical: 0, total: 0 };
-    COMPATIBILITY.forEach(c => { counts[c.level] = (counts[c.level] || 0) + 1; counts.total++; });
+    compatibility.forEach(c => { counts[c.level] = (counts[c.level] || 0) + 1; counts.total++; });
     return counts;
-  }, []);
+  }, [compatibility]);
 
   const getLevelColor = (level) => {
     const colors = {
@@ -3067,14 +4363,14 @@ const CompatibilityView = ({ products }) => {
         ))}
         <div className="bg-gray-800 rounded-lg p-3 border border-gray-700 text-center">
           <p className="text-xs text-gray-400">5 Layers</p>
-          <p className="text-xl font-bold text-blue-400">{COMPATIBILITY_LAYERS.length}</p>
+          <p className="text-xl font-bold text-blue-400">{compatibilityLayers.length}</p>
         </div>
       </div>
 
       {/* Layer tabs */}
       <div className="flex gap-1 bg-gray-900 rounded-lg p-1 overflow-x-auto">
-        {COMPATIBILITY_LAYERS.map(layer => {
-          const layerCount = COMPATIBILITY.filter(c => c.layer === layer.key).length;
+        {compatibilityLayers.map(layer => {
+          const layerCount = compatibility.filter(c => c.layer === layer.key).length;
           return (
             <button
               key={layer.key}
@@ -3213,6 +4509,10 @@ const CompatibilityView = ({ products }) => {
 // ============================================
 
 const TCOCalculatorView = ({ products, indicationFilter }) => {
+  const data = useData();
+  const compatibility = data?.compatibility || DEFAULT_COMPATIBILITY;
+  const costComponents = data?.costComponents || DEFAULT_COST_COMPONENTS;
+
   const [workflow, setWorkflow] = useState({ extraction: null, libprep: null, automation: null, sequencing: null, analysis: null, reporting: null });
   const [throughput, setThroughput] = useState(1);
   const [annualVolume, setAnnualVolume] = useState(1000);
@@ -3238,7 +4538,7 @@ const TCOCalculatorView = ({ products, indicationFilter }) => {
     const prevSelectedId = workflow[prevStep.key];
     if (!prevSelectedId) return categoryProducts;
 
-    const compatibleIds = COMPATIBILITY
+    const compatibleIds = compatibility
       .filter(c => c.source === prevSelectedId && c.level !== 'theoretical')
       .map(c => c.target);
 
@@ -3248,8 +4548,8 @@ const TCOCalculatorView = ({ products, indicationFilter }) => {
   const getTotalCost = () => {
     let total = 0;
     Object.entries(workflow).forEach(([key, productId]) => {
-      if (productId && COST_COMPONENTS[productId]) {
-        total += COST_COMPONENTS[productId].total;
+      if (productId && costComponents[productId]) {
+        total += costComponents[productId].total;
       }
     });
     return total;
@@ -3271,8 +4571,8 @@ const TCOCalculatorView = ({ products, indicationFilter }) => {
 
   const costBreakdown = {};
   Object.entries(workflow).forEach(([key, productId]) => {
-    if (productId && COST_COMPONENTS[productId]) {
-      costBreakdown[key] = COST_COMPONENTS[productId];
+    if (productId && costComponents[productId]) {
+      costBreakdown[key] = costComponents[productId];
     }
   });
 
@@ -3391,11 +4691,14 @@ const TCOCalculatorView = ({ products, indicationFilter }) => {
 // ============================================
 
 const IndicationStrategyView = ({ products, indicationFilter }) => {
+  const data = useData();
+  const marketSize = data?.marketSize || DEFAULT_MARKET_SIZE;
+
   const [selectedIndication, setSelectedIndication] = useState('solid_tumor');
 
   const indication = INDICATIONS.find(i => i.key === selectedIndication);
   const indicationProducts = products.filter(p => p.indications?.includes(selectedIndication));
-  const indicationTAM = MARKET_SIZE.byIndication[selectedIndication] || 5000;
+  const indicationTAM = marketSize.byIndication[selectedIndication] || 5000;
 
   const topVendorsInIndication = useMemo(() => {
     const vendorShare = {};
@@ -3587,19 +4890,22 @@ const ScenarioView = ({ products, indicationFilter }) => {
 // ============================================
 
 const IntelSignalsView = ({ products, indicationFilter }) => {
+  const data = useData();
+  const intelSignals = data?.intelSignals || DEFAULT_INTEL_SIGNALS;
+
   const [filterType, setFilterType] = useState('');
   const [filterVendor, setFilterVendor] = useState('');
   const [filterImpact, setFilterImpact] = useState('');
 
   const filteredSignals = useMemo(() => {
-    return INTEL_SIGNALS.filter(signal => {
+    return intelSignals.filter(signal => {
       return (!filterType || signal.type === filterType) &&
              (!filterVendor || signal.vendor === filterVendor) &&
              (!filterImpact || signal.impact === filterImpact);
     }).sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [filterType, filterVendor, filterImpact]);
+  }, [filterType, filterVendor, filterImpact, intelSignals]);
 
-  const highImpactSignals = INTEL_SIGNALS.filter(s => s.impact === 'high').sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 3);
+  const highImpactSignals = intelSignals.filter(s => s.impact === 'high').sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 3);
 
   const signalsByType = useMemo(() => {
     const types = {};
@@ -3740,11 +5046,34 @@ export default function App() {
   const [indicationFilter, setIndicationFilter] = useState([]);
   const [adjustments, setAdjustments] = useState({});
 
+  // Editable data state
+  const [vendors, setVendors] = useState(DEFAULT_VENDORS);
+  const [products, setProducts] = useState(DEFAULT_PRODUCTS);
+  const [timelineEvents, setTimelineEvents] = useState(DEFAULT_TIMELINE_EVENTS);
+  const [compatibility, setCompatibility] = useState(DEFAULT_COMPATIBILITY);
+  const [compatibilityLayers, setCompatibilityLayers] = useState(DEFAULT_COMPATIBILITY_LAYERS);
+  const [historicalSnapshots, setHistoricalSnapshots] = useState(DEFAULT_HISTORICAL_SNAPSHOTS);
+  const [marketSize, setMarketSize] = useState(DEFAULT_MARKET_SIZE);
+  const [intelSignals, setIntelSignals] = useState(DEFAULT_INTEL_SIGNALS);
+  const [costComponents, setCostComponents] = useState(DEFAULT_COST_COMPONENTS);
+
+  const dataContextValue = useMemo(() => ({
+    vendors, setVendors,
+    products, setProducts,
+    timelineEvents, setTimelineEvents,
+    compatibility, setCompatibility,
+    compatibilityLayers, setCompatibilityLayers,
+    historicalSnapshots, setHistoricalSnapshots,
+    marketSize, setMarketSize,
+    intelSignals, setIntelSignals,
+    costComponents, setCostComponents,
+  }), [vendors, products, timelineEvents, compatibility, compatibilityLayers, historicalSnapshots, marketSize, intelSignals, costComponents]);
+
   const filteredProducts = useMemo(() => {
     return indicationFilter.length > 0
-      ? PRODUCTS.filter(p => p.indications?.some(ind => indicationFilter.includes(ind)))
-      : PRODUCTS;
-  }, [indicationFilter]);
+      ? products.filter(p => p.indications?.some(ind => indicationFilter.includes(ind)))
+      : products;
+  }, [indicationFilter, products]);
 
   const renderView = () => {
     switch (activeView) {
@@ -3772,20 +5101,24 @@ export default function App() {
         return <TimelineView products={filteredProducts} indicationFilter={indicationFilter} />;
       case 'data quality':
         return <DataQualityView products={filteredProducts} />;
+      case 'admin':
+        return <AdminView />;
       default:
         return null;
     }
   };
 
   return (
-    <ScenarioContext.Provider value={{ adjustments, setAdjustments }}>
-      <div className="flex min-h-screen bg-gray-950 text-white">
-        <Sidebar activeView={activeView} setActiveView={setActiveView} indicationFilter={indicationFilter} />
-        <main className="flex-1 p-8">
-          <IndicationFilterBar indicationFilter={indicationFilter} setIndicationFilter={setIndicationFilter} />
-          {renderView()}
-        </main>
-      </div>
-    </ScenarioContext.Provider>
+    <DataContext.Provider value={dataContextValue}>
+      <ScenarioContext.Provider value={{ adjustments, setAdjustments }}>
+        <div className="flex min-h-screen bg-gray-950 text-white">
+          <Sidebar activeView={activeView} setActiveView={setActiveView} indicationFilter={indicationFilter} />
+          <main className="flex-1 p-8 overflow-auto">
+            <IndicationFilterBar indicationFilter={indicationFilter} setIndicationFilter={setIndicationFilter} />
+            {renderView()}
+          </main>
+        </div>
+      </ScenarioContext.Provider>
+    </DataContext.Provider>
   );
 }
