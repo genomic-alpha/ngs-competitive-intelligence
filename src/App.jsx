@@ -1446,7 +1446,7 @@ const IndicationHeatmap = ({ products }) => {
     return { count, maxShare, totalShare };
   }, [filteredProducts]);
 
-  const catColors = { 'All': '#9ca3af', 'Extraction': '#f59e0b', 'Library Prep': '#3b82f6', 'Automation': '#8b5cf6', 'Sequencing': '#ef4444', 'Analysis': '#10b981', 'Reporting': '#ec4899' };
+  const catColors = { 'All': '#9ca3af', 'Extraction': '#f59e0b', 'Library Prep': '#3b82f6', 'Automation': '#8b5cf6', 'Sequencing': '#ef4444', 'Analysis': '#10b981', 'Reporting': '#ec4899', 'Diagnostic Services': '#f97316' };
 
   return (
     <div className="bg-gray-900 rounded-lg p-6 border border-gray-800 overflow-x-auto">
@@ -4015,6 +4015,7 @@ const GrowthBadge = ({ growth }) => {
     stable: { bg: 'bg-gray-700/50', text: 'text-gray-400', icon: <ArrowRight className="w-3 h-3" /> },
     declining: { bg: 'bg-red-900/50', text: 'text-red-400', icon: <TrendingDown className="w-3 h-3" /> },
     emerging: { bg: 'bg-blue-900/50', text: 'text-blue-400', icon: <Zap className="w-3 h-3" /> },
+    'pre-launch': { bg: 'bg-yellow-900/50', text: 'text-yellow-400', icon: <Clock className="w-3 h-3" /> },
   };
   const s = styles[growth] || styles.stable;
   return (
@@ -4232,7 +4233,7 @@ const SequencerLandscape = ({ products }) => {
   const vendors = dataContext?.vendors || DEFAULT_VENDORS;
 
   const [selectedCategory, setSelectedCategory] = useState('Sequencing');
-  const catColors = { 'Extraction': '#f59e0b', 'Library Prep': '#3b82f6', 'Automation': '#8b5cf6', 'Sequencing': '#ef4444', 'Analysis': '#10b981', 'Reporting': '#ec4899' };
+  const catColors = { 'Extraction': '#f59e0b', 'Library Prep': '#3b82f6', 'Automation': '#8b5cf6', 'Sequencing': '#ef4444', 'Analysis': '#10b981', 'Reporting': '#ec4899', 'Diagnostic Services': '#f97316' };
 
   const data = useMemo(() => {
     return products
@@ -5409,8 +5410,8 @@ const VendorsView = ({ products, indicationFilter }) => {
           {/* Revenue & Growth Charts */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-              <h3 className="text-sm font-bold text-white mb-3">Revenue by Vendor (Horizontal Bar)</h3>
-              <ResponsiveContainer width="100%" height={300}>
+              <h3 className="text-sm font-bold text-white mb-3">Revenue by Vendor ($M)</h3>
+              <ResponsiveContainer width="100%" height={Math.max(350, Object.keys(financials).length * 28)}>
                 <BarChart
                   data={Object.entries(financials).sort((a, b) => b[1].revenue - a[1].revenue).map(([key, f]) => ({
                     vendor: vendors.find(v => v.key === key)?.label || key,
@@ -5418,12 +5419,12 @@ const VendorsView = ({ products, indicationFilter }) => {
                     color: vendors.find(v => v.key === key)?.color || '#6b7280'
                   }))}
                   layout="vertical"
-                  margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
+                  margin={{ top: 5, right: 40, left: 130, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis type="number" stroke="#9ca3af" fontSize={11} />
-                  <YAxis dataKey="vendor" type="category" stroke="#9ca3af" fontSize={10} width={115} />
-                  <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} formatter={(v) => `$${v}M`} />
+                  <XAxis type="number" stroke="#9ca3af" fontSize={11} tickFormatter={(v) => `$${v}M`} label={{ value: 'Revenue ($M)', position: 'insideBottom', offset: -2, fill: '#9ca3af', fontSize: 10 }} />
+                  <YAxis dataKey="vendor" type="category" stroke="#9ca3af" fontSize={10} width={125} tick={{ fill: '#d1d5db' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} formatter={(v) => [`$${v}M`, 'Revenue']} />
                   <Bar dataKey="revenue" fill="#3b82f6" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -5431,32 +5432,50 @@ const VendorsView = ({ products, indicationFilter }) => {
 
             <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
               <h3 className="text-sm font-bold text-white mb-3">Growth vs Margin Scatter</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+              <ResponsiveContainer width="100%" height={380}>
+                <ScatterChart margin={{ top: 20, right: 30, bottom: 30, left: 30 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="growth" name="Revenue Growth %" stroke="#9ca3af" fontSize={11} />
-                  <YAxis dataKey="margin" name="Gross Margin %" stroke="#9ca3af" fontSize={11} />
+                  <XAxis dataKey="growth" name="Revenue Growth" stroke="#9ca3af" fontSize={11} tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} label={{ value: 'Revenue Growth %', position: 'insideBottom', offset: -15, fill: '#9ca3af', fontSize: 11 }} />
+                  <YAxis dataKey="margin" name="Gross Margin" stroke="#9ca3af" fontSize={11} tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} label={{ value: 'Gross Margin %', angle: -90, position: 'insideLeft', offset: -15, fill: '#9ca3af', fontSize: 11 }} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-                    formatter={(v, name, props) => {
-                      if (name === 'growth') return `${(v * 100).toFixed(1)}%`;
-                      if (name === 'margin') return `${(v * 100).toFixed(1)}%`;
-                      return v;
+                    cursor={{ strokeDasharray: '3 3' }}
+                    content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      const d = payload[0].payload;
+                      return (
+                        <div style={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px', padding: '8px 12px' }}>
+                          <p style={{ color: d.color, fontWeight: 'bold', margin: 0, fontSize: 13 }}>{d.name}</p>
+                          <p style={{ color: '#d1d5db', margin: '4px 0 0', fontSize: 12 }}>Revenue: ${d.revenue}M</p>
+                          <p style={{ color: '#d1d5db', margin: '2px 0 0', fontSize: 12 }}>Growth: {(d.growth * 100).toFixed(1)}%</p>
+                          <p style={{ color: '#d1d5db', margin: '2px 0 0', fontSize: 12 }}>Margin: {(d.margin * 100).toFixed(1)}%</p>
+                        </div>
+                      );
                     }}
-                    labelFormatter={(label) => ''}
                   />
                   <Scatter
                     name="Vendors"
                     data={Object.entries(financials).map(([key, f]) => ({
                       growth: f.revenueGrowth || 0,
                       margin: f.grossMargin || 0,
-                      size: (f.revenue || 0) / 50,
+                      size: Math.max(60, (f.revenue || 0) / 30),
+                      revenue: f.revenue || 0,
                       name: vendors.find(v => v.key === key)?.label || key,
+                      shortName: (vendors.find(v => v.key === key)?.label || key).split(' ')[0].replace(/[()]/g, ''),
                       color: vendors.find(v => v.key === key)?.color || '#6b7280'
                     }))}
                     fill="#3b82f6"
+                    shape={(props) => {
+                      const { cx, cy, payload } = props;
+                      return (
+                        <g>
+                          <circle cx={cx} cy={cy} r={Math.max(5, Math.min(18, payload.size / 10))} fill={payload.color} fillOpacity={0.7} stroke={payload.color} strokeWidth={1.5} />
+                          <text x={cx} y={cy - Math.max(5, Math.min(18, payload.size / 10)) - 4} textAnchor="middle" fill="#d1d5db" fontSize={9} fontWeight="500">{payload.shortName}</text>
+                        </g>
+                      );
+                    }}
                   >
-                    {Object.entries(financials).map(([key, f]) => (
+                    {Object.entries(financials).map(([key]) => (
                       <Cell key={key} fill={vendors.find(v => v.key === key)?.color || '#6b7280'} />
                     ))}
                   </Scatter>
